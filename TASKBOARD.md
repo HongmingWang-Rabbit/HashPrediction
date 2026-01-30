@@ -167,7 +167,8 @@ _After Sprint 1, candidates for Sprint 2:_
 - Notifications (email/push via off-chain service)
 
 ## Completed
-_Moved here after tester approval_
+- [x] **[Frontend] Remove all process.env references** — Hardcoded contract addresses, RPC URLs, chain IDs directly in `src/config/contracts.ts`. No .env files needed. (Priority override from Hongming) — `cebd1fa`
+- [x] **[Frontend] Fix missing ActivityFeed component** — Created stub `ActivityFeed.tsx` so build passes. Was referenced in market detail page but never created.
 
 ## Bug Reports
 _Tester adds bugs here_
