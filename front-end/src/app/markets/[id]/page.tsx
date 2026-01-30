@@ -42,8 +42,8 @@ export default function MarketPage() {
   async function handleShare() {
     const url = window.location.href;
     const shareData = {
-      title: market.question,
-      text: `Check out this prediction market: ${market.question}`,
+      title: market?.question ?? '',
+      text: `Check out this prediction market: ${market?.question ?? ''}`,
       url,
     };
     // Use native share on mobile if available
