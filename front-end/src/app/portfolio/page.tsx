@@ -48,22 +48,22 @@ export default function PortfolioPage() {
   }
 
   return (
-    <div>
-      <h1 className="mb-2 text-3xl font-bold text-white">My Portfolio</h1>
+    <div className="min-w-0 overflow-hidden">
+      <h1 className="mb-2 text-2xl sm:text-3xl font-bold text-white">My Portfolio</h1>
       <p className="mb-8 text-slate-400">Track your positions and markets</p>
 
       {/* Summary cards */}
-      <div className="mb-8 grid grid-cols-2 gap-4 sm:grid-cols-4">
-        <div className="glass-card p-4 text-center">
-          <p className="text-2xl font-bold text-amber-400">{entries.length}</p>
+      <div className="mb-8 grid grid-cols-2 gap-3 sm:gap-4 sm:grid-cols-4">
+        <div className="glass-card p-3 sm:p-4 text-center overflow-hidden">
+          <p className="text-xl sm:text-2xl font-bold text-amber-400">{entries.length}</p>
           <p className="text-xs text-slate-400 mt-1">Total Positions</p>
         </div>
-        <div className="glass-card p-4 text-center">
-          <p className="text-2xl font-bold text-emerald-400">{claimable.length}</p>
+        <div className="glass-card p-3 sm:p-4 text-center overflow-hidden">
+          <p className="text-xl sm:text-2xl font-bold text-emerald-400">{claimable.length}</p>
           <p className="text-xs text-slate-400 mt-1">Claimable</p>
         </div>
-        <div className="glass-card p-4 text-center">
-          <p className="text-2xl font-bold text-white">
+        <div className="glass-card p-3 sm:p-4 text-center overflow-hidden">
+          <p className="text-xl sm:text-2xl font-bold text-white truncate">
             {Number(formatUnits(
               entries.reduce((acc, e) => acc + e.position.yesBet + e.position.noBet, 0n),
               TOKEN_DECIMALS
@@ -71,8 +71,8 @@ export default function PortfolioPage() {
           </p>
           <p className="text-[10px] sm:text-xs text-slate-400 mt-1">Total Invested (mUSDC)</p>
         </div>
-        <div className="glass-card p-4 text-center">
-          <p className="text-2xl font-bold text-purple-400">{createdMarkets.length}</p>
+        <div className="glass-card p-3 sm:p-4 text-center overflow-hidden">
+          <p className="text-xl sm:text-2xl font-bold text-purple-400">{createdMarkets.length}</p>
           <p className="text-xs text-slate-400 mt-1">Markets Created</p>
         </div>
       </div>
@@ -83,7 +83,7 @@ export default function PortfolioPage() {
           <button
             key={t}
             onClick={() => setTab(t)}
-            className={`rounded-xl px-4 py-2.5 text-sm font-medium transition-all ${
+            className={`rounded-xl px-3 sm:px-4 py-2.5 text-xs sm:text-sm font-medium transition-all ${
               tab === t
                 ? "bg-amber-500/10 text-amber-400 border border-amber-500/20"
                 : "text-slate-400 hover:text-white hover:bg-slate-800/50"
@@ -169,13 +169,13 @@ function PositionRow({ entry, onClaimed }: { entry: PortfolioEntry; onClaimed: (
   }, [isSuccess, onClaimed]);
 
   return (
-    <div className="glass-card p-5">
+    <div className="glass-card p-4 sm:p-5 overflow-hidden">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
-          <Link href={`/markets/${market.id.toString()}`} className="text-sm font-medium text-white hover:text-amber-400 transition-colors">
+          <Link href={`/markets/${market.id.toString()}`} className="text-sm font-medium text-white hover:text-amber-400 transition-colors line-clamp-2">
             {market.question}
           </Link>
-          <div className="mt-2 flex flex-wrap gap-3 text-xs">
+          <div className="mt-2 flex flex-wrap gap-2 sm:gap-3 text-xs">
             <MarketStatus state={market.state} />
             {position.yesBet > 0n && (
               <span className="text-emerald-400">YES: {formatUnits(position.yesBet, TOKEN_DECIMALS)}</span>

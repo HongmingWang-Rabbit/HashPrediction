@@ -33,10 +33,10 @@ export function Navbar() {
   return (
     <nav className="sticky top-0 z-50 border-b border-slate-700/50 bg-slate-900/80 backdrop-blur-md">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
-        <div className="flex items-center gap-8">
-          <Link href="/" className="flex items-center gap-2">
-            <span className="text-xl font-bold text-amber-400">Hash</span>
-            <span className="text-xl font-bold text-white">Prediction</span>
+        <div className="flex items-center gap-4 sm:gap-8 min-w-0">
+          <Link href="/" className="flex items-center gap-1 shrink-0">
+            <span className="text-lg sm:text-xl font-bold text-amber-400">Hash</span>
+            <span className="hidden sm:inline text-xl font-bold text-white">Prediction</span>
           </Link>
           <div className="hidden items-center gap-6 sm:flex">
             {navLink("/", "Markets")}
@@ -45,7 +45,7 @@ export function Navbar() {
             {isAdmin && navLink("/admin", "Admin", true)}
           </div>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3">
           <ConnectButton />
           {/* Mobile hamburger */}
           <button
