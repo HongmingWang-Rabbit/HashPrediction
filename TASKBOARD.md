@@ -22,6 +22,16 @@ Binary prediction markets on HashKey Chain. Users create YES/NO markets, bet wit
 - **Contract Dev:** MUST run `forge build && forge test` with all tests passing before committing.
 - **Nothing merges to main until tester confirms BOTH `tsc --noEmit` and `npm run build` pass.**
 
+## 🔄 Contract → Frontend Deployment Flow
+1. **Contract Dev** makes contract changes → runs `forge build && forge test` → all pass
+2. **Contract Dev** deploys new contract using `forge script` with the private key in `.env` (`PRIVATE_KEY`)
+3. **Contract Dev** shares the new deployed contract address with Frontend Dev
+4. **Frontend Dev** updates `src/config/contracts.ts` with the new address
+5. **Frontend Dev** verifies the frontend builds and works with the new contract
+6. **Tester** verifies everything end-to-end before merge to main
+
+**Every contract change that modifies storage layout or the ABI requires a fresh deploy. Frontend must always point to the latest deployed contract.**
+
 ---
 
 ## Sprint 1 — "Stickiness & Social"
