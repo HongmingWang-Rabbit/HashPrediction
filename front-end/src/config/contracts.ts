@@ -1,3 +1,4 @@
+// Source-controlled config — no .env needed
 import { defineChain } from "viem";
 
 export const hashkeyTestnet = defineChain({
