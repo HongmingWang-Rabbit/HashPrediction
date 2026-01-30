@@ -11,18 +11,28 @@ export function CountdownTimer({ target }: { target: bigint }) {
   }, []);
 
   const diff = Number(target) - now;
-  if (diff <= 0) return <span className="text-sm text-gray-500">Ended</span>;
+  if (diff <= 0) return <span className="text-sm text-slate-500">Ended</span>;
 
   const d = Math.floor(diff / 86400);
   const h = Math.floor((diff % 86400) / 3600);
   const m = Math.floor((diff % 3600) / 60);
   const s = diff % 60;
 
-  const parts = [];
-  if (d > 0) parts.push(`${d}d`);
-  if (h > 0) parts.push(`${h}h`);
-  parts.push(`${m}m`);
-  parts.push(`${s}s`);
+  const segments = [
+    { value: d, label: "D" },
+    { value: h, label: "H" },
+    { value: m, label: "M" },
+    { value: s, label: "S" },
+  ].filter((seg, i) => i >= (d > 0 ? 0 : 1));
 
-  return <span className="text-sm font-mono text-yellow-400">{parts.join(" ")}</span>;
+  return (
+    <div className="flex gap-1.5">
+      {segments.map((seg) => (
+        <div key={seg.label} className="flex flex-col items-center rounded-lg bg-slate-800/80 px-2 py-1 min-w-[2rem]">
+          <span className="text-sm font-mono font-bold text-amber-400">{String(seg.value).padStart(2, "0")}</span>
+          <span className="text-[10px] text-slate-500">{seg.label}</span>
+        </div>
+      ))}
+    </div>
+  );
 }

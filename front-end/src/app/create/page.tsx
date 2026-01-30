@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { parseUnits, maxUint256, decodeEventLog } from "viem";
+import { parseUnits, decodeEventLog } from "viem";
 import { useWriteContract, useWaitForTransactionReceipt, useAccount, usePublicClient } from "wagmi";
 import {
   HASH_PREDICTION_ADDRESS,
@@ -13,6 +13,8 @@ import {
 } from "@/config/contracts";
 import { useTokenBalance } from "@/hooks/useTokenBalance";
 
+const STEPS = ["Details", "Fee", "Review"];
+
 export default function CreatePage() {
   const router = useRouter();
   const { isConnected } = useAccount();
@@ -22,6 +24,7 @@ export default function CreatePage() {
   const [question, setQuestion] = useState("");
   const [resolutionDate, setResolutionDate] = useState("");
   const [feeAmount, setFeeAmount] = useState("0");
+  const [step, setStep] = useState(0);
 
   const { writeContract: approve, data: approveTx, isPending: approving, error: approveError } = useWriteContract();
   const { writeContract: create, data: createTx, isPending: creating, error: createError } = useWriteContract();
@@ -63,7 +66,7 @@ export default function CreatePage() {
         address: MOCK_USDC_ADDRESS,
         abi: ERC20_ABI,
         functionName: "approve",
-        args: [HASH_PREDICTION_ADDRESS, maxUint256],
+        args: [HASH_PREDICTION_ADDRESS, parsedFee],
       });
       return;
     }
@@ -98,55 +101,149 @@ export default function CreatePage() {
     );
   }
 
-  if (!isConnected) return <p className="text-gray-500">Connect your wallet to create a market.</p>;
+  if (!isConnected) {
+    return (
+      <div className="glass-card mx-auto max-w-lg p-12 text-center">
+        <p className="text-slate-400">Connect your wallet to create a market.</p>
+      </div>
+    );
+  }
+
+  const canAdvance = step === 0 ? question.trim() && resolutionDate : true;
 
   return (
     <div className="mx-auto max-w-lg">
-      <h1 className="mb-6 text-2xl font-bold">Create Market</h1>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label htmlFor="question" className="mb-1 block text-sm text-gray-400">Question</label>
-          <textarea
-            id="question"
-            value={question}
-            onChange={(e) => setQuestion(e.target.value)}
-            rows={3}
-            className="w-full rounded-lg border border-gray-700 bg-gray-800 px-3 py-2 text-sm outline-none focus:border-gray-600"
-            placeholder="Will ETH reach $10k by end of 2025?"
-          />
-        </div>
-        <div>
-          <label htmlFor="resolutionTime" className="mb-1 block text-sm text-gray-400">Resolution Time</label>
-          <input
-            id="resolutionTime"
-            type="datetime-local"
-            value={resolutionDate}
-            onChange={(e) => setResolutionDate(e.target.value)}
-            className="w-full rounded-lg border border-gray-700 bg-gray-800 px-3 py-2 text-sm outline-none focus:border-gray-600"
-          />
-        </div>
-        <div>
-          <label htmlFor="feeAmount" className="mb-1 block text-sm text-gray-400">Creation Fee (mUSDC)</label>
-          <input
-            id="feeAmount"
-            type="text"
-            value={feeAmount}
-            onChange={(e) => setFeeAmount(e.target.value)}
-            className="w-full rounded-lg border border-gray-700 bg-gray-800 px-3 py-2 text-sm outline-none focus:border-gray-600"
-            placeholder="0"
-          />
-        </div>
-        <button
-          type="submit"
-          disabled={busy || !question.trim() || !resolutionDate}
-          className="w-full rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-medium hover:bg-blue-500 disabled:opacity-50"
-        >
-          {needsApproval
-            ? busy ? "Approving..." : "Approve mUSDC"
-            : busy ? "Creating..." : "Create Market"}
-        </button>
+      <h1 className="mb-2 text-2xl font-bold text-white">Create Market</h1>
+      <p className="mb-8 text-slate-400">Set up a new prediction market</p>
+
+      {/* Step indicators */}
+      <div className="mb-8 flex items-center gap-2">
+        {STEPS.map((s, i) => (
+          <div key={s} className="flex items-center gap-2">
+            <button
+              onClick={() => i < step && setStep(i)}
+              className={`flex h-8 w-8 items-center justify-center rounded-full text-xs font-semibold transition-all ${
+                i === step
+                  ? "bg-amber-500 text-slate-900"
+                  : i < step
+                  ? "bg-amber-500/20 text-amber-400 cursor-pointer"
+                  : "bg-slate-800 text-slate-500"
+              }`}
+            >
+              {i + 1}
+            </button>
+            <span className={`text-xs ${i === step ? "text-white" : "text-slate-500"}`}>{s}</span>
+            {i < STEPS.length - 1 && <div className="mx-2 h-px w-8 bg-slate-700" />}
+          </div>
+        ))}
+      </div>
+
+      <form onSubmit={handleSubmit} className="space-y-6">
+        {step === 0 && (
+          <>
+            <div>
+              <label htmlFor="question" className="mb-2 block text-sm font-medium text-slate-300">Question</label>
+              <textarea
+                id="question"
+                value={question}
+                onChange={(e) => setQuestion(e.target.value)}
+                rows={3}
+                className="input-field"
+                placeholder="Will ETH reach $10k by end of 2025?"
+              />
+            </div>
+            <div>
+              <label htmlFor="resolutionTime" className="mb-2 block text-sm font-medium text-slate-300">Resolution Time</label>
+              <input
+                id="resolutionTime"
+                type="datetime-local"
+                value={resolutionDate}
+                onChange={(e) => setResolutionDate(e.target.value)}
+                className="w-full rounded-xl border border-slate-700/50 bg-slate-800/50 px-4 py-3 text-sm text-white outline-none focus:border-amber-500/50 transition-colors"
+              />
+            </div>
+            <button
+              type="button"
+              onClick={() => setStep(1)}
+              disabled={!canAdvance}
+              className="w-full rounded-xl gradient-cta py-3 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-50 transition-all"
+            >
+              Next
+            </button>
+          </>
+        )}
+
+        {step === 1 && (
+          <>
+            <div>
+              <label htmlFor="feeAmount" className="mb-2 block text-sm font-medium text-slate-300">Creation Fee (mUSDC)</label>
+              <input
+                id="feeAmount"
+                type="text"
+                value={feeAmount}
+                onChange={(e) => setFeeAmount(e.target.value)}
+                className="input-field"
+                placeholder="0"
+              />
+              <p className="mt-2 text-xs text-slate-500">Fee paid to the protocol for creating this market</p>
+            </div>
+            <div className="flex gap-3">
+              <button
+                type="button"
+                onClick={() => setStep(0)}
+                className="flex-1 rounded-xl border border-slate-700/50 py-3 text-sm font-medium text-slate-300 hover:bg-slate-800/50 transition-all"
+              >
+                Back
+              </button>
+              <button
+                type="button"
+                onClick={() => setStep(2)}
+                className="flex-1 rounded-xl gradient-cta py-3 text-sm font-semibold text-white hover:opacity-90 transition-all"
+              >
+                Next
+              </button>
+            </div>
+          </>
+        )}
+
+        {step === 2 && (
+          <>
+            {/* Preview card */}
+            <div className="glass-card p-6 space-y-3">
+              <h3 className="text-sm font-semibold text-slate-400 uppercase tracking-wider">Preview</h3>
+              <p className="text-white font-medium">{question}</p>
+              <div className="flex justify-between text-sm">
+                <span className="text-slate-400">Resolution</span>
+                <span className="text-slate-300">{resolutionDate ? new Date(resolutionDate).toLocaleString() : "—"}</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-slate-400">Fee</span>
+                <span className="text-slate-300">{feeAmount} mUSDC</span>
+              </div>
+            </div>
+            <div className="flex gap-3">
+              <button
+                type="button"
+                onClick={() => setStep(1)}
+                className="flex-1 rounded-xl border border-slate-700/50 py-3 text-sm font-medium text-slate-300 hover:bg-slate-800/50 transition-all"
+              >
+                Back
+              </button>
+              <button
+                type="submit"
+                disabled={busy || !question.trim() || !resolutionDate}
+                className="flex-1 rounded-xl gradient-primary py-3 text-sm font-semibold text-slate-900 hover:opacity-90 disabled:opacity-50 transition-all"
+              >
+                {needsApproval
+                  ? busy ? "Approving..." : "Approve mUSDC"
+                  : busy ? "Creating..." : "Create Market"}
+              </button>
+            </div>
+          </>
+        )}
+
         {(approveError || createError) && (
-          <p className="text-xs text-red-400">{(approveError || createError)?.message?.split("\n")[0]}</p>
+          <p className="text-xs text-rose-400">{(approveError || createError)?.message?.split("\n")[0]}</p>
         )}
       </form>
     </div>

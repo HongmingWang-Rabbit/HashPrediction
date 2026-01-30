@@ -3,5 +3,57 @@
 @tailwind utilities;
 
 body {
-  @apply bg-gray-950 text-gray-100;
+  @apply bg-[#0F172A] text-slate-50 antialiased;
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+}
+
+/* Glass card */
+.glass-card {
+  @apply rounded-2xl border border-slate-700/50 bg-slate-900/80 backdrop-blur-sm;
+}
+
+/* Glow effects */
+.glow-yes {
+  box-shadow: 0 0 12px rgba(16, 185, 129, 0.3);
+}
+.glow-no {
+  box-shadow: 0 0 12px rgba(244, 63, 94, 0.3);
+}
+.glow-primary {
+  box-shadow: 0 0 20px rgba(245, 158, 11, 0.15);
+}
+.glow-cta {
+  box-shadow: 0 0 20px rgba(139, 92, 246, 0.2);
+}
+
+/* Gradient utilities */
+.gradient-primary {
+  background: linear-gradient(135deg, #F59E0B, #D97706);
+}
+.gradient-cta {
+  background: linear-gradient(135deg, #8B5CF6, #7C3AED);
+}
+.gradient-bg {
+  background: linear-gradient(180deg, #0F172A 0%, #1E293B 100%);
+}
+
+/* Skeleton animation */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+.skeleton {
+  background: linear-gradient(90deg, #1E293B 25%, #334155 50%, #1E293B 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+}
+
+/* Shared form input */
+.input-field {
+  @apply w-full rounded-xl border border-slate-700/50 bg-slate-800/50 px-4 py-3 text-sm text-white outline-none placeholder:text-slate-500 focus:border-amber-500/50 transition-colors;
+}
+
+/* Input styling */
+input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+  filter: invert(0.7);
 }

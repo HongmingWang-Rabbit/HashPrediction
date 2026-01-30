@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { parseUnits, maxUint256 } from "viem";
+import { parseUnits } from "viem";
 import { useWriteContract, useWaitForTransactionReceipt } from "wagmi";
 import {
   HASH_PREDICTION_ADDRESS,
@@ -12,8 +12,11 @@ import {
 } from "@/config/contracts";
 import { useTokenBalance } from "@/hooks/useTokenBalance";
 
+const PRESETS = ["10", "50", "100", "500"];
+
 export function BetForm({ marketId, onSuccess }: { marketId: number; onSuccess?: () => void }) {
   const [amount, setAmount] = useState("");
+  const [selectedOutcome, setSelectedOutcome] = useState<1 | 2>(1);
   const { allowance, refetch: refetchToken } = useTokenBalance();
 
   const { writeContract: approve, data: approveTx, isPending: approving, error: approveError } = useWriteContract();
@@ -21,15 +24,11 @@ export function BetForm({ marketId, onSuccess }: { marketId: number; onSuccess?:
 
   const { isLoading: waitingApprove, isSuccess: approveSuccess } = useWaitForTransactionReceipt({
     hash: approveTx,
-    query: {
-      enabled: !!approveTx,
-    },
+    query: { enabled: !!approveTx },
   });
   const { isLoading: waitingBet, isSuccess: betSuccess } = useWaitForTransactionReceipt({
     hash: betTx,
-    query: {
-      enabled: !!betTx,
-    },
+    query: { enabled: !!betTx },
   });
 
   useEffect(() => {
@@ -55,11 +54,11 @@ export function BetForm({ marketId, onSuccess }: { marketId: number; onSuccess?:
       address: MOCK_USDC_ADDRESS,
       abi: ERC20_ABI,
       functionName: "approve",
-      args: [HASH_PREDICTION_ADDRESS, maxUint256],
+      args: [HASH_PREDICTION_ADDRESS, parsedAmount],
     });
   }
 
-  function handleBet(outcome: number) {
+  function handleBet() {
     if (parsedAmount === 0n) return;
     if (needsApproval) {
       handleApprove();
@@ -69,48 +68,91 @@ export function BetForm({ marketId, onSuccess }: { marketId: number; onSuccess?:
       address: HASH_PREDICTION_ADDRESS,
       abi: HASH_PREDICTION_ABI,
       functionName: "placeBet",
-      args: [BigInt(marketId), outcome, parsedAmount],
+      args: [BigInt(marketId), selectedOutcome, parsedAmount],
     });
   }
 
   return (
-    <div className="rounded-xl border border-gray-800 bg-gray-900 p-5">
-      <h3 className="mb-3 text-sm font-medium text-gray-400">Place a Bet</h3>
-      <input
-        type="text"
-        placeholder="Amount (mUSDC)"
-        value={amount}
-        onChange={(e) => setAmount(e.target.value)}
-        className="mb-3 w-full rounded-lg border border-gray-700 bg-gray-800 px-3 py-2 text-sm outline-none focus:border-gray-600"
-      />
+    <div className="glass-card p-6">
+      <h3 className="mb-4 text-base font-semibold text-white">Place a Bet</h3>
+
+      {/* Outcome toggle */}
+      <div className="mb-4 grid grid-cols-2 gap-2 rounded-xl bg-slate-800/50 p-1">
+        <button
+          onClick={() => setSelectedOutcome(1)}
+          className={`rounded-lg py-2.5 text-sm font-semibold transition-all ${
+            selectedOutcome === 1
+              ? "bg-emerald-500 text-white shadow-lg glow-yes"
+              : "text-slate-400 hover:text-white"
+          }`}
+        >
+          YES
+        </button>
+        <button
+          onClick={() => setSelectedOutcome(2)}
+          className={`rounded-lg py-2.5 text-sm font-semibold transition-all ${
+            selectedOutcome === 2
+              ? "bg-rose-500 text-white shadow-lg glow-no"
+              : "text-slate-400 hover:text-white"
+          }`}
+        >
+          NO
+        </button>
+      </div>
+
+      {/* Amount input */}
+      <div className="mb-3">
+        <input
+          type="text"
+          placeholder="Amount (mUSDC)"
+          value={amount}
+          onChange={(e) => setAmount(e.target.value)}
+          className="input-field"
+        />
+      </div>
+
+      {/* Presets */}
+      <div className="mb-4 flex gap-2">
+        {PRESETS.map((p) => (
+          <button
+            key={p}
+            onClick={() => setAmount(p)}
+            className={`flex-1 rounded-lg py-1.5 text-xs font-medium transition-all ${
+              amount === p
+                ? "bg-amber-500/20 text-amber-400 border border-amber-500/30"
+                : "bg-slate-800/50 text-slate-400 hover:text-white border border-transparent"
+            }`}
+          >
+            {p}
+          </button>
+        ))}
+      </div>
+
+      {/* Action button */}
       {needsApproval ? (
         <button
           onClick={handleApprove}
           disabled={busy}
-          className="w-full rounded-lg bg-yellow-600 px-4 py-2 text-sm font-medium hover:bg-yellow-500 disabled:opacity-50"
+          className="w-full rounded-xl gradient-primary py-3 text-sm font-semibold text-slate-900 hover:opacity-90 disabled:opacity-50 transition-all"
         >
           {busy ? "Approving..." : "Approve mUSDC"}
         </button>
       ) : (
-        <div className="grid grid-cols-2 gap-3">
-          <button
-            onClick={() => handleBet(1)}
-            disabled={busy || parsedAmount === 0n}
-            className="rounded-lg bg-green-600 px-4 py-2 text-sm font-medium hover:bg-green-500 disabled:opacity-50"
-          >
-            {busy ? "..." : "Bet YES"}
-          </button>
-          <button
-            onClick={() => handleBet(2)}
-            disabled={busy || parsedAmount === 0n}
-            className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium hover:bg-red-500 disabled:opacity-50"
-          >
-            {busy ? "..." : "Bet NO"}
-          </button>
-        </div>
+        <button
+          onClick={handleBet}
+          disabled={busy || parsedAmount === 0n}
+          className={`w-full rounded-xl py-3 text-sm font-semibold text-white transition-all disabled:opacity-50 ${
+            selectedOutcome === 1
+              ? "bg-emerald-600 hover:bg-emerald-500"
+              : "bg-rose-600 hover:bg-rose-500"
+          }`}
+        >
+          {busy ? "Placing bet..." : `Bet ${selectedOutcome === 1 ? "YES" : "NO"}`}
+        </button>
       )}
+
       {(approveError || betError) && (
-        <p className="mt-2 text-xs text-red-400">{(approveError || betError)?.message?.split("\n")[0]}</p>
+        <p className="mt-3 text-xs text-rose-400">{(approveError || betError)?.message?.split("\n")[0]}</p>
       )}
     </div>
   );

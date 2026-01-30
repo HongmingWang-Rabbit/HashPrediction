@@ -8,18 +8,24 @@ export function PoolBar({ yesPool, noPool }: { yesPool: bigint; noPool: bigint }
   const yesPct = total > 0n ? Math.round(Number(yesPool) / Number(total) * 100) : 50;
   const noPct = total > 0n ? 100 - yesPct : 50;
 
-  const yesFormatted = formatUnits(yesPool, TOKEN_DECIMALS);
-  const noFormatted = formatUnits(noPool, TOKEN_DECIMALS);
+  const yesFormatted = Number(formatUnits(yesPool, TOKEN_DECIMALS)).toLocaleString();
+  const noFormatted = Number(formatUnits(noPool, TOKEN_DECIMALS)).toLocaleString();
 
   return (
     <div>
-      <div className="mb-1 flex justify-between text-xs">
-        <span className="text-green-400">YES {yesPct}% ({yesFormatted})</span>
-        <span className="text-red-400">NO {noPct}% ({noFormatted})</span>
+      <div className="mb-2 flex justify-between text-xs font-medium">
+        <span className="text-emerald-400">YES {yesPct}%<span className="ml-1 text-slate-500">({yesFormatted})</span></span>
+        <span className="text-rose-400">NO {noPct}%<span className="ml-1 text-slate-500">({noFormatted})</span></span>
       </div>
-      <div className="flex h-2 overflow-hidden rounded-full bg-gray-800">
-        <div className="bg-green-500 transition-all" style={{ width: `${yesPct}%` }} />
-        <div className="bg-red-500 transition-all" style={{ width: `${noPct}%` }} />
+      <div className="flex h-3 overflow-hidden rounded-full bg-slate-800">
+        <div
+          className="bg-emerald-500 transition-all duration-500"
+          style={{ width: `${yesPct}%`, boxShadow: yesPct > 5 ? "0 0 8px rgba(16,185,129,0.4)" : "none" }}
+        />
+        <div
+          className="bg-rose-500 transition-all duration-500"
+          style={{ width: `${noPct}%`, boxShadow: noPct > 5 ? "0 0 8px rgba(244,63,94,0.4)" : "none" }}
+        />
       </div>
     </div>
   );

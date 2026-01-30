@@ -1,16 +1,17 @@
 "use client";
 
-const labels = ["Active", "Resolved", "Cancelled"] as const;
-const colors = [
-  "bg-green-500/20 text-green-400",
-  "bg-blue-500/20 text-blue-400",
-  "bg-red-500/20 text-red-400",
+const config = [
+  { label: "Active", dot: "bg-emerald-400", bg: "bg-emerald-500/10", text: "text-emerald-400", border: "border-emerald-500/20" },
+  { label: "Resolved", dot: "bg-blue-400", bg: "bg-blue-500/10", text: "text-blue-400", border: "border-blue-500/20" },
+  { label: "Cancelled", dot: "bg-rose-400", bg: "bg-rose-500/10", text: "text-rose-400", border: "border-rose-500/20" },
 ] as const;
 
 export function MarketStatus({ state }: { state: number }) {
+  const c = config[state] ?? config[0];
   return (
-    <span className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-medium ${colors[state] ?? colors[0]}`}>
-      {labels[state] ?? "Unknown"}
+    <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium ${c.bg} ${c.text} ${c.border}`}>
+      <span className={`inline-block h-1.5 w-1.5 rounded-full ${c.dot}`} />
+      {c.label}
     </span>
   );
 }
