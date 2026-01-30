@@ -76,7 +76,7 @@ export default function CreatePage() {
         address: HASH_PREDICTION_ADDRESS,
         abi: HASH_PREDICTION_ABI,
         functionName: "createMarket",
-        args: [question, resolutionTime, parsedFee],
+        args: [question, resolutionTime, parsedFee, "0x63727970746f0000000000000000000000000000000000000000000000000000" as `0x${string}`],
       },
       {
         onSuccess: async (hash) => {

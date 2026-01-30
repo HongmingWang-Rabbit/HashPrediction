@@ -17,225 +17,1183 @@ export const hashkeyTestnet = defineChain({
 // ─── Deployed Contract Addresses ───────────────────────────────────
 // Source-controlled config — no .env needed.
 // When contract dev deploys new contracts, update these addresses here.
-export const HASH_PREDICTION_ADDRESS = "0xC89bE9D4124E75869174ABd46b47De5a0d7e57E9" as `0x${string}`;
-export const MOCK_USDC_ADDRESS = "0x9cefc16AD9dD2a4be819c616017F51d3A016C6ab" as `0x${string}`;
+export const HASH_PREDICTION_ADDRESS = "0x03545F86EfC72522f569EB467b7687b6A5FB5D98" as `0x${string}`;
+export const MOCK_USDC_ADDRESS = "0xf067B0D3E685AD87845a9b0B7a9d46a21a7Fa877" as `0x${string}`;
 export const ADMIN_ADDRESS = "0xafb5963275f4E0F75AC472F7ABDfAeD06903d85C" as `0x${string}`;
 
 // Block number when the contract was deployed — use as fromBlock instead of "earliest"
-export const DEPLOY_BLOCK = 23178454n;
+export const DEPLOY_BLOCK = 23286506n;
 
 export const HASH_PREDICTION_ABI = [
   {
-    type: "function",
-    name: "marketCounter",
-    inputs: [],
-    outputs: [{ name: "", type: "uint256" }],
-    stateMutability: "view",
+    "type": "constructor",
+    "inputs": [
+      {
+        "name": "_stablecoin",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "_stablecoinDecimals",
+        "type": "uint8",
+        "internalType": "uint8"
+      },
+      {
+        "name": "_admin",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "_feeRecipient",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "_maxFeePercentage",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "_creatorRewardPercentage",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "nonpayable"
   },
   {
-    type: "function",
-    name: "getMarket",
-    inputs: [{ name: "_marketId", type: "uint256" }],
-    outputs: [
+    "type": "function",
+    "name": "CATEGORY_CRYPTO",
+    "inputs": [],
+    "outputs": [
       {
-        name: "",
-        type: "tuple",
-        components: [
-          { name: "id", type: "uint256" },
-          { name: "question", type: "string" },
-          { name: "resolutionTime", type: "uint256" },
-          { name: "state", type: "uint8" },
-          { name: "winningOutcome", type: "uint8" },
-          { name: "yesPool", type: "uint256" },
-          { name: "noPool", type: "uint256" },
-          { name: "creationFee", type: "uint256" },
-          { name: "creator", type: "address" },
-          { name: "createdAt", type: "uint256" },
+        "name": "",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "CATEGORY_ENTERTAINMENT",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "CATEGORY_OTHER",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "CATEGORY_POLITICS",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "CATEGORY_SPORTS",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "MAX_CREATOR_REWARD",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "MAX_FEE_LIMIT",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "calculatePayout",
+    "inputs": [
+      {
+        "name": "_marketId",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "_user",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "payout",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "cancelMarket",
+    "inputs": [
+      {
+        "name": "_marketId",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "claimMultipleWinnings",
+    "inputs": [
+      {
+        "name": "_marketIds",
+        "type": "uint256[]",
+        "internalType": "uint256[]"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "claimWinnings",
+    "inputs": [
+      {
+        "name": "_marketId",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "config",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "admin",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "feeRecipient",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "maxFeePercentage",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "creatorRewardPercentage",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "paused",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "createMarket",
+    "inputs": [
+      {
+        "name": "_question",
+        "type": "string",
+        "internalType": "string"
+      },
+      {
+        "name": "_resolutionTime",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "_feeAmount",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "_category",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "marketId",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "getConfig",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "tuple",
+        "internalType": "struct HashPrediction.Config",
+        "components": [
           {
-            name: "configSnapshot",
-            type: "tuple",
-            components: [
-              { name: "feeRecipient", type: "address" },
-              { name: "maxFeePercentage", type: "uint256" },
-            ],
+            "name": "admin",
+            "type": "address",
+            "internalType": "address"
           },
-        ],
-      },
+          {
+            "name": "feeRecipient",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "maxFeePercentage",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "creatorRewardPercentage",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "paused",
+            "type": "bool",
+            "internalType": "bool"
+          }
+        ]
+      }
     ],
-    stateMutability: "view",
+    "stateMutability": "view"
   },
   {
-    type: "function",
-    name: "getUserPosition",
-    inputs: [
-      { name: "_marketId", type: "uint256" },
-      { name: "_user", type: "address" },
-    ],
-    outputs: [
+    "type": "function",
+    "name": "getMarket",
+    "inputs": [
       {
-        name: "",
-        type: "tuple",
-        components: [
-          { name: "yesBet", type: "uint256" },
-          { name: "noBet", type: "uint256" },
-          { name: "claimed", type: "bool" },
-        ],
-      },
+        "name": "_marketId",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
     ],
-    stateMutability: "view",
-  },
-  {
-    type: "function",
-    name: "calculatePayout",
-    inputs: [
-      { name: "_marketId", type: "uint256" },
-      { name: "_user", type: "address" },
-    ],
-    outputs: [{ name: "payout", type: "uint256" }],
-    stateMutability: "view",
-  },
-  {
-    type: "function",
-    name: "getConfig",
-    inputs: [],
-    outputs: [
+    "outputs": [
       {
-        name: "",
-        type: "tuple",
-        components: [
-          { name: "admin", type: "address" },
-          { name: "feeRecipient", type: "address" },
-          { name: "maxFeePercentage", type: "uint256" },
-          { name: "paused", type: "bool" },
-        ],
+        "name": "",
+        "type": "tuple",
+        "internalType": "struct HashPrediction.Market",
+        "components": [
+          {
+            "name": "id",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "question",
+            "type": "string",
+            "internalType": "string"
+          },
+          {
+            "name": "resolutionTime",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "state",
+            "type": "uint8",
+            "internalType": "enum HashPrediction.MarketState"
+          },
+          {
+            "name": "winningOutcome",
+            "type": "uint8",
+            "internalType": "enum HashPrediction.Outcome"
+          },
+          {
+            "name": "yesPool",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "noPool",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "creationFee",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "creator",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "createdAt",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "configSnapshot",
+            "type": "tuple",
+            "internalType": "struct HashPrediction.ConfigSnapshot",
+            "components": [
+              {
+                "name": "feeRecipient",
+                "type": "address",
+                "internalType": "address"
+              },
+              {
+                "name": "maxFeePercentage",
+                "type": "uint256",
+                "internalType": "uint256"
+              }
+            ]
+          },
+          {
+            "name": "category",
+            "type": "bytes32",
+            "internalType": "bytes32"
+          }
+        ]
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getMarketCount",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getUserPosition",
+    "inputs": [
+      {
+        "name": "_marketId",
+        "type": "uint256",
+        "internalType": "uint256"
       },
+      {
+        "name": "_user",
+        "type": "address",
+        "internalType": "address"
+      }
     ],
-    stateMutability: "view",
-  },
-  {
-    type: "function",
-    name: "getMarketCount",
-    inputs: [],
-    outputs: [{ name: "", type: "uint256" }],
-    stateMutability: "view",
-  },
-  {
-    type: "function",
-    name: "createMarket",
-    inputs: [
-      { name: "_question", type: "string" },
-      { name: "_resolutionTime", type: "uint256" },
-      { name: "_feeAmount", type: "uint256" },
+    "outputs": [
+      {
+        "name": "",
+        "type": "tuple",
+        "internalType": "struct HashPrediction.UserPosition",
+        "components": [
+          {
+            "name": "yesBet",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "noBet",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "claimed",
+            "type": "bool",
+            "internalType": "bool"
+          }
+        ]
+      }
     ],
-    outputs: [{ name: "marketId", type: "uint256" }],
-    stateMutability: "nonpayable",
+    "stateMutability": "view"
   },
   {
-    type: "function",
-    name: "placeBet",
-    inputs: [
-      { name: "_marketId", type: "uint256" },
-      { name: "_outcome", type: "uint8" },
-      { name: "_amount", type: "uint256" },
+    "type": "function",
+    "name": "getUserStats",
+    "inputs": [
+      {
+        "name": "_user",
+        "type": "address",
+        "internalType": "address"
+      }
     ],
-    outputs: [],
-    stateMutability: "nonpayable",
-  },
-  {
-    type: "function",
-    name: "claimWinnings",
-    inputs: [{ name: "_marketId", type: "uint256" }],
-    outputs: [],
-    stateMutability: "nonpayable",
-  },
-  {
-    type: "function",
-    name: "resolveMarket",
-    inputs: [
-      { name: "_marketId", type: "uint256" },
-      { name: "_winningOutcome", type: "uint8" },
+    "outputs": [
+      {
+        "name": "",
+        "type": "tuple",
+        "internalType": "struct HashPrediction.UserStats",
+        "components": [
+          {
+            "name": "totalBets",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "totalWins",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "totalLosses",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "totalVolume",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "currentStreak",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "bestStreak",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "lastBetDay",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "dailyStreak",
+            "type": "uint256",
+            "internalType": "uint256"
+          }
+        ]
+      }
     ],
-    outputs: [],
-    stateMutability: "nonpayable",
+    "stateMutability": "view"
   },
   {
-    type: "function",
-    name: "cancelMarket",
-    inputs: [{ name: "_marketId", type: "uint256" }],
-    outputs: [],
-    stateMutability: "nonpayable",
-  },
-  {
-    type: "function",
-    name: "pause",
-    inputs: [],
-    outputs: [],
-    stateMutability: "nonpayable",
-  },
-  {
-    type: "function",
-    name: "unpause",
-    inputs: [],
-    outputs: [],
-    stateMutability: "nonpayable",
-  },
-  {
-    type: "function",
-    name: "updateConfig",
-    inputs: [
-      { name: "_feeRecipient", type: "address" },
-      { name: "_maxFeePercentage", type: "uint256" },
+    "type": "function",
+    "name": "marketCounter",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
     ],
-    outputs: [],
-    stateMutability: "nonpayable",
+    "stateMutability": "view"
   },
   {
-    type: "event",
-    name: "MarketCreated",
-    inputs: [
-      { name: "marketId", type: "uint256", indexed: true },
-      { name: "question", type: "string", indexed: false },
-      { name: "resolutionTime", type: "uint256", indexed: false },
-      { name: "creator", type: "address", indexed: true },
-      { name: "fee", type: "uint256", indexed: false },
+    "type": "function",
+    "name": "markets",
+    "inputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
     ],
+    "outputs": [
+      {
+        "name": "id",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "question",
+        "type": "string",
+        "internalType": "string"
+      },
+      {
+        "name": "resolutionTime",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "state",
+        "type": "uint8",
+        "internalType": "enum HashPrediction.MarketState"
+      },
+      {
+        "name": "winningOutcome",
+        "type": "uint8",
+        "internalType": "enum HashPrediction.Outcome"
+      },
+      {
+        "name": "yesPool",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "noPool",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "creationFee",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "creator",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "createdAt",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "configSnapshot",
+        "type": "tuple",
+        "internalType": "struct HashPrediction.ConfigSnapshot",
+        "components": [
+          {
+            "name": "feeRecipient",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "maxFeePercentage",
+            "type": "uint256",
+            "internalType": "uint256"
+          }
+        ]
+      },
+      {
+        "name": "category",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "stateMutability": "view"
   },
   {
-    type: "event",
-    name: "BetPlaced",
-    inputs: [
-      { name: "marketId", type: "uint256", indexed: true },
-      { name: "bettor", type: "address", indexed: true },
-      { name: "outcome", type: "uint8", indexed: false },
-      { name: "amount", type: "uint256", indexed: false },
-      { name: "timestamp", type: "uint256", indexed: false },
-    ],
+    "type": "function",
+    "name": "pause",
+    "inputs": [],
+    "outputs": [],
+    "stateMutability": "nonpayable"
   },
   {
-    type: "event",
-    name: "WinningsClaimed",
-    inputs: [
-      { name: "marketId", type: "uint256", indexed: true },
-      { name: "bettor", type: "address", indexed: true },
-      { name: "amount", type: "uint256", indexed: false },
-      { name: "timestamp", type: "uint256", indexed: false },
+    "type": "function",
+    "name": "placeBet",
+    "inputs": [
+      {
+        "name": "_marketId",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "_outcome",
+        "type": "uint8",
+        "internalType": "enum HashPrediction.Outcome"
+      },
+      {
+        "name": "_amount",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
     ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
   },
   {
-    type: "event",
-    name: "MarketResolved",
-    inputs: [
-      { name: "marketId", type: "uint256", indexed: true },
-      { name: "winningOutcome", type: "uint8", indexed: false },
+    "type": "function",
+    "name": "resolveMarket",
+    "inputs": [
+      {
+        "name": "_marketId",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "_winningOutcome",
+        "type": "uint8",
+        "internalType": "enum HashPrediction.Outcome"
+      }
     ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
   },
   {
-    type: "event",
-    name: "MarketCancelled",
-    inputs: [
-      { name: "marketId", type: "uint256", indexed: true },
+    "type": "function",
+    "name": "stablecoin",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "address",
+        "internalType": "contract IERC20"
+      }
     ],
+    "stateMutability": "view"
   },
+  {
+    "type": "function",
+    "name": "stablecoinDecimals",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint8",
+        "internalType": "uint8"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "unpause",
+    "inputs": [],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "updateConfig",
+    "inputs": [
+      {
+        "name": "_feeRecipient",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "_maxFeePercentage",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "_creatorRewardPercentage",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "userPositions",
+    "inputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "yesBet",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "noBet",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "claimed",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "userStats",
+    "inputs": [
+      {
+        "name": "",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "totalBets",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "totalWins",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "totalLosses",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "totalVolume",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "currentStreak",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "bestStreak",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "lastBetDay",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "dailyStreak",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "event",
+    "name": "BetPlaced",
+    "inputs": [
+      {
+        "name": "marketId",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "bettor",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "outcome",
+        "type": "uint8",
+        "indexed": false,
+        "internalType": "enum HashPrediction.Outcome"
+      },
+      {
+        "name": "amount",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "timestamp",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "ConfigUpdated",
+    "inputs": [
+      {
+        "name": "admin",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "feeRecipient",
+        "type": "address",
+        "indexed": false,
+        "internalType": "address"
+      },
+      {
+        "name": "maxFeePercentage",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "ContractPaused",
+    "inputs": [
+      {
+        "name": "admin",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "ContractUnpaused",
+    "inputs": [
+      {
+        "name": "admin",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "CreatorRewardPaid",
+    "inputs": [
+      {
+        "name": "marketId",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "creator",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "amount",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "MarketCancelled",
+    "inputs": [
+      {
+        "name": "marketId",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "yesPool",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "noPool",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "timestamp",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "MarketCreated",
+    "inputs": [
+      {
+        "name": "marketId",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "question",
+        "type": "string",
+        "indexed": false,
+        "internalType": "string"
+      },
+      {
+        "name": "resolutionTime",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "creator",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "fee",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "MarketResolved",
+    "inputs": [
+      {
+        "name": "marketId",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "winningOutcome",
+        "type": "uint8",
+        "indexed": false,
+        "internalType": "enum HashPrediction.Outcome"
+      },
+      {
+        "name": "yesPool",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "noPool",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "timestamp",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "StreakUpdated",
+    "inputs": [
+      {
+        "name": "user",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "streak",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "WinningsClaimed",
+    "inputs": [
+      {
+        "name": "marketId",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "bettor",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "amount",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "timestamp",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "error",
+    "name": "AlreadyClaimed",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "AlreadyPaused",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "EmptyQuestion",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "InsufficientAllowance",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "InsufficientBalance",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "InvalidFee",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "InvalidMarket",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "InvalidOutcome",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "InvalidResolutionTime",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "MarketAlreadyFinalized",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "MarketExpired",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "MarketNotActive",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "MarketNotFinalized",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "NoOpposition",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "NoPosition",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "NotAdmin",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "NotPaused",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "Paused",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "ReentrancyGuard",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "TransferFailed",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "ZeroAmount",
+    "inputs": []
+  }
 ] as const;
 
 export const ERC20_ABI = [

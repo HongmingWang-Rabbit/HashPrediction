@@ -131,7 +131,7 @@ function ConfigSection() {
       address: HASH_PREDICTION_ADDRESS,
       abi: HASH_PREDICTION_ABI,
       functionName: "updateConfig",
-      args: [feeRecipient as `0x${string}`, fee],
+      args: [feeRecipient as `0x${string}`, fee, 100n],
     });
   }
 
