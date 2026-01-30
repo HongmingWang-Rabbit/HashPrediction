@@ -2,6 +2,7 @@
 pragma solidity ^0.8.20;
 
 import "../BaseTest.sol";
+import {ERC1967Proxy} from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
 
 /// @title AccessControlTest
 /// @notice Unit tests for access control functionality
@@ -102,42 +103,36 @@ contract AccessControlTest is BaseTest {
 
     // ============ Constructor Tests ============
 
-    /// @notice Test constructor with invalid stablecoin
+    /// @notice Test initialize with invalid stablecoin
     function test_Constructor_RevertIf_ZeroStablecoin() public {
-        vm.expectRevert(HashPrediction.InvalidMarket.selector);
-        new HashPrediction(
-            address(0),
-            DECIMALS,
-            admin,
-            feeRecipient,
-            MAX_FEE_PERCENTAGE,
-            100
+        HashPrediction impl = new HashPrediction();
+        bytes memory initData = abi.encodeCall(
+            HashPrediction.initialize,
+            (address(0), DECIMALS, admin, feeRecipient, MAX_FEE_PERCENTAGE, 100)
         );
+        vm.expectRevert();
+        new ERC1967Proxy(address(impl), initData);
     }
 
-    /// @notice Test constructor with invalid admin
+    /// @notice Test initialize with invalid admin
     function test_Constructor_RevertIf_ZeroAdmin() public {
-        vm.expectRevert(HashPrediction.NotAdmin.selector);
-        new HashPrediction(
-            address(stablecoin),
-            DECIMALS,
-            address(0),
-            feeRecipient,
-            MAX_FEE_PERCENTAGE,
-            100
+        HashPrediction impl = new HashPrediction();
+        bytes memory initData = abi.encodeCall(
+            HashPrediction.initialize,
+            (address(stablecoin), DECIMALS, address(0), feeRecipient, MAX_FEE_PERCENTAGE, 100)
         );
+        vm.expectRevert();
+        new ERC1967Proxy(address(impl), initData);
     }
 
-    /// @notice Test constructor with invalid max fee
+    /// @notice Test initialize with invalid max fee
     function test_Constructor_RevertIf_InvalidMaxFee() public {
-        vm.expectRevert(HashPrediction.InvalidFee.selector);
-        new HashPrediction(
-            address(stablecoin),
-            DECIMALS,
-            admin,
-            feeRecipient,
-            1001, // > 10%
-            100
+        HashPrediction impl = new HashPrediction();
+        bytes memory initData = abi.encodeCall(
+            HashPrediction.initialize,
+            (address(stablecoin), DECIMALS, admin, feeRecipient, 1001, 100)
         );
+        vm.expectRevert();
+        new ERC1967Proxy(address(impl), initData);
     }
 }

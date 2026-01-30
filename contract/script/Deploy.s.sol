@@ -4,6 +4,7 @@ pragma solidity ^0.8.20;
 import {Script, console} from "forge-std/Script.sol";
 import {HashPrediction} from "../src/HashPrediction.sol";
 import {MockERC20} from "../src/mocks/MockERC20.sol";
+import {ERC1967Proxy} from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
 
 /// @title Deploy
 /// @notice Deploys the HashPrediction contract with HashKey Chain support
@@ -70,22 +71,25 @@ contract Deploy is Script {
             }
         }
 
-        // Deploy HashPrediction
-        console.log("\nDeploying HashPrediction...");
-        HashPrediction prediction = new HashPrediction(
-            stablecoinAddress,
-            stablecoinDecimals,
-            admin,
-            feeRecipient,
-            maxFeePercentage,
-            100 // 1% creator reward
+        // Deploy HashPrediction implementation + proxy
+        console.log("\nDeploying HashPrediction implementation...");
+        HashPrediction implementation = new HashPrediction();
+        console.log("Implementation:", address(implementation));
+
+        console.log("Deploying ERC1967Proxy...");
+        bytes memory initData = abi.encodeCall(
+            HashPrediction.initialize,
+            (stablecoinAddress, stablecoinDecimals, admin, feeRecipient, maxFeePercentage, 100)
         );
+        ERC1967Proxy proxy = new ERC1967Proxy(address(implementation), initData);
+        HashPrediction prediction = HashPrediction(address(proxy));
 
         vm.stopBroadcast();
 
         // Log deployment info
         console.log("\n=== Deployment Complete ===");
-        console.log("HashPrediction:", address(prediction));
+        console.log("HashPrediction (proxy):", address(prediction));
+        console.log("HashPrediction (impl):", address(implementation));
         console.log("Stablecoin:", stablecoinAddress);
         console.log("Stablecoin Decimals:", stablecoinDecimals);
 

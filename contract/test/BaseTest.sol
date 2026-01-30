@@ -4,6 +4,7 @@ pragma solidity ^0.8.20;
 import "forge-std/Test.sol";
 import {HashPrediction} from "../src/HashPrediction.sol";
 import {MockERC20} from "../src/mocks/MockERC20.sol";
+import {ERC1967Proxy} from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
 
 /// @title BaseTest
 /// @notice Base test contract with common setup and utilities
@@ -81,15 +82,14 @@ abstract contract BaseTest is Test {
         vm.startPrank(admin);
         stablecoin = new MockERC20("Mock USDC", "mUSDC", DECIMALS);
 
-        // Deploy prediction market
-        market = new HashPrediction(
-            address(stablecoin),
-            DECIMALS,
-            admin,
-            feeRecipient,
-            MAX_FEE_PERCENTAGE,
-            100 // 1% creator reward (T11)
+        // Deploy prediction market via UUPS proxy
+        HashPrediction implementation = new HashPrediction();
+        bytes memory initData = abi.encodeCall(
+            HashPrediction.initialize,
+            (address(stablecoin), DECIMALS, admin, feeRecipient, MAX_FEE_PERCENTAGE, 100)
         );
+        ERC1967Proxy proxy = new ERC1967Proxy(address(implementation), initData);
+        market = HashPrediction(address(proxy));
         vm.stopPrank();
 
         // Mint tokens to users

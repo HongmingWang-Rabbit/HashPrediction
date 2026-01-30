@@ -2,6 +2,8 @@
 pragma solidity ^0.8.20;
 
 import {IERC20} from "./interfaces/IERC20.sol";
+import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import {UUPSUpgradeable} from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 
 /// @title HashPrediction
 /// @author Binary Prediction Markets on HashKey Chain
@@ -11,7 +13,7 @@ import {IERC20} from "./interfaces/IERC20.sol";
 /// @custom:disclaimer THIS CONTRACT IS FOR EDUCATIONAL PURPOSES ONLY. IT IS UNAUDITED AND
 /// SHOULD NOT BE USED IN PRODUCTION. THE AUTHORS ARE NOT RESPONSIBLE FOR ANY DAMAGES OR
 /// LOSSES THAT MAY RESULT FROM ITS USE. ALWAYS CONDUCT YOUR OWN SECURITY AUDIT.
-contract HashPrediction {
+contract HashPrediction is Initializable, UUPSUpgradeable {
     // ============ Enums ============
 
     /// @notice Market state enumeration
@@ -197,10 +199,10 @@ contract HashPrediction {
     uint256 public marketCounter;
 
     /// @notice Stablecoin token used for betting
-    IERC20 public immutable stablecoin;
+    IERC20 public stablecoin;
 
     /// @notice Stablecoin decimals
-    uint8 public immutable stablecoinDecimals;
+    uint8 public stablecoinDecimals;
 
     /// @notice Reentrancy lock
     uint256 private _locked = 1;
@@ -244,20 +246,27 @@ contract HashPrediction {
 
     // ============ Constructor ============
 
+    /// @custom:oz-upgrades-unsafe-allow constructor
+    constructor() {
+        _disableInitializers();
+    }
+
     /// @notice Initializes the prediction market contract
     /// @param _stablecoin Address of the stablecoin token
     /// @param _stablecoinDecimals Decimal places of the stablecoin
     /// @param _admin Admin address for contract control
     /// @param _feeRecipient Address to receive creation fees
     /// @param _maxFeePercentage Maximum fee percentage in basis points (100 = 1%)
-    constructor(
+    function initialize(
         address _stablecoin,
         uint8 _stablecoinDecimals,
         address _admin,
         address _feeRecipient,
         uint256 _maxFeePercentage,
         uint256 _creatorRewardPercentage
-    ) {
+    ) public initializer {
+        __UUPSUpgradeable_init();
+
         if (_stablecoin == address(0)) revert InvalidMarket();
         if (_admin == address(0)) revert NotAdmin();
         if (_maxFeePercentage > MAX_FEE_LIMIT) revert InvalidFee();
@@ -265,6 +274,7 @@ contract HashPrediction {
 
         stablecoin = IERC20(_stablecoin);
         stablecoinDecimals = _stablecoinDecimals;
+        _locked = 1;
 
         config = Config({
             admin: _admin,
@@ -675,6 +685,9 @@ contract HashPrediction {
     }
 
     // ============ Internal Functions ============
+
+    /// @notice Authorizes an upgrade (UUPS)
+    function _authorizeUpgrade(address newImplementation) internal override onlyAdmin {}
 
     /// @notice Updates claim stats for a user (T1)
     /// @param _user User address

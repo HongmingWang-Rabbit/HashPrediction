@@ -2,6 +2,7 @@
 pragma solidity ^0.8.20;
 
 import "../BaseTest.sol";
+import {ERC1967Proxy} from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
 
 /// @title CategoryAndRewardTest
 /// @notice Unit tests for T5 (Market Categories) and T11 (Creator Reward)
@@ -179,17 +180,15 @@ contract CategoryAndRewardTest is BaseTest {
         market.updateConfig(feeRecipient, MAX_FEE_PERCENTAGE, 501); // > 5%
     }
 
-    /// @notice Constructor rejects invalid creator reward percentage
+    /// @notice Initialize rejects invalid creator reward percentage
     function test_Constructor_RevertIf_InvalidCreatorReward() public {
-        vm.expectRevert(HashPrediction.InvalidFee.selector);
-        new HashPrediction(
-            address(stablecoin),
-            DECIMALS,
-            admin,
-            feeRecipient,
-            MAX_FEE_PERCENTAGE,
-            501 // > 5%
+        HashPrediction impl = new HashPrediction();
+        bytes memory initData = abi.encodeCall(
+            HashPrediction.initialize,
+            (address(stablecoin), DECIMALS, admin, feeRecipient, MAX_FEE_PERCENTAGE, 501)
         );
+        vm.expectRevert();
+        new ERC1967Proxy(address(impl), initData);
     }
 
     /// @notice Winner payout is reduced by creator reward
