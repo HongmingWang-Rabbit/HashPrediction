@@ -10,7 +10,7 @@ export function useMarket(id: number) {
     abi: HASH_PREDICTION_ABI,
     functionName: "getMarket",
     args: [BigInt(id)],
-    query: { enabled: id > 0, refetchInterval: 15000 },
+    query: { enabled: id > 0, refetchInterval: 30_000 },
   });
 
   return { ...result, data: result.data as Market | undefined };

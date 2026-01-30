@@ -38,7 +38,7 @@ export function useUserPortfolio() {
     contracts: positionContracts,
     query: {
       enabled: !!address && markets.length > 0,
-      refetchInterval: 15000,
+      refetchInterval: 30_000,
     },
   });
 
@@ -46,7 +46,7 @@ export function useUserPortfolio() {
     contracts: payoutContracts,
     query: {
       enabled: !!address && markets.length > 0,
-      refetchInterval: 15000,
+      refetchInterval: 30_000,
     },
   });
 

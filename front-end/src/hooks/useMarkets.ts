@@ -22,7 +22,7 @@ export function useMarketCount() {
     address: HASH_PREDICTION_ADDRESS,
     abi: HASH_PREDICTION_ABI,
     functionName: "getMarketCount",
-    query: { refetchInterval: 15000 },
+    query: { refetchInterval: 60_000 },
   });
 }
 
@@ -41,7 +41,7 @@ export function useMarkets() {
     contracts,
     query: {
       enabled: marketCount > 0,
-      refetchInterval: 15000,
+      refetchInterval: 30_000,
     },
   });
 

@@ -18,7 +18,7 @@ export function useUserPosition(marketId: number) {
     abi: HASH_PREDICTION_ABI,
     functionName: "getUserPosition",
     args: [BigInt(marketId), address!],
-    query: { enabled: !!address && marketId > 0, refetchInterval: 15000 },
+    query: { enabled: !!address && marketId > 0, refetchInterval: 30_000 },
   });
 
   const payout = useReadContract({
@@ -26,7 +26,7 @@ export function useUserPosition(marketId: number) {
     abi: HASH_PREDICTION_ABI,
     functionName: "calculatePayout",
     args: [BigInt(marketId), address!],
-    query: { enabled: !!address && marketId > 0, refetchInterval: 15000 },
+    query: { enabled: !!address && marketId > 0, refetchInterval: 30_000 },
   });
 
   return {

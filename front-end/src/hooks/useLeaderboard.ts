@@ -2,8 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { usePublicClient } from "wagmi";
-import { formatUnits } from "viem";
-import { HASH_PREDICTION_ADDRESS, HASH_PREDICTION_ABI, hashkeyTestnet, TOKEN_DECIMALS, DEPLOY_BLOCK } from "@/config/contracts";
+import { HASH_PREDICTION_ADDRESS, hashkeyTestnet, DEPLOY_BLOCK } from "@/config/contracts";
 
 export interface LeaderboardEntry {
   address: string;
@@ -12,16 +11,24 @@ export interface LeaderboardEntry {
   totalWins: number;
   totalLosses: number;
   winRate: number;
-  // We derive these from on-chain BetPlaced events since getUserStats may not exist yet
 }
 
+const CACHE_TTL = 120_000; // 2 minutes
+let cachedEntries: LeaderboardEntry[] | null = null;
+let cachedAt = 0;
+
 export function useLeaderboard() {
-  const [entries, setEntries] = useState<LeaderboardEntry[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [entries, setEntries] = useState<LeaderboardEntry[]>(cachedEntries ?? []);
+  const [loading, setLoading] = useState(!cachedEntries);
   const client = usePublicClient({ chainId: hashkeyTestnet.id });
 
   useEffect(() => {
     if (!client) return;
+    if (cachedEntries && Date.now() - cachedAt < CACHE_TTL) {
+      setEntries(cachedEntries);
+      setLoading(false);
+      return;
+    }
 
     async function fetch() {
       try {
@@ -101,6 +108,8 @@ export function useLeaderboard() {
           });
         }
 
+        cachedEntries = result;
+        cachedAt = Date.now();
         setEntries(result);
       } catch (err) {
         console.error("Failed to fetch leaderboard:", err);

@@ -13,5 +13,6 @@ export const config = createConfig({
   transports: {
     [hashkeyTestnet.id]: http(RPC_URL),
   },
+  batch: { multicall: { wait: 50 } },
   ssr: true,
 });

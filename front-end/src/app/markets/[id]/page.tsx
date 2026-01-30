@@ -18,7 +18,7 @@ export default function MarketPage() {
   const { id } = useParams<{ id: string }>();
   const marketId = Number(id);
   const { data: market, isLoading, refetch } = useMarket(marketId);
-  const { balance } = useTokenBalance();
+  const { balance, allowance, refetch: refetchToken } = useTokenBalance();
   const [copied, setCopied] = useState(false);
 
   if (isLoading) {
@@ -165,7 +165,7 @@ export default function MarketPage() {
             </div>
           )}
 
-          {bettingOpen && <BetForm marketId={marketId} yesPool={market.yesPool} noPool={market.noPool} onSuccess={refetch} />}
+          {bettingOpen && <BetForm marketId={marketId} yesPool={market.yesPool} noPool={market.noPool} onSuccess={refetch} allowance={allowance} refetchToken={refetchToken} />}
 
           <PositionDisplay
             marketId={marketId}

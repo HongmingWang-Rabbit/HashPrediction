@@ -11,7 +11,7 @@ export function useTokenBalance() {
     abi: ERC20_ABI,
     functionName: "balanceOf",
     args: [address!],
-    query: { enabled: !!address, refetchInterval: 15000 },
+    query: { enabled: !!address, refetchInterval: 30_000 },
   });
 
   const allowance = useReadContract({
@@ -19,7 +19,7 @@ export function useTokenBalance() {
     abi: ERC20_ABI,
     functionName: "allowance",
     args: [address!, HASH_PREDICTION_ADDRESS],
-    query: { enabled: !!address, refetchInterval: 15000 },
+    query: { enabled: !!address, refetchInterval: 30_000 },
   });
 
   return {

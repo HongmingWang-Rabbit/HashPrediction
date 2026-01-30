@@ -10,8 +10,6 @@ import {
   ERC20_ABI,
   TOKEN_DECIMALS,
 } from "@/config/contracts";
-import { useTokenBalance } from "@/hooks/useTokenBalance";
-
 const PRESETS = ["10", "50", "100", "500"];
 
 function PayoutPreview({ amount, outcome, yesPool, noPool }: { amount: bigint; outcome: 1 | 2; yesPool: bigint; noPool: bigint }) {
@@ -99,11 +97,10 @@ function RulesExplainer() {
 
 type Toast = { type: "success" | "error"; message: string } | null;
 
-export function BetForm({ marketId, yesPool, noPool, onSuccess }: { marketId: number; yesPool?: bigint; noPool?: bigint; onSuccess?: () => void }) {
+export function BetForm({ marketId, yesPool, noPool, onSuccess, allowance, refetchToken }: { marketId: number; yesPool?: bigint; noPool?: bigint; onSuccess?: () => void; allowance?: bigint; refetchToken: () => void }) {
   const [amount, setAmount] = useState("");
   const [selectedOutcome, setSelectedOutcome] = useState<1 | 2>(1);
   const [toast, setToast] = useState<Toast>(null);
-  const { allowance, refetch: refetchToken } = useTokenBalance();
 
   const { writeContract: approve, data: approveTx, isPending: approving, error: approveError } = useWriteContract();
   const { writeContract: bet, data: betTx, isPending: betting, error: betError } = useWriteContract();
