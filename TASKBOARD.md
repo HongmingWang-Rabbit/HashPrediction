@@ -32,6 +32,14 @@ Binary prediction markets on HashKey Chain. Users create YES/NO markets, bet wit
 
 **Every contract change that modifies storage layout or the ABI requires a fresh deploy. Frontend must always point to the latest deployed contract.**
 
+## 📢 Agent Communication Rules
+- **Agents MUST communicate with each other via `sessions_send`.** Do not work in isolation.
+- **Contract Dev** after deploying: MUST send the new contract address, new MockUSDC address, deploy block number, and ABI changes to Frontend Dev via `sessions_send`.
+- **Frontend Dev** after receiving new addresses: MUST update `src/config/contracts.ts` (addresses, DEPLOY_BLOCK, ABI), verify `tsc --noEmit` + `npm run build`, then notify Tester.
+- **Tester** after receiving notification: MUST verify the full pipeline end-to-end before approving merge.
+- **No agent should assume another agent knows about their changes.** Explicit handoff messages are mandatory.
+- **If blocked or waiting on another agent, send them a message asking for status.** Don't just sit idle.
+
 ---
 
 ## Sprint 1 — "Stickiness & Social"
