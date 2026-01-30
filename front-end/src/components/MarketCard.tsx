@@ -11,6 +11,9 @@ import { PoolBar } from "./PoolBar";
 
 export function MarketCard({ market }: { market: Market }) {
   const volume = Number(formatUnits(market.yesPool + market.noPool, TOKEN_DECIMALS));
+  const totalPool = market.yesPool + market.noPool;
+  const yesPct = totalPool > 0n ? Number((market.yesPool * 10000n) / totalPool) / 100 : 50;
+  const noPct = totalPool > 0n ? Math.round((100 - yesPct) * 100) / 100 : 50;
 
   return (
     <Link
@@ -26,6 +29,13 @@ export function MarketCard({ market }: { market: Market }) {
         <div className="mb-4 flex items-start justify-between gap-3">
           <h3 className="text-sm font-semibold leading-snug text-slate-100 line-clamp-2">{market.question}</h3>
           <MarketStatus state={market.state} />
+        </div>
+
+        {/* Implied probability */}
+        <div className="mb-3 flex items-center gap-2 text-xs font-medium">
+          <span className="text-emerald-400">{yesPct.toFixed(0)}% YES</span>
+          <span className="text-slate-600">·</span>
+          <span className="text-rose-400">{noPct.toFixed(0)}% NO</span>
         </div>
 
         <PoolBar yesPool={market.yesPool} noPool={market.noPool} />

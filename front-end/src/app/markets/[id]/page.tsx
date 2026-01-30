@@ -1,15 +1,17 @@
 "use client";
 
+import { useState, useEffect, useCallback } from "react";
 import { useParams } from "next/navigation";
 import { formatUnits } from "viem";
 import { useMarket } from "@/hooks/useMarket";
 import { useTokenBalance } from "@/hooks/useTokenBalance";
-import { TOKEN_DECIMALS } from "@/config/contracts";
+import { TOKEN_DECIMALS, HASH_PREDICTION_ADDRESS, HASH_PREDICTION_ABI } from "@/config/contracts";
 import { MarketStatus } from "@/components/MarketStatus";
 import { CountdownTimer } from "@/components/CountdownTimer";
 import { PoolBar } from "@/components/PoolBar";
 import { BetForm } from "@/components/BetForm";
 import { PositionDisplay } from "@/components/PositionDisplay";
+import { ActivityFeed } from "@/components/ActivityFeed";
 
 export default function MarketPage() {
   const { id } = useParams<{ id: string }>();
@@ -32,6 +34,17 @@ export default function MarketPage() {
   const now = Math.floor(Date.now() / 1000);
   const bettingOpen = isActive && now < Number(market.resolutionTime);
 
+  const totalPool = market.yesPool + market.noPool;
+  const yesPct = totalPool > 0n ? Number((market.yesPool * 10000n) / totalPool) / 100 : 50;
+  const noPct = Math.round((100 - yesPct) * 100) / 100;
+
+  const [copied, setCopied] = useState(false);
+  function handleShare() {
+    navigator.clipboard.writeText(window.location.href);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }
+
   return (
     <div className="mx-auto max-w-5xl">
       {/* Header */}
@@ -44,8 +57,25 @@ export default function MarketPage() {
               Winner: {market.winningOutcome === 1 ? "YES" : "NO"}
             </span>
           )}
+          <button
+            onClick={handleShare}
+            className="ml-auto flex items-center gap-1.5 rounded-lg bg-slate-800/50 px-3 py-1.5 text-xs text-slate-400 hover:text-white transition-colors"
+          >
+            <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+            </svg>
+            {copied ? "Link copied!" : "Share"}
+          </button>
         </div>
         <h1 className="text-2xl font-bold text-white">{market.question}</h1>
+        {/* Implied probability */}
+        <div className="mt-3 flex items-center gap-3">
+          <span className="text-2xl font-bold text-emerald-400">{yesPct.toFixed(0)}%</span>
+          <span className="text-sm text-slate-500">YES</span>
+          <span className="text-slate-600">·</span>
+          <span className="text-2xl font-bold text-rose-400">{noPct.toFixed(0)}%</span>
+          <span className="text-sm text-slate-500">NO</span>
+        </div>
       </div>
 
       {/* Two-column layout */}
@@ -120,6 +150,11 @@ export default function MarketPage() {
             noPool={market.noPool}
           />
         </div>
+      </div>
+
+      {/* Activity Feed */}
+      <div className="mt-8">
+        <ActivityFeed marketId={marketId} />
       </div>
     </div>
   );

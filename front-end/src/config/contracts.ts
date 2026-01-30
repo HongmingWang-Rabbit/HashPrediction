@@ -197,6 +197,42 @@ export const HASH_PREDICTION_ABI = [
       { name: "fee", type: "uint256", indexed: false },
     ],
   },
+  {
+    type: "event",
+    name: "BetPlaced",
+    inputs: [
+      { name: "marketId", type: "uint256", indexed: true },
+      { name: "bettor", type: "address", indexed: true },
+      { name: "outcome", type: "uint8", indexed: false },
+      { name: "amount", type: "uint256", indexed: false },
+      { name: "timestamp", type: "uint256", indexed: false },
+    ],
+  },
+  {
+    type: "event",
+    name: "WinningsClaimed",
+    inputs: [
+      { name: "marketId", type: "uint256", indexed: true },
+      { name: "bettor", type: "address", indexed: true },
+      { name: "amount", type: "uint256", indexed: false },
+      { name: "timestamp", type: "uint256", indexed: false },
+    ],
+  },
+  {
+    type: "event",
+    name: "MarketResolved",
+    inputs: [
+      { name: "marketId", type: "uint256", indexed: true },
+      { name: "winningOutcome", type: "uint8", indexed: false },
+    ],
+  },
+  {
+    type: "event",
+    name: "MarketCancelled",
+    inputs: [
+      { name: "marketId", type: "uint256", indexed: true },
+    ],
+  },
 ] as const;
 
 export const ERC20_ABI = [
