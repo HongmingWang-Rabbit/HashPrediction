@@ -1,28 +1,33 @@
 "use client";
 
+import { motion } from "framer-motion";
 import { formatUnits } from "viem";
 import { TOKEN_DECIMALS } from "@/config/contracts";
+import { AnimatedCounter } from "./AnimatedCounter";
 import type { Market } from "@/hooks/useMarkets";
 
 export function StatBar({ markets }: { markets: Market[] }) {
   const totalMarkets = markets.length;
   const activeMarkets = markets.filter((m) => m.state === 0).length;
   const totalVolume = markets.reduce((acc, m) => acc + m.yesPool + m.noPool, 0n);
-
-  const stats = [
-    { label: "Total Markets", value: totalMarkets.toString() },
-    { label: "Active", value: activeMarkets.toString() },
-    { label: "Total Volume", value: `${Number(formatUnits(totalVolume, TOKEN_DECIMALS)).toLocaleString()} mUSDC` },
-  ];
+  const volumeNum = Number(formatUnits(totalVolume, TOKEN_DECIMALS));
 
   return (
-    <div className="glass-card mb-8 grid grid-cols-1 sm:grid-cols-3 sm:divide-x divide-slate-700/50">
-      {stats.map((stat) => (
-        <div key={stat.label} className="px-4 py-3 sm:px-6 sm:py-4 text-center">
-          <p className="text-2xl font-bold text-amber-400">{stat.value}</p>
-          <p className="text-xs text-slate-400 mt-1">{stat.label}</p>
-        </div>
-      ))}
-    </div>
+    <motion.div
+      className="mb-6 flex flex-wrap items-center gap-x-5 gap-y-1 text-sm"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.4, delay: 0.3 }}
+    >
+      <span className="text-slate-400">
+        <span className="font-semibold text-white"><AnimatedCounter value={totalMarkets} /></span> Markets
+      </span>
+      <span className="text-slate-400">
+        <span className="font-semibold text-emerald-400"><AnimatedCounter value={activeMarkets} /></span> Active
+      </span>
+      <span className="text-slate-400">
+        Vol <span className="font-semibold text-amber-400"><AnimatedCounter value={volumeNum} suffix=" mUSDC" /></span>
+      </span>
+    </motion.div>
   );
 }

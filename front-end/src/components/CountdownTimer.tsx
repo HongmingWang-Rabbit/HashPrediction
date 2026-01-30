@@ -28,10 +28,10 @@ export function CountdownTimer({ target }: { target: bigint }) {
   return (
     <div className="flex gap-1.5">
       {segments.map((seg) => (
-        <div key={seg.label} className="flex flex-col items-center rounded-lg bg-slate-800/80 px-2 py-1 min-w-[2rem]">
-          <span className="text-sm font-mono font-bold text-amber-400">{String(seg.value).padStart(2, "0")}</span>
-          <span className="text-xs text-slate-500">{seg.label}</span>
-        </div>
+        <span key={seg.label} className="text-sm">
+          <span className="font-mono font-bold text-white">{String(seg.value).padStart(2, "0")}</span>
+          <span className="text-slate-500">{seg.label} </span>
+        </span>
       ))}
     </div>
   );

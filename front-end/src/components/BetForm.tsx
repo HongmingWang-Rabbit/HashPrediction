@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { parseUnits } from "viem";
 import { useWriteContract, useWaitForTransactionReceipt } from "wagmi";
 import {
@@ -14,9 +14,12 @@ import { useTokenBalance } from "@/hooks/useTokenBalance";
 
 const PRESETS = ["10", "50", "100", "500"];
 
+type Toast = { type: "success" | "error"; message: string } | null;
+
 export function BetForm({ marketId, onSuccess }: { marketId: number; onSuccess?: () => void }) {
   const [amount, setAmount] = useState("");
   const [selectedOutcome, setSelectedOutcome] = useState<1 | 2>(1);
+  const [toast, setToast] = useState<Toast>(null);
   const { allowance, refetch: refetchToken } = useTokenBalance();
 
   const { writeContract: approve, data: approveTx, isPending: approving, error: approveError } = useWriteContract();
@@ -31,16 +34,34 @@ export function BetForm({ marketId, onSuccess }: { marketId: number; onSuccess?:
     query: { enabled: !!betTx },
   });
 
+  const showToast = useCallback((t: Toast) => {
+    setToast(t);
+    if (t) setTimeout(() => setToast(null), 4000);
+  }, []);
+
   useEffect(() => {
-    if (approveSuccess) refetchToken();
-  }, [approveSuccess, refetchToken]);
+    if (approveSuccess) {
+      refetchToken();
+      showToast({ type: "success", message: "Approval successful" });
+    }
+  }, [approveSuccess, refetchToken, showToast]);
 
   useEffect(() => {
     if (betSuccess) {
       refetchToken();
+      setAmount("");
+      showToast({ type: "success", message: "Bet placed successfully!" });
       onSuccess?.();
     }
-  }, [betSuccess, refetchToken, onSuccess]);
+  }, [betSuccess, refetchToken, onSuccess, showToast]);
+
+  useEffect(() => {
+    if (approveError) showToast({ type: "error", message: approveError.message?.split("\n")[0] ?? "Approval failed" });
+  }, [approveError, showToast]);
+
+  useEffect(() => {
+    if (betError) showToast({ type: "error", message: betError.message?.split("\n")[0] ?? "Bet failed" });
+  }, [betError, showToast]);
 
   const parsedAmount = (() => {
     try { return parseUnits(amount, TOKEN_DECIMALS); } catch { return 0n; }
@@ -75,6 +96,19 @@ export function BetForm({ marketId, onSuccess }: { marketId: number; onSuccess?:
   return (
     <div className="glass-card p-6">
       <h3 className="mb-4 text-base font-semibold text-white">Place a Bet</h3>
+
+      {/* Toast */}
+      {toast && (
+        <div
+          className={`mb-4 rounded-lg px-4 py-2.5 text-sm font-medium ${
+            toast.type === "success"
+              ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
+              : "bg-rose-500/10 text-rose-400 border border-rose-500/20"
+          }`}
+        >
+          {toast.message}
+        </div>
+      )}
 
       {/* Outcome toggle */}
       <div className="mb-4 grid grid-cols-2 gap-2 rounded-xl bg-slate-800/50 p-1">
@@ -149,10 +183,6 @@ export function BetForm({ marketId, onSuccess }: { marketId: number; onSuccess?:
         >
           {busy ? "Placing bet..." : `Bet ${selectedOutcome === 1 ? "YES" : "NO"}`}
         </button>
-      )}
-
-      {(approveError || betError) && (
-        <p className="mt-3 text-xs text-rose-400">{(approveError || betError)?.message?.split("\n")[0]}</p>
       )}
     </div>
   );

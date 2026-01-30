@@ -53,6 +53,34 @@ body {
   animation: shimmer 1.5s ease-in-out infinite;
 }
 
+/* Animated gradient text */
+.gradient-text {
+  background: linear-gradient(90deg, #F59E0B, #FBBF24, #F59E0B);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: gradient-shift 3s linear infinite;
+}
+@keyframes gradient-shift {
+  0% { background-position: 0% center; }
+  100% { background-position: 200% center; }
+}
+
+/* Enhanced hover glow */
+.glow-primary-intense {
+  box-shadow: 0 0 30px rgba(245, 158, 11, 0.25);
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
 /* Shared form input */
 .input-field {
   @apply w-full rounded-xl border border-slate-700/50 bg-slate-800/50 px-4 py-3 text-sm text-white outline-none placeholder:text-slate-500 focus:border-amber-500/50 transition-colors;
