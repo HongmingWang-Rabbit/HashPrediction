@@ -165,7 +165,7 @@ export default function MarketPage() {
             </div>
           )}
 
-          {bettingOpen && <BetForm marketId={marketId} yesPool={market.yesPool} noPool={market.noPool} onSuccess={refetch} allowance={allowance} refetchToken={refetchToken} />}
+          {bettingOpen && <BetForm marketId={marketId} yesPool={market.yesPool} noPool={market.noPool} onSuccess={refetch} allowance={allowance} balance={balance} refetchToken={refetchToken} />}
 
           <PositionDisplay
             marketId={marketId}

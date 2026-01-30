@@ -97,7 +97,7 @@ function RulesExplainer() {
 
 type Toast = { type: "success" | "error"; message: string } | null;
 
-export function BetForm({ marketId, yesPool, noPool, onSuccess, allowance, refetchToken }: { marketId: number; yesPool?: bigint; noPool?: bigint; onSuccess?: () => void; allowance?: bigint; refetchToken: () => void }) {
+export function BetForm({ marketId, yesPool, noPool, onSuccess, allowance, balance, refetchToken }: { marketId: number; yesPool?: bigint; noPool?: bigint; onSuccess?: () => void; allowance?: bigint; balance?: bigint; refetchToken: () => void }) {
   const [amount, setAmount] = useState("");
   const [selectedOutcome, setSelectedOutcome] = useState<1 | 2>(1);
   const [toast, setToast] = useState<Toast>(null);
@@ -148,6 +148,7 @@ export function BetForm({ marketId, yesPool, noPool, onSuccess, allowance, refet
   })();
 
   const needsApproval = allowance !== undefined && parsedAmount > 0n && allowance < parsedAmount;
+  const insufficientBalance = balance !== undefined && parsedAmount > 0n && balance < parsedAmount;
   const busy = approving || waitingApprove || betting || waitingBet;
 
   function handleApprove() {
@@ -254,7 +255,14 @@ export function BetForm({ marketId, yesPool, noPool, onSuccess, allowance, refet
       <RulesExplainer />
 
       {/* Action button */}
-      {needsApproval ? (
+      {insufficientBalance ? (
+        <button
+          disabled
+          className="w-full rounded-xl py-3 text-sm font-semibold text-white transition-all disabled:opacity-50 bg-slate-700"
+        >
+          Insufficient Balance
+        </button>
+      ) : needsApproval ? (
         <button
           onClick={handleApprove}
           disabled={busy}
