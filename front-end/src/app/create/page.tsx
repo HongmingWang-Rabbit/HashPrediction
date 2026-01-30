@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
+import { motion } from "framer-motion";
 import { parseUnits, decodeEventLog } from "viem";
 import { useWriteContract, useWaitForTransactionReceipt, useAccount, usePublicClient } from "wagmi";
 import { Id } from "react-toastify";
@@ -159,7 +160,12 @@ export default function CreatePage() {
   const canAdvance = step === 0 ? question.trim() && resolutionDate : true;
 
   return (
-    <div className="mx-auto max-w-lg">
+    <motion.div
+      className="mx-auto max-w-lg"
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4, ease: "easeOut" }}
+    >
       <h1 className="mb-2 text-2xl font-bold text-white">Create Market</h1>
       <p className="mb-8 text-[#70707b]">Set up a new prediction market</p>
 
@@ -290,6 +296,6 @@ export default function CreatePage() {
         )}
 
       </form>
-    </div>
+    </motion.div>
   );
 }
