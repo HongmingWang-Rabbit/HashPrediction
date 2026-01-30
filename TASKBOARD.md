@@ -171,4 +171,28 @@ _After Sprint 1, candidates for Sprint 2:_
 - [x] **[Frontend] Fix missing ActivityFeed component** — Created stub `ActivityFeed.tsx` so build passes. Was referenced in market detail page but never created.
 
 ## Bug Reports
-_Tester adds bugs here_
+
+### BUG-001: ActivityFeed never displays events (Severity: Medium)
+- **Where:** `src/components/ActivityFeed.tsx`
+- **What:** The component fetches raw logs via `client.getLogs()` but never decodes them. The comment says _"Real implementation would decode each log based on event signature"_ — so `parsed` is always empty and the feed always shows "No activity yet."
+- **Impact:** T6 acceptance criteria requires "Activity feed shows last 20 BetPlaced events" — this doesn't work at all. It's a stub, not a functional component.
+- **Fix:** Decode logs using `decodeEventLog` with `HASH_PREDICTION_ABI`, filter for `BetPlaced` events for the given `marketId`, map to `Activity[]`.
+
+### BUG-002: ActivityFeed fetches ALL contract logs (Severity: Low)
+- **Where:** `src/components/ActivityFeed.tsx`, line ~55
+- **What:** `getLogs()` uses `fromBlock: "earliest"` with no event filter topics. On a chain with many events this will be extremely slow or hit RPC limits. Should filter by event signature + indexed `marketId`.
+- **Fix:** Add `event` ABI definition and `args: { marketId }` to scope the query.
+
+---
+
+### Test Results — Baseline (Pre-Sprint)
+
+**Contract:** ✅ 108/108 tests pass (unit, fuzz, integration) — `forge test -vvv`
+**Frontend:** ✅ `npm run build` succeeds (warnings only from MetaMask SDK / pino-pretty — harmless, from upstream deps)
+
+### Completed Item Testing
+
+| Item | Status | Notes |
+|------|--------|-------|
+| Remove all process.env references | ✅ PASS | `grep -r "process.env" src/` returns nothing. All config in `contracts.ts`. Clean. |
+| Fix missing ActivityFeed component | 🐛 PARTIAL | Build passes (stub exists), but component is non-functional — see BUG-001, BUG-002. Acceptable as "build fix" but T6 is NOT done. |

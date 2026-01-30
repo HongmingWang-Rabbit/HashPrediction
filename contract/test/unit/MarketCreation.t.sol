@@ -17,7 +17,7 @@ contract MarketCreationTest is BaseTest {
         emit MarketCreated(1, question, resolutionTime, alice, 0);
 
         vm.prank(alice);
-        uint256 marketId = market.createMarket(question, resolutionTime, 0);
+        uint256 marketId = market.createMarket(question, resolutionTime, 0, bytes32(0));
 
         assertEq(marketId, 1);
         assertEq(market.marketCounter(), 1);
@@ -44,7 +44,7 @@ contract MarketCreationTest is BaseTest {
         uint256 feeRecipientBalanceBefore = stablecoin.balanceOf(feeRecipient);
 
         vm.prank(alice);
-        uint256 marketId = market.createMarket(question, resolutionTime, fee);
+        uint256 marketId = market.createMarket(question, resolutionTime, fee, bytes32(0));
 
         assertEq(marketId, 1);
         assertEq(stablecoin.balanceOf(alice), aliceBalanceBefore - fee);
@@ -58,9 +58,9 @@ contract MarketCreationTest is BaseTest {
     function test_CreateMarket_MultipleMarkets() public {
         vm.startPrank(alice);
 
-        uint256 marketId1 = market.createMarket("Question 1?", block.timestamp + ONE_WEEK, 0);
-        uint256 marketId2 = market.createMarket("Question 2?", block.timestamp + ONE_WEEK, 0);
-        uint256 marketId3 = market.createMarket("Question 3?", block.timestamp + ONE_WEEK, 0);
+        uint256 marketId1 = market.createMarket("Question 1?", block.timestamp + ONE_WEEK, 0, bytes32(0));
+        uint256 marketId2 = market.createMarket("Question 2?", block.timestamp + ONE_WEEK, 0, bytes32(0));
+        uint256 marketId3 = market.createMarket("Question 3?", block.timestamp + ONE_WEEK, 0, bytes32(0));
 
         vm.stopPrank();
 
@@ -73,7 +73,7 @@ contract MarketCreationTest is BaseTest {
     /// @notice Test config snapshot at creation
     function test_CreateMarket_ConfigSnapshot() public {
         vm.prank(alice);
-        uint256 marketId = market.createMarket("Test?", block.timestamp + ONE_WEEK, 0);
+        uint256 marketId = market.createMarket("Test?", block.timestamp + ONE_WEEK, 0, bytes32(0));
 
         HashPrediction.Market memory m = market.getMarket(marketId);
         assertEq(m.configSnapshot.feeRecipient, feeRecipient);
@@ -81,11 +81,11 @@ contract MarketCreationTest is BaseTest {
 
         // Update config
         vm.prank(admin);
-        market.updateConfig(bob, 100);
+        market.updateConfig(bob, 100, 100);
 
         // Create new market
         vm.prank(alice);
-        uint256 marketId2 = market.createMarket("Test 2?", block.timestamp + ONE_WEEK, 0);
+        uint256 marketId2 = market.createMarket("Test 2?", block.timestamp + ONE_WEEK, 0, bytes32(0));
 
         // Old market should have old config
         HashPrediction.Market memory m1 = market.getMarket(marketId);
@@ -106,14 +106,14 @@ contract MarketCreationTest is BaseTest {
 
         vm.prank(alice);
         vm.expectRevert(HashPrediction.InvalidResolutionTime.selector);
-        market.createMarket("Test?", block.timestamp - 1 hours, 0);
+        market.createMarket("Test?", block.timestamp - 1 hours, 0, bytes32(0));
     }
 
     /// @notice TC-MC-004: Invalid Resolution Time (Current)
     function test_CreateMarket_RevertIf_ResolutionTimeCurrent() public {
         vm.prank(alice);
         vm.expectRevert(HashPrediction.InvalidResolutionTime.selector);
-        market.createMarket("Test?", block.timestamp, 0);
+        market.createMarket("Test?", block.timestamp, 0, bytes32(0));
     }
 
     /// @notice TC-MC-006: Insufficient Balance For Fee
@@ -125,7 +125,7 @@ contract MarketCreationTest is BaseTest {
 
         vm.prank(poorUser);
         vm.expectRevert(HashPrediction.InsufficientBalance.selector);
-        market.createMarket("Test?", block.timestamp + ONE_WEEK, usdc(10));
+        market.createMarket("Test?", block.timestamp + ONE_WEEK, usdc(10), bytes32(0));
     }
 
     /// @notice TC-MC-007: Insufficient Allowance For Fee
@@ -137,14 +137,14 @@ contract MarketCreationTest is BaseTest {
 
         vm.prank(user);
         vm.expectRevert(HashPrediction.InsufficientAllowance.selector);
-        market.createMarket("Test?", block.timestamp + ONE_WEEK, usdc(10));
+        market.createMarket("Test?", block.timestamp + ONE_WEEK, usdc(10), bytes32(0));
     }
 
     /// @notice TC-MC-008: Empty Question
     function test_CreateMarket_RevertIf_EmptyQuestion() public {
         vm.prank(alice);
         vm.expectRevert(HashPrediction.EmptyQuestion.selector);
-        market.createMarket("", block.timestamp + ONE_WEEK, 0);
+        market.createMarket("", block.timestamp + ONE_WEEK, 0, bytes32(0));
     }
 
     /// @notice TC-MC-009: Market Creation When Paused
@@ -154,6 +154,6 @@ contract MarketCreationTest is BaseTest {
 
         vm.prank(alice);
         vm.expectRevert(HashPrediction.Paused.selector);
-        market.createMarket("Test?", block.timestamp + ONE_WEEK, 0);
+        market.createMarket("Test?", block.timestamp + ONE_WEEK, 0, bytes32(0));
     }
 }

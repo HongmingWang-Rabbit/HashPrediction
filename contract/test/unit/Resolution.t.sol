@@ -23,12 +23,13 @@ contract ResolutionTest is BaseTest {
     function test_ResolveMarket_YesWins() public {
         warpToResolution(marketId);
 
+        // After 1% creator reward (3 mUSDC from 300 total), noPool reduced by 3
         vm.expectEmit(true, true, true, true);
         emit MarketResolved(
             marketId,
             HashPrediction.Outcome.Yes,
             usdc(200),
-            usdc(100),
+            usdc(97), // 100 - 3 (1% of 300 total pool)
             block.timestamp
         );
 

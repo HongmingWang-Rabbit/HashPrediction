@@ -38,7 +38,7 @@ contract CreateMarketScript is Script {
         }
 
         // Create market
-        uint256 marketId = market.createMarket(question, resolutionTime, feeAmount);
+        uint256 marketId = market.createMarket(question, resolutionTime, feeAmount, bytes32(0));
 
         vm.stopBroadcast();
 

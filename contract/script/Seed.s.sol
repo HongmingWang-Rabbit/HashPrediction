@@ -31,7 +31,8 @@ contract SeedScript is Script {
         uint256 id1 = hp.createMarket(
             "Will Bitcoin exceed $150,000 by end of 2026?",
             block.timestamp + 30 days,
-            0
+            0,
+            bytes32(0)
         );
         hp.placeBet(id1, HashPrediction.Outcome.Yes, 500 * 1e6);
         hp.placeBet(id1, HashPrediction.Outcome.No, 300 * 1e6);
@@ -41,7 +42,8 @@ contract SeedScript is Script {
         uint256 id2 = hp.createMarket(
             "Will Ethereum flip Bitcoin in market cap by Q2 2026?",
             block.timestamp + 7 days,
-            0
+            0,
+            bytes32(0)
         );
         hp.placeBet(id2, HashPrediction.Outcome.Yes, 200 * 1e6);
         hp.placeBet(id2, HashPrediction.Outcome.No, 800 * 1e6);
@@ -51,7 +53,8 @@ contract SeedScript is Script {
         uint256 id3 = hp.createMarket(
             "Will HashKey Chain reach 1M daily transactions by 2026?",
             block.timestamp + 14 days,
-            0
+            0,
+            bytes32(0)
         );
         console.log("Market", id3, "- Active, no bets (HSK txns)");
 
@@ -59,7 +62,8 @@ contract SeedScript is Script {
         uint256 id4 = hp.createMarket(
             "Will the US approve a Solana spot ETF in 2026?",
             block.timestamp + 60 days,
-            0
+            0,
+            bytes32(0)
         );
         hp.placeBet(id4, HashPrediction.Outcome.Yes, 1000 * 1e6);
         hp.placeBet(id4, HashPrediction.Outcome.No, 150 * 1e6);
@@ -69,7 +73,8 @@ contract SeedScript is Script {
         uint256 id5 = hp.createMarket(
             "Will gas fees on Ethereum stay below 10 gwei average this week?",
             block.timestamp + 5 minutes,
-            0
+            0,
+            bytes32(0)
         );
         hp.placeBet(id5, HashPrediction.Outcome.Yes, 400 * 1e6);
         hp.placeBet(id5, HashPrediction.Outcome.No, 350 * 1e6);
@@ -79,7 +84,8 @@ contract SeedScript is Script {
         uint256 id6 = hp.createMarket(
             "Will a new L1 chain overtake Solana in TVL this month?",
             block.timestamp + 5 minutes,
-            0
+            0,
+            bytes32(0)
         );
         hp.placeBet(id6, HashPrediction.Outcome.No, 250 * 1e6);
         console.log("Market", id6, "- Expires in 5 min, one-sided, cancel only (L1 vs SOL)");
