@@ -24,11 +24,12 @@ Binary prediction markets on HashKey Chain. Users create YES/NO markets, bet wit
 
 ## 🔄 Contract → Frontend Deployment Flow
 1. **Contract Dev** makes contract changes → runs `forge build && forge test` → all pass
-2. **Contract Dev** deploys new contract using `forge script` with the private key in `.env` (`PRIVATE_KEY`)
-3. **Contract Dev** shares the new deployed contract address with Frontend Dev
-4. **Frontend Dev** updates `src/config/contracts.ts` with the new address
-5. **Frontend Dev** verifies the frontend builds and works with the new contract
-6. **Tester** verifies everything end-to-end before merge to main
+2. **Contract Dev** deploys new contract: `forge script script/Deploy.s.sol --rpc-url https://testnet.hsk.xyz --broadcast`
+3. **Contract Dev** seeds markets: `forge script script/Seed.s.sol --rpc-url https://testnet.hsk.xyz --broadcast` (update addresses in Seed.s.sol first)
+4. **Contract Dev** shares new HashPrediction address, MockUSDC address, deploy block number, and any ABI changes with Frontend Dev
+5. **Frontend Dev** updates `src/config/contracts.ts` — addresses, DEPLOY_BLOCK, ABI (regenerate from `contract/out/HashPrediction.sol/HashPrediction.json`)
+6. **Frontend Dev** verifies `tsc --noEmit` + `npm run build` both pass
+7. **Tester** verifies everything end-to-end before merge to main
 
 **Every contract change that modifies storage layout or the ABI requires a fresh deploy. Frontend must always point to the latest deployed contract.**
 
