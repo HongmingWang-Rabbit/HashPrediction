@@ -18,6 +18,7 @@ export default function MarketPage() {
   const marketId = Number(id);
   const { data: market, isLoading, refetch } = useMarket(marketId);
   const { balance } = useTokenBalance();
+  const [copied, setCopied] = useState(false);
 
   if (isLoading) {
     return (
@@ -38,7 +39,6 @@ export default function MarketPage() {
   const yesPct = totalPool > 0n ? Number((market.yesPool * 10000n) / totalPool) / 100 : 50;
   const noPct = Math.round((100 - yesPct) * 100) / 100;
 
-  const [copied, setCopied] = useState(false);
   async function handleShare() {
     const url = window.location.href;
     const shareData = {
