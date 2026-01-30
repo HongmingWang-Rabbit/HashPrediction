@@ -18,7 +18,8 @@ Binary prediction markets on HashKey Chain. Users create YES/NO markets, bet wit
 
 ## ⚠️ MANDATORY Quality Gates (ALL agents must follow)
 - **Frontend Dev:** MUST run `npx tsc --noEmit` AND `npm run build` before committing. Both must pass with zero errors.
-- **Tester:** MUST run `npx tsc --noEmit` AND `npm run build` as part of every review. A clean `npm run build` alone is NOT sufficient — Vercel runs strict type checking.
+- **Tester:** MUST run `npx tsc --noEmit` AND `npm run build` AND **headless browser smoke test** as part of every review. A clean `npm run build` alone is NOT sufficient — Vercel runs strict type checking, and build success does NOT catch runtime React errors.
+- **Tester headless browser test:** After build, run `npm run start` and use the browser tool to visit every page (`/`, `/create`, `/admin`, `/portfolio`, `/leaderboard`, `/markets/1`). Check the browser console for errors. Any React error, hydration mismatch, or runtime crash is a blocking bug.
 - **Contract Dev:** MUST run `forge build && forge test` with all tests passing before committing.
 - **Nothing merges to main until tester confirms BOTH `tsc --noEmit` and `npm run build` pass.**
 
