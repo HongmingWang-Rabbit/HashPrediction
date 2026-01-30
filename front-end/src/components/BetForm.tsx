@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { parseUnits } from "viem";
+import { parseUnits, formatUnits } from "viem";
 import { useWriteContract, useWaitForTransactionReceipt } from "wagmi";
 import {
   HASH_PREDICTION_ADDRESS,
@@ -13,6 +13,36 @@ import {
 import { useTokenBalance } from "@/hooks/useTokenBalance";
 
 const PRESETS = ["10", "50", "100", "500"];
+
+function PayoutPreview({ amount, outcome, yesPool, noPool }: { amount: bigint; outcome: 1 | 2; yesPool: bigint; noPool: bigint }) {
+  if (amount <= 0n) {
+    return (
+      <div className="mb-4 rounded-lg border border-slate-700/50 bg-slate-800/30 px-4 py-3 text-sm text-slate-500">
+        Potential Return: —
+      </div>
+    );
+  }
+
+  const winningPool = outcome === 1 ? yesPool : noPool;
+  const losingPool = outcome === 1 ? noPool : yesPool;
+  const totalWinning = winningPool + amount;
+
+  // payout = amount + (amount * losingPool) / (winningPool + amount)
+  const payout = totalWinning > 0n
+    ? amount + (amount * losingPool) / totalWinning
+    : amount;
+
+  const multiplier = Number(payout) / Number(amount);
+  const payoutStr = Number(formatUnits(payout, TOKEN_DECIMALS)).toLocaleString(undefined, { maximumFractionDigits: 2 });
+
+  return (
+    <div className="mb-4 rounded-lg border border-amber-500/20 bg-amber-500/5 px-4 py-3 text-sm">
+      <span className="text-slate-400">Potential Return: </span>
+      <span className="font-semibold text-amber-400">{payoutStr} mUSDC</span>
+      <span className="ml-1.5 text-amber-400/70">({multiplier.toFixed(2)}x)</span>
+    </div>
+  );
+}
 
 function RulesExplainer() {
   const [open, setOpen] = useState(false);
@@ -69,7 +99,7 @@ function RulesExplainer() {
 
 type Toast = { type: "success" | "error"; message: string } | null;
 
-export function BetForm({ marketId, onSuccess }: { marketId: number; onSuccess?: () => void }) {
+export function BetForm({ marketId, yesPool, noPool, onSuccess }: { marketId: number; yesPool?: bigint; noPool?: bigint; onSuccess?: () => void }) {
   const [amount, setAmount] = useState("");
   const [selectedOutcome, setSelectedOutcome] = useState<1 | 2>(1);
   const [toast, setToast] = useState<Toast>(null);
@@ -103,7 +133,7 @@ export function BetForm({ marketId, onSuccess }: { marketId: number; onSuccess?:
     if (betSuccess) {
       refetchToken();
       setAmount("");
-      showToast({ type: "success", message: "Bet placed successfully!" });
+      showToast({ type: "success", message: "Bet placed! 🎉 Share your prediction with friends." });
       onSuccess?.();
     }
   }, [betSuccess, refetchToken, onSuccess, showToast]);
@@ -214,6 +244,14 @@ export function BetForm({ marketId, onSuccess }: { marketId: number; onSuccess?:
           </button>
         ))}
       </div>
+
+      {/* Payout preview */}
+      <PayoutPreview
+        amount={parsedAmount}
+        outcome={selectedOutcome}
+        yesPool={yesPool ?? 0n}
+        noPool={noPool ?? 0n}
+      />
 
       {/* Rules explanation */}
       <RulesExplainer />

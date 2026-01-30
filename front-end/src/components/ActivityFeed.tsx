@@ -3,8 +3,8 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useEffect, useState } from "react";
 import { usePublicClient } from "wagmi";
+import { decodeEventLog, formatUnits } from "viem";
 import { HASH_PREDICTION_ADDRESS, HASH_PREDICTION_ABI, hashkeyTestnet, TOKEN_DECIMALS } from "@/config/contracts";
-import { formatUnits } from "viem";
 
 interface Activity {
   type: "bet" | "create" | "resolve" | "claim";
@@ -34,6 +34,17 @@ const typeConfig = {
   claim: { label: "Claimed", emoji: "💰", color: "text-green-400" },
 };
 
+// Extract event ABIs for decoding
+const BetPlacedEvent = HASH_PREDICTION_ABI.find(
+  (e) => e.type === "event" && e.name === "BetPlaced"
+)!;
+const WingsClaimedEvent = HASH_PREDICTION_ABI.find(
+  (e) => e.type === "event" && e.name === "WinningsClaimed"
+)!;
+const MarketResolvedEvent = HASH_PREDICTION_ABI.find(
+  (e) => e.type === "event" && e.name === "MarketResolved"
+)!;
+
 export function ActivityFeed({ marketId }: { marketId: number }) {
   const [activities, setActivities] = useState<Activity[]>([]);
   const [loading, setLoading] = useState(true);
@@ -44,19 +55,100 @@ export function ActivityFeed({ marketId }: { marketId: number }) {
 
     async function fetchLogs() {
       try {
-        // Fetch MarketCreated and bet events for this market
-        const logs = await client!.getLogs({
+        // BUG-002 fix: filter by BetPlaced event signature + indexed marketId
+        const betLogs = await client!.getLogs({
           address: HASH_PREDICTION_ADDRESS,
+          event: {
+            type: "event",
+            name: "BetPlaced",
+            inputs: [
+              { name: "marketId", type: "uint256", indexed: true },
+              { name: "bettor", type: "address", indexed: true },
+              { name: "outcome", type: "uint8", indexed: false },
+              { name: "amount", type: "uint256", indexed: false },
+              { name: "timestamp", type: "uint256", indexed: false },
+            ],
+          },
+          args: { marketId: BigInt(marketId) },
           fromBlock: "earliest",
           toBlock: "latest",
         });
 
-        // Parse events we recognize - MarketCreated has topic for marketId
+        const claimLogs = await client!.getLogs({
+          address: HASH_PREDICTION_ADDRESS,
+          event: {
+            type: "event",
+            name: "WinningsClaimed",
+            inputs: [
+              { name: "marketId", type: "uint256", indexed: true },
+              { name: "bettor", type: "address", indexed: true },
+              { name: "amount", type: "uint256", indexed: false },
+              { name: "timestamp", type: "uint256", indexed: false },
+            ],
+          },
+          args: { marketId: BigInt(marketId) },
+          fromBlock: "earliest",
+          toBlock: "latest",
+        });
+
+        const resolveLogs = await client!.getLogs({
+          address: HASH_PREDICTION_ADDRESS,
+          event: {
+            type: "event",
+            name: "MarketResolved",
+            inputs: [
+              { name: "marketId", type: "uint256", indexed: true },
+              { name: "winningOutcome", type: "uint8", indexed: false },
+            ],
+          },
+          args: { marketId: BigInt(marketId) },
+          fromBlock: "earliest",
+          toBlock: "latest",
+        });
+
+        // BUG-001 fix: decode each log into Activity objects
         const parsed: Activity[] = [];
 
-        // For now show a simple "no events" state until we have indexed events
-        // Real implementation would decode each log based on event signature
-        setActivities(parsed);
+        for (const log of betLogs) {
+          const args = log.args;
+          if (!args) continue;
+          parsed.push({
+            type: "bet",
+            user: args.bettor as string,
+            amount: args.amount as bigint,
+            outcome: Number(args.outcome),
+            txHash: log.transactionHash ?? "",
+            timestamp: Number(args.timestamp ?? 0),
+          });
+        }
+
+        for (const log of claimLogs) {
+          const args = log.args;
+          if (!args) continue;
+          parsed.push({
+            type: "claim",
+            user: args.bettor as string,
+            amount: args.amount as bigint,
+            txHash: log.transactionHash ?? "",
+            timestamp: Number(args.timestamp ?? 0),
+          });
+        }
+
+        for (const log of resolveLogs) {
+          const args = log.args;
+          if (!args) continue;
+          parsed.push({
+            type: "resolve",
+            user: "Admin",
+            outcome: Number(args.winningOutcome),
+            txHash: log.transactionHash ?? "",
+            timestamp: 0, // MarketResolved doesn't have timestamp field
+          });
+        }
+
+        // Sort by timestamp desc, take last 20
+        parsed.sort((a, b) => b.timestamp - a.timestamp);
+        setActivities(parsed.slice(0, 20));
       } catch (err) {
         console.error("Failed to fetch activity:", err);
       } finally {
@@ -100,8 +192,13 @@ export function ActivityFeed({ marketId }: { marketId: number }) {
                         {cfg.label}
                       </span>
                       <span className="ml-2 text-sm text-white/60">
-                        {shortenAddress(a.user)}
+                        {a.user === "Admin" ? "Admin" : shortenAddress(a.user)}
                       </span>
+                      {a.type === "bet" && a.outcome !== undefined && (
+                        <span className={`ml-2 text-sm font-medium ${a.outcome === 1 ? "text-emerald-400" : "text-rose-400"}`}>
+                          {a.outcome === 1 ? "YES" : "NO"}
+                        </span>
+                      )}
                       {a.amount && (
                         <span className="ml-2 text-sm text-white/80">
                           {formatUnits(a.amount, TOKEN_DECIMALS)} mUSDC
@@ -110,7 +207,7 @@ export function ActivityFeed({ marketId }: { marketId: number }) {
                     </div>
                   </div>
                   <span className="text-xs text-white/30">
-                    {timeAgo(a.timestamp)}
+                    {a.timestamp > 0 ? timeAgo(a.timestamp) : ""}
                   </span>
                 </motion.div>
               );
