@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useEffect, useState } from "react";
 import { usePublicClient } from "wagmi";
 import { decodeEventLog, formatUnits } from "viem";
-import { HASH_PREDICTION_ADDRESS, HASH_PREDICTION_ABI, hashkeyTestnet, TOKEN_DECIMALS } from "@/config/contracts";
+import { HASH_PREDICTION_ADDRESS, HASH_PREDICTION_ABI, hashkeyTestnet, TOKEN_DECIMALS, DEPLOY_BLOCK } from "@/config/contracts";
 
 interface Activity {
   type: "bet" | "create" | "resolve" | "claim";
@@ -70,7 +70,7 @@ export function ActivityFeed({ marketId }: { marketId: number }) {
             ],
           },
           args: { marketId: BigInt(marketId) },
-          fromBlock: "earliest",
+          fromBlock: DEPLOY_BLOCK,
           toBlock: "latest",
         });
 
@@ -87,7 +87,7 @@ export function ActivityFeed({ marketId }: { marketId: number }) {
             ],
           },
           args: { marketId: BigInt(marketId) },
-          fromBlock: "earliest",
+          fromBlock: DEPLOY_BLOCK,
           toBlock: "latest",
         });
 
@@ -102,7 +102,7 @@ export function ActivityFeed({ marketId }: { marketId: number }) {
             ],
           },
           args: { marketId: BigInt(marketId) },
-          fromBlock: "earliest",
+          fromBlock: DEPLOY_BLOCK,
           toBlock: "latest",
         });
 

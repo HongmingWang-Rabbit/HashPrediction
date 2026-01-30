@@ -21,6 +21,9 @@ export const HASH_PREDICTION_ADDRESS = "0xC89bE9D4124E75869174ABd46b47De5a0d7e57
 export const MOCK_USDC_ADDRESS = "0x9cefc16AD9dD2a4be819c616017F51d3A016C6ab" as `0x${string}`;
 export const ADMIN_ADDRESS = "0xafb5963275f4E0F75AC472F7ABDfAeD06903d85C" as `0x${string}`;
 
+// Block number when the contract was deployed — use as fromBlock instead of "earliest"
+export const DEPLOY_BLOCK = 23178454n;
+
 export const HASH_PREDICTION_ABI = [
   {
     type: "function",

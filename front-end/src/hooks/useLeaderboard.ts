@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { usePublicClient } from "wagmi";
 import { formatUnits } from "viem";
-import { HASH_PREDICTION_ADDRESS, HASH_PREDICTION_ABI, hashkeyTestnet, TOKEN_DECIMALS } from "@/config/contracts";
+import { HASH_PREDICTION_ADDRESS, HASH_PREDICTION_ABI, hashkeyTestnet, TOKEN_DECIMALS, DEPLOY_BLOCK } from "@/config/contracts";
 
 export interface LeaderboardEntry {
   address: string;
@@ -39,7 +39,7 @@ export function useLeaderboard() {
               { name: "timestamp", type: "uint256", indexed: false },
             ],
           },
-          fromBlock: "earliest",
+          fromBlock: DEPLOY_BLOCK,
           toBlock: "latest",
         });
 
@@ -55,7 +55,7 @@ export function useLeaderboard() {
               { name: "timestamp", type: "uint256", indexed: false },
             ],
           },
-          fromBlock: "earliest",
+          fromBlock: DEPLOY_BLOCK,
           toBlock: "latest",
         });
 
