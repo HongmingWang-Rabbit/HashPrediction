@@ -16,6 +16,12 @@ Binary prediction markets on HashKey Chain. Users create YES/NO markets, bet wit
 - **Frontend Dev** — Implements UI/UX changes per PM specs
 - **Tester** — Runs tests, reviews code, reports bugs
 
+## ⚠️ MANDATORY Quality Gates (ALL agents must follow)
+- **Frontend Dev:** MUST run `npx tsc --noEmit` AND `npm run build` before committing. Both must pass with zero errors.
+- **Tester:** MUST run `npx tsc --noEmit` AND `npm run build` as part of every review. A clean `npm run build` alone is NOT sufficient — Vercel runs strict type checking.
+- **Contract Dev:** MUST run `forge build && forge test` with all tests passing before committing.
+- **Nothing merges to main until tester confirms BOTH `tsc --noEmit` and `npm run build` pass.**
+
 ---
 
 ## Sprint 1 — "Stickiness & Social"
