@@ -206,7 +206,7 @@ function ConfigSection() {
 }
 
 function MarketManagement() {
-  const { data: markets } = useMarkets();
+  const { data: markets, refetch } = useMarkets();
   const { writeContract, data: tx, isPending, error } = useWriteContract();
   const { isLoading, isSuccess } = useWaitForTransactionReceipt({ hash: tx, query: { enabled: !!tx } });
   const busy = isPending || isLoading;
@@ -216,8 +216,9 @@ function MarketManagement() {
     if (isSuccess && toastId.current !== null) {
       txToast.success(toastId.current, "Market action completed ✅");
       toastId.current = null;
+      refetch();
     }
-  }, [isSuccess]);
+  }, [isSuccess, refetch]);
 
   useEffect(() => {
     if (error && toastId.current !== null) {
