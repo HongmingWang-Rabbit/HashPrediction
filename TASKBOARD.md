@@ -12,186 +12,159 @@ Binary prediction markets on HashKey Chain. Users create YES/NO markets, bet wit
 
 ## Agent Roles
 - **PM** — Researches ideas, prioritizes features, writes specs in this file
-- **Contract Dev** — Implements Solidity changes per PM specs. **Rule: after every deploy, update `front-end/src/config/contracts.ts` with new addresses/ABIs.**
-- **Frontend Dev** — Implements UI/UX changes per PM specs. **Rule: ALL config lives in source-controlled files (no .env). Already done for contracts.ts — maintain this pattern.**
+- **Contract Dev** — Implements Solidity changes per PM specs
+- **Frontend Dev** — Implements UI/UX changes per PM specs
 - **Tester** — Runs tests, reviews code, reports bugs
 
 ---
 
-## Sprint 1 — Social, Gamification & UX Foundation
+## Sprint 1 — "Stickiness & Social"
 
-### Task 1: Centralize All Frontend Config (No .env)
-**Assigned to:** Frontend Dev
-**Priority:** P0 (do first)
+> **Goal:** Make users come back daily and tell their friends. Right now the app is functional but has zero retention hooks. Every competitor (Polymarket, Azuro, Myriad) beats us on engagement. This sprint adds the social/gamification layer that turns one-time visitors into regulars.
 
-**Description:**
-Audit the entire `front-end/` codebase and ensure zero reliance on `.env` files or `process.env`. All configuration — RPC URLs, contract addresses, chain IDs, feature flags — must live in source-controlled TypeScript config files under `front-end/src/config/`.
-
-**What to do:**
-1. Confirm no `process.env` references exist anywhere in `front-end/src/` (currently clean — keep it that way)
-2. Create `front-end/src/config/app.ts` for app-level settings: app name, supported chain IDs, default RPC URL, explorer base URL, social links
-3. Move the RPC URL from `wagmi.ts` (currently using viem default) into `app.ts` and import it explicitly: `http("https://testnet.hsk.xyz")` should reference the config
-4. Add a `front-end/src/config/index.ts` barrel export for all config modules
-5. Add a comment at the top of each config file: `// Source-controlled config — no .env needed`
-6. Add `.env*` to `.gitignore` as a safety net
-
-**Acceptance Criteria:**
-- `grep -r "process.env" front-end/src/` returns nothing
-- No `.env` files exist in `front-end/`
-- `front-end/src/config/app.ts` exists with app name, RPC URL, explorer URL, chain ID
-- `front-end/src/config/index.ts` barrel-exports all config
-- App builds and runs with `npm run build && npm run dev`
+### Research Summary
+- **Polymarket** dominates on liquidity + event diversity; weakness is zero gamification
+- **Azuro** differentiates with LP yields (20-120% APY) and native token incentives
+- **Myriad** uses daily streaks, quests, leaderboards, and point-based reputation
+- **Rova** combines streak-based reputation with prediction markets
+- **Key insight:** The winning playbook is **leaderboards + streaks + social sharing + payout multiplier visibility**. These are table-stakes for any new entrant.
 
 ---
 
-### Task 2: Market Categories & Tags
-**Assigned to:** Contract Dev + Frontend Dev
-**Priority:** P1
+### P0 — Must Have (High Impact, Ship First)
 
-**Description:**
-Users can't browse by topic. Add category tagging so markets can be filtered by Crypto, Sports, Politics, Entertainment, Science, Other. This is what makes Polymarket browsable — categories are table stakes.
+#### T1: On-Chain Leaderboard Tracking
+- **Dev:** Contract
+- **Description:** Add a new `UserStats` struct and mapping to track per-address stats on-chain: total bets placed, total won, total lost, total volume, current win streak, best win streak. Update stats in `claimWinnings` (increment wins/losses based on payout > 0). Add a view function `getUserStats(address) → UserStats`.
+- **Acceptance Criteria:**
+  - `UserStats` struct with fields: `totalBets`, `totalWins`, `totalLosses`, `totalVolume`, `currentStreak`, `bestStreak`
+  - Stats updated atomically inside `claimWinnings` and `claimMultipleWinnings`
+  - `getUserStats(address)` view function returns the struct
+  - All existing tests still pass; new unit tests for stat tracking
 
-**Contract Dev — what to do:**
-1. Add a `string category` field to the `Market` struct (after `question`)
-2. Update `createMarket` to accept a `_category` parameter (string, max 32 bytes)
-3. Include `category` in the `MarketCreated` event
-4. Update `getMarket` return to include category
-5. Update ABI in `front-end/src/config/contracts.ts` after deploy
+#### T2: Leaderboard UI
+- **Dev:** Frontend
+- **Description:** Add a `/leaderboard` page. Read `UserStats` for known addresses (use event indexing — scan `BetPlaced` events to collect unique addresses, then batch-call `getUserStats`). Display a ranked table: rank, address (truncated), win rate, streak 🔥, total volume. Highlight the connected user's row. Add a "Leaderboard" link to the navbar.
+- **Acceptance Criteria:**
+  - `/leaderboard` route accessible from navbar
+  - Table shows top 50 users sorted by wins (toggle: by volume, by streak)
+  - Connected wallet row is highlighted with amber accent
+  - Loading skeleton while fetching
+  - Mobile responsive (horizontal scroll or card layout on small screens)
 
-**Frontend Dev — what to do:**
-1. Add category selector (dropdown or pill buttons) to the Create Market page: `["Crypto", "Sports", "Politics", "Entertainment", "Science", "Other"]`
-2. Store categories in `front-end/src/config/app.ts` as `MARKET_CATEGORIES`
-3. Add category filter pills to the home page (alongside existing Active/Resolved/Cancelled filters)
-4. Show category badge on `MarketCard` component
-5. Pass category string to `createMarket` contract call
+#### T3: Potential Payout Preview in BetForm
+- **Dev:** Frontend
+- **Description:** Before placing a bet, show the user their potential payout in real-time. Formula: `amount + (amount * losingPool) / (winningPool + amount)`. Display as "Potential Return: X.XX mUSDC (Y.Yx)" below the amount input. Update live as the user types or changes outcome.
+- **Acceptance Criteria:**
+  - Payout preview updates on every keystroke and outcome toggle
+  - Shows both absolute return and multiplier (e.g., "150 mUSDC (1.5x)")
+  - Shows "—" when amount is 0 or pools are empty
+  - No extra RPC calls (uses already-fetched market data)
 
-**Acceptance Criteria:**
-- Markets can be created with a category
-- Home page shows category filter pills; clicking one filters the grid
-- MarketCard displays a small colored badge for the category
-- Existing markets without a category display as "Other"
-
----
-
-### Task 3: Leaderboard Page
-**Assigned to:** Frontend Dev
-**Priority:** P1
-
-**Description:**
-Leaderboards drive competition and retention. Polymarket's top traders page is one of their stickiest features. Build an on-chain leaderboard by indexing events.
-
-**What to do:**
-1. Create `/leaderboard` page at `front-end/src/app/leaderboard/page.tsx`
-2. Add "Leaderboard" link to Navbar between "Portfolio" and "Admin"
-3. Read all `BetPlaced` and `WinningsClaimed` events from the contract using `viem`'s `getContractEvents` / `getLogs`
-4. Compute per-address stats: total bets placed (count), total volume wagered, total winnings claimed, net P&L (winnings minus amount wagered on resolved markets), win rate (markets won / markets participated in that resolved)
-5. Display a table sorted by net P&L with columns: Rank, Address (truncated `0x1234...abcd`), Bets, Volume, Net P&L, Win Rate
-6. Add time filter: All Time, Last 7 Days, Last 30 Days (filter events by block timestamp)
-7. Highlight the connected wallet's row if present
-
-**Acceptance Criteria:**
-- `/leaderboard` route works and is linked from Navbar
-- Table shows at least: rank, address, # bets, volume, net P&L, win rate
-- Connected wallet row is highlighted with amber border
-- Time filter toggles work (All Time / 7d / 30d)
-- Gracefully shows "No activity yet" when no events exist
+#### T4: Social Share Card
+- **Dev:** Frontend
+- **Description:** After placing a bet OR claiming winnings, show a "Share" button that generates a shareable card (canvas-rendered PNG or styled div) with: market question, user's position (YES/NO), amount, potential/actual payout. Include a "Copy Link" button that copies `{domain}/markets/{id}`. Also add Open Graph meta tags to market pages for link previews.
+- **Acceptance Criteria:**
+  - Share button appears in success toast after bet placement
+  - Share button appears on claim success
+  - "Copy Link" copies market URL to clipboard with visual confirmation
+  - OG meta tags on `/markets/[id]` pages (title = question, description = pool sizes)
+  - Works on mobile (native share API where available)
 
 ---
 
-### Task 4: Market Detail Page — Social Proof & Activity Feed
-**Assigned to:** Frontend Dev
-**Priority:** P1
+### P1 — Should Have (Medium Impact)
 
-**Description:**
-The market detail page (`/markets/[id]`) needs social proof. Show recent bets as a live activity feed. Polymarket and Azuro both show recent trades — it builds FOMO and trust.
+#### T5: Market Categories & Tags
+- **Dev:** Contract + Frontend
+- **Contract:** Add an optional `bytes32 category` field to the `Market` struct (set at creation). Define constants: `CRYPTO`, `SPORTS`, `POLITICS`, `ENTERTAINMENT`, `OTHER`. Zero means uncategorized.
+- **Frontend:** Add a category selector on `/create`. On the home page, add category filter pills above the existing filter bar. Each category has an emoji icon (🪙 📊 ⚽ 🏛️ 🎬).
+- **Acceptance Criteria:**
+  - Contract: `createMarket` accepts optional `bytes32 _category` parameter
+  - Contract: `Market` struct includes `category` field
+  - Frontend: category selector on create page (dropdown or pills)
+  - Frontend: category filter on home page, works alongside existing Active/Resolved/Cancelled filter
+  - Default is "All" showing every market
 
-**What to do:**
-1. In the market detail page, add an "Activity" section below the bet form
-2. Query `BetPlaced` events filtered by `marketId` using `getLogs` with the `BetPlaced` event topic
-3. Display each bet as a row: `0x1234...abcd bet 100 mUSDC on YES — 2 min ago`
-4. Show the 20 most recent bets, sorted newest first
-5. Use relative timestamps ("2 min ago", "1 hour ago")
-6. Color-code: green text for YES bets, red text for NO bets
-7. Auto-refresh every 15 seconds using `useEffect` + `setInterval` or React Query `refetchInterval`
+#### T6: Market Comments / Activity Feed
+- **Dev:** Frontend (off-chain)
+- **Description:** Add a comments section below market details on `/markets/[id]`. Store comments in localStorage initially (v1 — no backend). Each comment: wallet address (truncated), text, timestamp. Show recent bets as activity feed items ("0xab...cd bet 100 mUSDC on YES") by parsing `BetPlaced` events.
+- **Acceptance Criteria:**
+  - Activity feed shows last 20 `BetPlaced` events for the market with relative timestamps
+  - Comment input (requires connected wallet)
+  - Comments stored per-market in localStorage
+  - Clean, minimal design consistent with glass-card aesthetic
 
-**Acceptance Criteria:**
-- Market detail page shows activity feed with recent bets
-- Each entry shows: truncated address, amount, outcome (YES/NO), relative time
-- YES bets in green, NO bets in red
-- Feed auto-refreshes every 15 seconds
-- Empty state: "No bets yet — be the first!"
+#### T7: "Claim All" Button on Portfolio
+- **Dev:** Frontend
+- **Description:** The contract already has `claimMultipleWinnings`. Add a "Claim All" button at the top of the Claimable tab that batches all claimable market IDs into a single transaction.
+- **Acceptance Criteria:**
+  - Button visible only when ≥2 claimable positions exist
+  - Calls `claimMultipleWinnings` with all claimable market IDs
+  - Shows total payout sum before confirming
+  - Success refreshes portfolio; error shows toast
 
----
-
-### Task 5: User Profile Stats on Portfolio Page
-**Assigned to:** Frontend Dev
-**Priority:** P2
-
-**Description:**
-Gamify the portfolio page with performance stats and streaks. Users should feel rewarded for participation.
-
-**What to do:**
-1. Add a stats section at the top of the Portfolio page (above the existing summary cards)
-2. Compute from existing portfolio data + events:
-   - **Win Rate**: markets won / total resolved markets participated in (show as percentage + circular progress ring)
-   - **Best Win**: largest single payout (show market question + amount)
-   - **Current Streak**: consecutive correct predictions (wins in a row on resolved markets, ordered by resolution time)
-   - **Total Markets**: count of unique markets participated in
-3. Display as a horizontal row of stat cards with icons
-4. Show a motivational badge based on win rate: 🐣 Beginner (<30%), 🎯 Sharp (30-60%), 🔥 On Fire (60-80%), 👑 Legend (80%+)
-
-**Acceptance Criteria:**
-- Portfolio page shows win rate (%), best win, current streak, total markets
-- Badge displays next to username/address based on win rate tier
-- Stats are computed from on-chain data (events + portfolio entries)
-- Works correctly with 0 resolved markets (shows "No data yet")
+#### T8: Odds Display on Market Cards
+- **Dev:** Frontend
+- **Description:** On each `MarketCard` on the home page, show the implied probability as a percentage: YES% = yesPool / (yesPool + noPool) × 100. Display as a compact badge like "YES 72%" with color gradient (green→red based on probability).
+- **Acceptance Criteria:**
+  - Percentage shown on every market card with non-zero pools
+  - Shows "50/50" when pools are equal or both zero
+  - Color scales from emerald (high YES) to rose (high NO)
+  - Tooltip or small text: "Implied probability based on pool ratio"
 
 ---
 
-### Task 6: Market Creation Fee Incentive — Creator Revenue Share
-**Assigned to:** Contract Dev
-**Priority:** P2
+### P2 — Nice to Have (Lower Priority / Future Sprint Candidates)
 
-**Description:**
-Incentivize market creation by giving creators a small cut of the winning pool. This is similar to how Azuro rewards liquidity providers. Currently the creation fee goes to `feeRecipient` but creators get nothing from volume.
+#### T9: Daily Prediction Streak (Contract)
+- **Dev:** Contract
+- **Description:** Track daily engagement on-chain. Add `lastBetDay` (block.timestamp / 86400) and `dailyStreak` to `UserStats`. In `placeBet`, if today's day number > lastBetDay + 1, reset streak to 1; if equal to lastBetDay + 1, increment; if same day, no change. Emit `StreakUpdated(address, uint256 streak)`.
+- **Acceptance Criteria:**
+  - Streak increments on consecutive calendar days of betting
+  - Streak resets if a day is missed
+  - Multiple bets in one day don't double-count
+  - Event emitted on streak change
 
-**Contract Dev — what to do:**
-1. Add a `uint256 creatorFeePercentage` to `Config` (basis points, e.g., 100 = 1%, max 200 = 2%)
-2. Add `creatorFeePercentage` to `ConfigSnapshot` (snapshotted at market creation)
-3. In `claimWinnings`, when `state == Resolved`, calculate `creatorFee = totalPool * creatorFeePercentage / 10000` before distributing to winners. Deduct from the losing pool before proportional split.
-4. Transfer `creatorFee` to `market.creator` during the first claim on that market (use a `bool creatorFeePaid` flag in Market struct)
-5. Add `updateConfig` support for the new field
-6. Update ABI in `front-end/src/config/contracts.ts` after deploy
+#### T10: Streak Display & Badges (Frontend)
+- **Dev:** Frontend
+- **Description:** Show the user's current streak with a 🔥 icon in the navbar (next to wallet). On the portfolio page, show streak milestones as badges: 3-day, 7-day, 30-day, 100-day. Animate the fire icon on streak increment.
+- **Acceptance Criteria:**
+  - 🔥 streak counter in navbar (reads from `getUserStats`)
+  - Badge display on portfolio page
+  - Subtle pulse animation when streak is active
+  - "Start your streak!" CTA when streak is 0
 
-**Acceptance Criteria:**
-- Creator receives a percentage of the total pool upon market resolution (paid during first claim)
-- Creator fee is configurable by admin (0-2% range enforced)
-- Fee is deducted from losing pool before winner distribution
-- Existing tests updated; new tests for creator fee edge cases
-- `contracts.ts` updated with new ABI
+#### T11: Market Creator Incentive
+- **Dev:** Contract
+- **Description:** Give market creators 1% of the total pool as a reward (paid from losing pool at resolution). Add `creatorReward` to resolution logic: before distributing to winners, skim 1% to `market.creator`. Make the percentage configurable by admin.
+- **Acceptance Criteria:**
+  - Creator receives 1% (configurable, stored in `Config`) of total pool at resolution
+  - Deducted before winner payouts are calculated
+  - Zero reward if market is cancelled
+  - New tests covering reward math and edge cases
 
----
-
-### Task 7: Improved Market Card UX — Implied Probability & Share Button
-**Assigned to:** Frontend Dev
-**Priority:** P2
-
-**Description:**
-Show implied probability (like Polymarket's YES/NO percentages) and let users share markets. These are the two most requested features on prediction market forums.
-
-**What to do:**
-1. **Implied Probability**: On `MarketCard` and market detail page, calculate and display YES/NO probability as percentages: `YES% = yesPool / (yesPool + noPool) * 100`. Show as large text (e.g., "72% YES"). When both pools are 0, show "50% / 50%"
-2. **Share Button**: Add a share icon button on the market detail page. On click, copy a shareable URL to clipboard (`window.location.href`). Show a "Link copied!" toast for 2 seconds.
-3. **Potential Return Display**: In the BetForm, below the amount input, show "Potential return: X mUSDC" calculated as: `amount + (amount * opposingPool / (samePool + amount))`. Update live as the user types.
-
-**Acceptance Criteria:**
-- MarketCard shows YES/NO probability percentages (e.g., "72% YES · 28% NO")
-- Market detail page shows probability prominently
-- Share button copies URL to clipboard with confirmation toast
-- BetForm shows potential return that updates as user types amount
-- Potential return shows "—" when amount is empty or 0
+#### T12: Responsive Mobile Polish
+- **Dev:** Frontend
+- **Description:** Audit all pages on mobile viewports (375px, 390px, 428px). Fix: truncated text in market cards, pool bar overflow, bet form button sizing, portfolio table horizontal scroll. Add bottom-safe-area padding for iOS.
+- **Acceptance Criteria:**
+  - All pages render without horizontal overflow on 375px viewport
+  - Text truncation with ellipsis (no clipping)
+  - Touch targets ≥ 44px
+  - Bottom safe area padding on iOS Safari
 
 ---
+
+## Iteration Queue
+_After Sprint 1, candidates for Sprint 2:_
+- Oracle integration (Chainlink/API3) for automated resolution
+- ERC-1155 position tokens (tradeable bet positions)
+- Referral system with on-chain tracking
+- LP pool for protocol-owned liquidity
+- Native token / points system
+- Multi-outcome markets (beyond binary YES/NO)
+- Time-weighted average price display
+- Notifications (email/push via off-chain service)
 
 ## Completed
 _Moved here after tester approval_
