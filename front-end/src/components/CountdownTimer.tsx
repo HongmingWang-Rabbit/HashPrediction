@@ -11,7 +11,7 @@ export function CountdownTimer({ target }: { target: bigint }) {
   }, []);
 
   const diff = Number(target) - now;
-  if (diff <= 0) return <span className="text-sm text-slate-500">Ended</span>;
+  if (diff <= 0) return <span className="text-sm text-[#70707b]">Ended</span>;
 
   const d = Math.floor(diff / 86400);
   const h = Math.floor((diff % 86400) / 3600);
@@ -30,7 +30,7 @@ export function CountdownTimer({ target }: { target: bigint }) {
       {segments.map((seg) => (
         <span key={seg.label} className="text-sm">
           <span className="font-mono font-bold text-white">{String(seg.value).padStart(2, "0")}</span>
-          <span className="text-slate-500 ml-0.5">{seg.label}</span>
+          <span className="text-[#70707b] ml-0.5">{seg.label}</span>
         </span>
       ))}
     </div>

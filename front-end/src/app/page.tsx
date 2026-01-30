@@ -51,13 +51,13 @@ export default function Home() {
     <div className="relative">
       {/* Background glow */}
       <motion.div
-        className="pointer-events-none absolute -top-20 right-0 h-72 w-72 rounded-full bg-amber-500/10 blur-3xl"
+        className="pointer-events-none absolute -top-20 right-0 h-72 w-72 rounded-full bg-[#9f6ffd]/10 blur-3xl"
         initial={{ opacity: 0, scale: 0.8 }}
         animate={{ opacity: [0.3, 0.6, 0.3], scale: [1, 1.15, 1] }}
         transition={{ duration: 8, repeat: Infinity, ease: "easeInOut", delay: 2 }}
       />
       <motion.div
-        className="pointer-events-none absolute top-40 -left-20 h-72 w-72 rounded-full bg-purple-500/10 blur-3xl"
+        className="pointer-events-none absolute top-40 -left-20 h-72 w-72 rounded-full bg-[#9f6ffd]/10 blur-3xl"
         initial={{ opacity: 0, scale: 0.8 }}
         animate={{ opacity: [0.2, 0.5, 0.2], scale: [1, 1.1, 1] }}
         transition={{ duration: 8, repeat: Infinity, ease: "easeInOut", delay: 3 }}
@@ -72,7 +72,7 @@ export default function Home() {
         <span className="gradient-text">Prediction Markets</span>
       </motion.h1>
       <motion.p
-        className="mb-8 text-slate-400"
+        className="mb-8 text-[#70707b]"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 0.2 }}
@@ -91,14 +91,14 @@ export default function Home() {
             whileTap={{ scale: 0.95 }}
             className={`relative rounded-xl px-4 py-2.5 text-sm font-medium transition-colors ${
               filter === f
-                ? "text-amber-400"
-                : "text-slate-400 hover:text-white hover:bg-slate-800/50"
+                ? "text-[#9f6ffd]"
+                : "text-[#70707b] hover:text-white hover:bg-[#17181e]/50"
             }`}
           >
             {filter === f && (
               <motion.span
                 layoutId="filterIndicator"
-                className="absolute inset-0 rounded-xl bg-amber-500/10 border border-amber-500/20"
+                className="absolute inset-0 rounded-xl bg-[#9f6ffd]/10 border border-[#9f6ffd]/20"
                 transition={{ type: "spring", stiffness: 400, damping: 30 }}
               />
             )}
@@ -106,7 +106,7 @@ export default function Home() {
           </motion.button>
         ))}
 
-        <span className="mx-2 h-5 w-px bg-slate-700/50" />
+        <span className="mx-2 h-5 w-px bg-[#3f3f46]/50" />
 
         {SORTS.map((s) => (
           <button
@@ -114,8 +114,8 @@ export default function Home() {
             onClick={() => setSort(s)}
             className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${
               sort === s
-                ? "bg-slate-700/50 text-white"
-                : "text-slate-500 hover:text-slate-300"
+                ? "bg-[#3f3f46]/50 text-white"
+                : "text-[#f4f4f5]0 hover:text-[#d1d1d6]"
             }`}
           >
             {s}
@@ -136,7 +136,7 @@ export default function Home() {
           animate={{ opacity: 1 }}
           transition={{ duration: 0.4 }}
         >
-          <p className="text-slate-400">No markets found.</p>
+          <p className="text-[#70707b]">No markets found.</p>
         </motion.div>
       ) : (
         <AnimatePresence mode="wait">

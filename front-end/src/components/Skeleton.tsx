@@ -11,7 +11,7 @@ const pulseTransition = {
 function SkeletonBar({ className }: { className?: string }) {
   return (
     <motion.div
-      className={`bg-slate-700/50 ${className ?? ""}`}
+      className={`bg-[#3f3f46]/50 ${className ?? ""}`}
       animate={{ opacity: [0.4, 0.7, 0.4] }}
       transition={pulseTransition}
     />

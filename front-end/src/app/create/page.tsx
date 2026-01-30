@@ -104,7 +104,7 @@ export default function CreatePage() {
   if (!isConnected) {
     return (
       <div className="glass-card mx-auto max-w-lg p-12 text-center">
-        <p className="text-slate-400">Connect your wallet to create a market.</p>
+        <p className="text-[#70707b]">Connect your wallet to create a market.</p>
       </div>
     );
   }
@@ -114,7 +114,7 @@ export default function CreatePage() {
   return (
     <div className="mx-auto max-w-lg">
       <h1 className="mb-2 text-2xl font-bold text-white">Create Market</h1>
-      <p className="mb-8 text-slate-400">Set up a new prediction market</p>
+      <p className="mb-8 text-[#70707b]">Set up a new prediction market</p>
 
       {/* Step indicators */}
       <div className="mb-8 flex items-center gap-2">
@@ -124,16 +124,16 @@ export default function CreatePage() {
               onClick={() => i < step && setStep(i)}
               className={`flex h-8 w-8 items-center justify-center rounded-full text-xs font-semibold transition-all ${
                 i === step
-                  ? "bg-amber-500 text-slate-900"
+                  ? "bg-[#9f6ffd] text-black"
                   : i < step
-                  ? "bg-amber-500/20 text-amber-400 cursor-pointer"
-                  : "bg-slate-800 text-slate-500"
+                  ? "bg-[#9f6ffd]/20 text-[#9f6ffd] cursor-pointer"
+                  : "bg-[#17181e] text-[#f4f4f5]0"
               }`}
             >
               {i + 1}
             </button>
-            <span className={`text-[10px] sm:text-xs ${i === step ? "text-white" : "text-slate-500"}`}>{s}</span>
-            {i < STEPS.length - 1 && <div className="mx-1 sm:mx-2 h-px w-4 sm:w-8 bg-slate-700" />}
+            <span className={`text-[10px] sm:text-xs ${i === step ? "text-white" : "text-[#f4f4f5]0"}`}>{s}</span>
+            {i < STEPS.length - 1 && <div className="mx-1 sm:mx-2 h-px w-4 sm:w-8 bg-[#3f3f46]" />}
           </div>
         ))}
       </div>
@@ -142,7 +142,7 @@ export default function CreatePage() {
         {step === 0 && (
           <>
             <div>
-              <label htmlFor="question" className="mb-2 block text-sm font-medium text-slate-300">Question</label>
+              <label htmlFor="question" className="mb-2 block text-sm font-medium text-[#d1d1d6]">Question</label>
               <textarea
                 id="question"
                 value={question}
@@ -153,13 +153,13 @@ export default function CreatePage() {
               />
             </div>
             <div>
-              <label htmlFor="resolutionTime" className="mb-2 block text-sm font-medium text-slate-300">Resolution Time</label>
+              <label htmlFor="resolutionTime" className="mb-2 block text-sm font-medium text-[#d1d1d6]">Resolution Time</label>
               <input
                 id="resolutionTime"
                 type="datetime-local"
                 value={resolutionDate}
                 onChange={(e) => setResolutionDate(e.target.value)}
-                className="w-full rounded-xl border border-slate-700/50 bg-slate-800/50 px-4 py-3 text-sm text-white outline-none focus:border-amber-500/50 transition-colors"
+                className="w-full rounded-xl border border-[#3f3f46]/50 bg-[#17181e]/50 px-4 py-3 text-sm text-white outline-none focus:border-[#9f6ffd]/50 transition-colors"
               />
             </div>
             <button
@@ -176,7 +176,7 @@ export default function CreatePage() {
         {step === 1 && (
           <>
             <div>
-              <label htmlFor="feeAmount" className="mb-2 block text-sm font-medium text-slate-300">Creation Fee (mUSDC)</label>
+              <label htmlFor="feeAmount" className="mb-2 block text-sm font-medium text-[#d1d1d6]">Creation Fee (mUSDC)</label>
               <input
                 id="feeAmount"
                 type="text"
@@ -185,13 +185,13 @@ export default function CreatePage() {
                 className="input-field"
                 placeholder="0"
               />
-              <p className="mt-2 text-xs text-slate-500">Fee paid to the protocol for creating this market</p>
+              <p className="mt-2 text-xs text-[#f4f4f5]0">Fee paid to the protocol for creating this market</p>
             </div>
             <div className="flex gap-3">
               <button
                 type="button"
                 onClick={() => setStep(0)}
-                className="flex-1 rounded-xl border border-slate-700/50 py-3 text-sm font-medium text-slate-300 hover:bg-slate-800/50 transition-all"
+                className="flex-1 rounded-xl border border-[#3f3f46]/50 py-3 text-sm font-medium text-[#d1d1d6] hover:bg-[#17181e]/50 transition-all"
               >
                 Back
               </button>
@@ -210,29 +210,29 @@ export default function CreatePage() {
           <>
             {/* Preview card */}
             <div className="glass-card p-6 space-y-3">
-              <h3 className="text-sm font-semibold text-slate-400 uppercase tracking-wider">Preview</h3>
+              <h3 className="text-sm font-semibold text-[#70707b] uppercase tracking-wider">Preview</h3>
               <p className="text-white font-medium">{question}</p>
               <div className="flex justify-between text-sm">
-                <span className="text-slate-400">Resolution</span>
-                <span className="text-slate-300">{resolutionDate ? new Date(resolutionDate).toLocaleString() : "—"}</span>
+                <span className="text-[#70707b]">Resolution</span>
+                <span className="text-[#d1d1d6]">{resolutionDate ? new Date(resolutionDate).toLocaleString() : "—"}</span>
               </div>
               <div className="flex justify-between text-sm">
-                <span className="text-slate-400">Fee</span>
-                <span className="text-slate-300">{feeAmount} mUSDC</span>
+                <span className="text-[#70707b]">Fee</span>
+                <span className="text-[#d1d1d6]">{feeAmount} mUSDC</span>
               </div>
             </div>
             <div className="flex gap-3">
               <button
                 type="button"
                 onClick={() => setStep(1)}
-                className="flex-1 rounded-xl border border-slate-700/50 py-3 text-sm font-medium text-slate-300 hover:bg-slate-800/50 transition-all"
+                className="flex-1 rounded-xl border border-[#3f3f46]/50 py-3 text-sm font-medium text-[#d1d1d6] hover:bg-[#17181e]/50 transition-all"
               >
                 Back
               </button>
               <button
                 type="submit"
                 disabled={busy || !question.trim() || !resolutionDate}
-                className="flex-1 rounded-xl gradient-primary py-3 text-sm font-semibold text-slate-900 hover:opacity-90 disabled:opacity-50 transition-all"
+                className="flex-1 rounded-xl gradient-primary py-3 text-sm font-semibold text-black hover:opacity-90 disabled:opacity-50 transition-all"
               >
                 {needsApproval
                   ? busy ? "Approving..." : "Approve mUSDC"
@@ -243,7 +243,7 @@ export default function CreatePage() {
         )}
 
         {(approveError || createError) && (
-          <p className="text-xs text-rose-400">{(approveError || createError)?.message?.split("\n")[0]}</p>
+          <p className="text-xs text-[#f8495e]">{(approveError || createError)?.message?.split("\n")[0]}</p>
         )}
       </form>
     </div>

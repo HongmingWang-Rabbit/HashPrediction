@@ -15,7 +15,7 @@ const PRESETS = ["10", "50", "100", "500"];
 function PayoutPreview({ amount, outcome, yesPool, noPool }: { amount: bigint; outcome: 1 | 2; yesPool: bigint; noPool: bigint }) {
   if (amount <= 0n) {
     return (
-      <div className="mb-4 rounded-lg border border-slate-700/50 bg-slate-800/30 px-4 py-3 text-sm text-slate-500">
+      <div className="mb-4 rounded-lg border border-[#3f3f46]/50 bg-[#17181e]/30 px-4 py-3 text-sm text-[#f4f4f5]0">
         Potential Return: —
       </div>
     );
@@ -34,10 +34,10 @@ function PayoutPreview({ amount, outcome, yesPool, noPool }: { amount: bigint; o
   const payoutStr = Number(formatUnits(payout, TOKEN_DECIMALS)).toLocaleString(undefined, { maximumFractionDigits: 2 });
 
   return (
-    <div className="mb-4 rounded-lg border border-amber-500/20 bg-amber-500/5 px-4 py-3 text-sm">
-      <span className="text-slate-400">Potential Return: </span>
-      <span className="font-semibold text-amber-400">{payoutStr} mUSDC</span>
-      <span className="ml-1.5 text-amber-400/70">({multiplier.toFixed(2)}x)</span>
+    <div className="mb-4 rounded-lg border border-[#9f6ffd]/20 bg-[#9f6ffd]/5 px-4 py-3 text-sm">
+      <span className="text-[#70707b]">Potential Return: </span>
+      <span className="font-semibold text-[#9f6ffd]">{payoutStr} mUSDC</span>
+      <span className="ml-1.5 text-[#9f6ffd]/70">({multiplier.toFixed(2)}x)</span>
     </div>
   );
 }
@@ -49,7 +49,7 @@ function RulesExplainer() {
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
-        className="flex w-full items-center gap-1.5 text-xs font-medium text-slate-400 hover:text-slate-200 transition-colors"
+        className="flex w-full items-center gap-1.5 text-xs font-medium text-[#70707b] hover:text-[#f4f4f5] transition-colors"
       >
         <svg
           className={`h-3.5 w-3.5 transition-transform ${open ? "rotate-90" : ""}`}
@@ -63,30 +63,30 @@ function RulesExplainer() {
         How prediction markets work
       </button>
       {open && (
-        <div className="mt-2 rounded-lg border border-slate-700/50 bg-slate-800/40 p-3.5 text-xs leading-relaxed text-slate-300 space-y-2">
+        <div className="mt-2 rounded-lg border border-[#3f3f46]/50 bg-[#17181e]/40 p-3.5 text-xs leading-relaxed text-[#d1d1d6] space-y-2">
           <p>
-            <span className="font-semibold text-amber-400">1. Pick an outcome</span> — Choose{" "}
-            <span className="text-emerald-400 font-medium">YES</span> or{" "}
-            <span className="text-rose-400 font-medium">NO</span> and enter the amount of mUSDC you
+            <span className="font-semibold text-[#9f6ffd]">1. Pick an outcome</span> — Choose{" "}
+            <span className="text-[#19bf86] font-medium">YES</span> or{" "}
+            <span className="text-[#f8495e] font-medium">NO</span> and enter the amount of mUSDC you
             want to bet.
           </p>
           <p>
-            <span className="font-semibold text-amber-400">2. Pool-based payouts</span> — All bets
+            <span className="font-semibold text-[#9f6ffd]">2. Pool-based payouts</span> — All bets
             go into a shared pool. If your side wins, you receive a share of the <em>entire</em>{" "}
             pool proportional to your contribution.
           </p>
           <p>
-            <span className="font-semibold text-amber-400">3. Potential return</span> — The less
+            <span className="font-semibold text-[#9f6ffd]">3. Potential return</span> — The less
             popular the winning side, the higher the payout per token. Early bets on the correct
             outcome earn the most.
           </p>
           <p>
-            <span className="font-semibold text-amber-400">4. Resolution</span> — After the
+            <span className="font-semibold text-[#9f6ffd]">4. Resolution</span> — After the
             deadline, an admin resolves the market. Winners can then claim their payout; losers
             forfeit their bet.
           </p>
           <p>
-            <span className="font-semibold text-amber-400">5. Fees</span> — A small fee is deducted
+            <span className="font-semibold text-[#9f6ffd]">5. Fees</span> — A small fee is deducted
             at market creation. There are no additional fees on bets or claims.
           </p>
         </div>
@@ -183,8 +183,8 @@ export function BetForm({ marketId, yesPool, noPool, onSuccess, allowance, balan
         <div
           className={`mb-4 rounded-lg px-4 py-2.5 text-sm font-medium ${
             toast.type === "success"
-              ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
-              : "bg-rose-500/10 text-rose-400 border border-rose-500/20"
+              ? "bg-[#19bf86]/10 text-[#19bf86] border border-[#19bf86]/20"
+              : "bg-[#f8495e]/10 text-[#f8495e] border border-[#f8495e]/20"
           }`}
         >
           {toast.message}
@@ -192,13 +192,13 @@ export function BetForm({ marketId, yesPool, noPool, onSuccess, allowance, balan
       )}
 
       {/* Outcome toggle */}
-      <div className="mb-4 grid grid-cols-2 gap-2 rounded-xl bg-slate-800/50 p-1">
+      <div className="mb-4 grid grid-cols-2 gap-2 rounded-xl bg-[#17181e]/50 p-1">
         <button
           onClick={() => setSelectedOutcome(1)}
           className={`rounded-lg py-2.5 text-sm font-semibold transition-all ${
             selectedOutcome === 1
-              ? "bg-emerald-500 text-white shadow-lg glow-yes"
-              : "text-slate-400 hover:text-white"
+              ? "bg-[#19bf86] text-white shadow-lg glow-yes"
+              : "text-[#70707b] hover:text-white"
           }`}
         >
           YES
@@ -207,8 +207,8 @@ export function BetForm({ marketId, yesPool, noPool, onSuccess, allowance, balan
           onClick={() => setSelectedOutcome(2)}
           className={`rounded-lg py-2.5 text-sm font-semibold transition-all ${
             selectedOutcome === 2
-              ? "bg-rose-500 text-white shadow-lg glow-no"
-              : "text-slate-400 hover:text-white"
+              ? "bg-[#f8495e] text-white shadow-lg glow-no"
+              : "text-[#70707b] hover:text-white"
           }`}
         >
           NO
@@ -234,8 +234,8 @@ export function BetForm({ marketId, yesPool, noPool, onSuccess, allowance, balan
             onClick={() => setAmount(p)}
             className={`flex-1 rounded-lg py-2.5 text-xs font-medium transition-all ${
               amount === p
-                ? "bg-amber-500/20 text-amber-400 border border-amber-500/30"
-                : "bg-slate-800/50 text-slate-400 hover:text-white border border-transparent"
+                ? "bg-[#9f6ffd]/20 text-[#9f6ffd] border border-[#9f6ffd]/30"
+                : "bg-[#17181e]/50 text-[#70707b] hover:text-white border border-transparent"
             }`}
           >
             {p}
@@ -266,7 +266,7 @@ export function BetForm({ marketId, yesPool, noPool, onSuccess, allowance, balan
         <button
           onClick={handleApprove}
           disabled={busy}
-          className="w-full rounded-xl gradient-primary py-3 text-sm font-semibold text-slate-900 hover:opacity-90 disabled:opacity-50 transition-all"
+          className="w-full rounded-xl gradient-primary py-3 text-sm font-semibold text-black hover:opacity-90 disabled:opacity-50 transition-all"
         >
           {busy ? "Approving..." : "Approve mUSDC"}
         </button>
@@ -276,8 +276,8 @@ export function BetForm({ marketId, yesPool, noPool, onSuccess, allowance, balan
           disabled={busy || parsedAmount === 0n}
           className={`w-full rounded-xl py-3 text-sm font-semibold text-white transition-all disabled:opacity-50 ${
             selectedOutcome === 1
-              ? "bg-emerald-600 hover:bg-emerald-500"
-              : "bg-rose-600 hover:bg-rose-500"
+              ? "bg-[#19bf86] hover:bg-[#19bf86]"
+              : "bg-[#f8495e] hover:bg-[#f8495e]"
           }`}
         >
           {busy ? "Placing bet..." : `Bet ${selectedOutcome === 1 ? "YES" : "NO"}`}

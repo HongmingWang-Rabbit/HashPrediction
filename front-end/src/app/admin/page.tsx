@@ -20,14 +20,14 @@ export default function AdminPage() {
   if (!address) {
     return (
       <div className="glass-card mx-auto max-w-lg p-12 text-center">
-        <p className="text-slate-400">Connect your wallet.</p>
+        <p className="text-[#70707b]">Connect your wallet.</p>
       </div>
     );
   }
   if (!isAdmin) {
     return (
       <div className="glass-card mx-auto max-w-lg p-12 text-center">
-        <p className="text-slate-400">Admin access only.</p>
+        <p className="text-[#70707b]">Admin access only.</p>
       </div>
     );
   }
@@ -36,7 +36,7 @@ export default function AdminPage() {
     <div className="mx-auto max-w-3xl space-y-6">
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-white">Admin Panel</h1>
-        <p className="text-slate-400 mt-1">Manage contracts and markets</p>
+        <p className="text-[#70707b] mt-1">Manage contracts and markets</p>
       </div>
       <PauseSection />
       <ConfigSection />
@@ -56,7 +56,7 @@ type Config = {
 function SectionCard({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div className="glass-card p-6">
-      <h2 className="mb-4 text-sm font-semibold text-slate-400 uppercase tracking-wider">{title}</h2>
+      <h2 className="mb-4 text-sm font-semibold text-[#70707b] uppercase tracking-wider">{title}</h2>
       {children}
     </div>
   );
@@ -82,7 +82,7 @@ function PauseSection() {
     <SectionCard title="Contract Status">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <span className={`inline-block h-3 w-3 rounded-full ${paused ? "bg-rose-400" : "bg-emerald-400"}`} />
+          <span className={`inline-block h-3 w-3 rounded-full ${paused ? "bg-[#f8495e]" : "bg-[#19bf86]"}`} />
           <span className="text-white font-medium">{paused ? "Paused" : "Active"}</span>
         </div>
         <button
@@ -98,13 +98,13 @@ function PauseSection() {
           }}
           disabled={busy}
           className={`rounded-xl px-5 py-2 text-sm font-semibold disabled:opacity-50 transition-all ${
-            paused ? "bg-emerald-600 hover:bg-emerald-500 text-white" : "bg-rose-600 hover:bg-rose-500 text-white"
+            paused ? "bg-[#19bf86] hover:bg-[#19bf86] text-white" : "bg-[#f8495e] hover:bg-[#f8495e] text-white"
           }`}
         >
           {busy ? "..." : paused ? "Unpause" : "Pause"}
         </button>
       </div>
-      {error && <p className="mt-3 text-xs text-rose-400">{error.message?.split("\n")[0]}</p>}
+      {error && <p className="mt-3 text-xs text-[#f8495e]">{error.message?.split("\n")[0]}</p>}
     </SectionCard>
   );
 }
@@ -139,7 +139,7 @@ function ConfigSection() {
     <SectionCard title="Update Config">
       <div className="space-y-4">
         <div>
-          <label htmlFor="feeRecipient" className="mb-2 block text-sm font-medium text-slate-300">Fee recipient address</label>
+          <label htmlFor="feeRecipient" className="mb-2 block text-sm font-medium text-[#d1d1d6]">Fee recipient address</label>
           <input
             id="feeRecipient"
             placeholder="0x..."
@@ -149,7 +149,7 @@ function ConfigSection() {
           />
         </div>
         <div>
-          <label htmlFor="maxFeeBps" className="mb-2 block text-sm font-medium text-slate-300">Max fee (basis points, 100=1%)</label>
+          <label htmlFor="maxFeeBps" className="mb-2 block text-sm font-medium text-[#d1d1d6]">Max fee (basis points, 100=1%)</label>
           <input
             id="maxFeeBps"
             placeholder="0"
@@ -167,9 +167,9 @@ function ConfigSection() {
         </button>
       </div>
       {feeRecipient && !isValidAddress && (
-        <p className="mt-3 text-xs text-amber-400">Enter a valid Ethereum address (0x + 40 hex characters)</p>
+        <p className="mt-3 text-xs text-[#9f6ffd]">Enter a valid Ethereum address (0x + 40 hex characters)</p>
       )}
-      {error && <p className="mt-3 text-xs text-rose-400">{error.message?.split("\n")[0]}</p>}
+      {error && <p className="mt-3 text-xs text-[#f8495e]">{error.message?.split("\n")[0]}</p>}
     </SectionCard>
   );
 }
@@ -188,14 +188,14 @@ function MarketManagement() {
   return (
     <SectionCard title="Resolve / Cancel Markets">
       {actionable.length === 0 ? (
-        <p className="text-sm text-slate-500">No markets past resolution time.</p>
+        <p className="text-sm text-[#f4f4f5]0">No markets past resolution time.</p>
       ) : (
         <div className="space-y-3">
           {actionable.map((m) => (
-            <div key={m.id.toString()} className="flex items-center justify-between gap-3 rounded-xl border border-slate-700/30 bg-slate-800/30 p-4">
+            <div key={m.id.toString()} className="flex items-center justify-between gap-3 rounded-xl border border-[#3f3f46]/30 bg-[#17181e]/30 p-4">
               <div className="min-w-0">
                 <p className="truncate text-sm text-white font-medium">{m.question}</p>
-                <div className="flex gap-3 text-xs text-slate-500 mt-1">
+                <div className="flex gap-3 text-xs text-[#f4f4f5]0 mt-1">
                   <span>YES: {formatUnits(m.yesPool, TOKEN_DECIMALS)}</span>
                   <span>NO: {formatUnits(m.noPool, TOKEN_DECIMALS)}</span>
                 </div>
@@ -211,7 +211,7 @@ function MarketManagement() {
                     })
                   }
                   disabled={busy}
-                  className="rounded-lg bg-emerald-600 px-3 py-2 text-xs font-medium text-white hover:bg-emerald-500 disabled:opacity-50 transition-all"
+                  className="rounded-lg bg-[#19bf86] px-3 py-2 text-xs font-medium text-white hover:bg-[#19bf86] disabled:opacity-50 transition-all"
                 >
                   YES
                 </button>
@@ -225,7 +225,7 @@ function MarketManagement() {
                     })
                   }
                   disabled={busy}
-                  className="rounded-lg bg-rose-600 px-3 py-2 text-xs font-medium text-white hover:bg-rose-500 disabled:opacity-50 transition-all"
+                  className="rounded-lg bg-[#f8495e] px-3 py-2 text-xs font-medium text-white hover:bg-[#f8495e] disabled:opacity-50 transition-all"
                 >
                   NO
                 </button>
@@ -239,7 +239,7 @@ function MarketManagement() {
                     })
                   }
                   disabled={busy}
-                  className="rounded-lg bg-slate-700 px-3 py-2 text-xs font-medium text-white hover:bg-slate-600 disabled:opacity-50 transition-all"
+                  className="rounded-lg bg-[#3f3f46] px-3 py-2 text-xs font-medium text-white hover:bg-[#3f3f46] disabled:opacity-50 transition-all"
                 >
                   Cancel
                 </button>
@@ -248,7 +248,7 @@ function MarketManagement() {
           ))}
         </div>
       )}
-      {error && <p className="mt-3 text-xs text-rose-400">{error.message?.split("\n")[0]}</p>}
+      {error && <p className="mt-3 text-xs text-[#f8495e]">{error.message?.split("\n")[0]}</p>}
     </SectionCard>
   );
 }
@@ -278,7 +278,7 @@ function MintSection() {
     <SectionCard title="Mint Test Tokens">
       <div className="space-y-4">
         <div>
-          <label htmlFor="mintTo" className="mb-2 block text-sm font-medium text-slate-300">Recipient address</label>
+          <label htmlFor="mintTo" className="mb-2 block text-sm font-medium text-[#d1d1d6]">Recipient address</label>
           <input
             id="mintTo"
             placeholder="0x..."
@@ -288,7 +288,7 @@ function MintSection() {
           />
         </div>
         <div>
-          <label htmlFor="mintAmount" className="mb-2 block text-sm font-medium text-slate-300">Amount (mUSDC)</label>
+          <label htmlFor="mintAmount" className="mb-2 block text-sm font-medium text-[#d1d1d6]">Amount (mUSDC)</label>
           <input
             id="mintAmount"
             placeholder="1000"
@@ -305,7 +305,7 @@ function MintSection() {
           {isPending || isLoading ? "Minting..." : "Mint"}
         </button>
       </div>
-      {error && <p className="mt-3 text-xs text-rose-400">{error.message?.split("\n")[0]}</p>}
+      {error && <p className="mt-3 text-xs text-[#f8495e]">{error.message?.split("\n")[0]}</p>}
     </SectionCard>
   );
 }

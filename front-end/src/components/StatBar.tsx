@@ -19,14 +19,14 @@ export function StatBar({ markets }: { markets: Market[] }) {
       animate={{ opacity: 1 }}
       transition={{ duration: 0.4, delay: 0.3 }}
     >
-      <span className="text-slate-400">
+      <span className="text-[#70707b]">
         <span className="font-semibold text-white"><AnimatedCounter value={totalMarkets} /></span> Markets
       </span>
-      <span className="text-slate-400">
-        <span className="font-semibold text-emerald-400"><AnimatedCounter value={activeMarkets} /></span> Active
+      <span className="text-[#70707b]">
+        <span className="font-semibold text-[#19bf86]"><AnimatedCounter value={activeMarkets} /></span> Active
       </span>
-      <span className="text-slate-400">
-        Vol <span className="font-semibold text-amber-400"><AnimatedCounter value={volumeNum} suffix=" mUSDC" /></span>
+      <span className="text-[#70707b]">
+        Vol <span className="font-semibold text-[#9f6ffd]"><AnimatedCounter value={volumeNum} suffix=" mUSDC" /></span>
       </span>
     </motion.div>
   );

@@ -30,7 +30,7 @@ export default function MarketPage() {
       </div>
     );
   }
-  if (!market) return <p className="text-slate-500">Market not found.</p>;
+  if (!market) return <p className="text-[#f4f4f5]0">Market not found.</p>;
 
   const isActive = market.state === 0;
   const now = Math.floor(Date.now() / 1000);
@@ -77,13 +77,13 @@ export default function MarketPage() {
           <MarketStatus state={market.state} resolutionTime={market.resolutionTime} />
           {isActive && <CountdownTimer target={market.resolutionTime} />}
           {market.state === 1 && (
-            <span className={`text-sm font-semibold ${market.winningOutcome === 1 ? "text-emerald-400" : "text-rose-400"}`}>
+            <span className={`text-sm font-semibold ${market.winningOutcome === 1 ? "text-[#19bf86]" : "text-[#f8495e]"}`}>
               Winner: {market.winningOutcome === 1 ? "YES" : "NO"}
             </span>
           )}
           <button
             onClick={handleShare}
-            className="ml-auto flex items-center gap-1.5 rounded-lg bg-slate-800/50 px-3 py-1.5 text-xs text-slate-400 hover:text-white transition-colors"
+            className="ml-auto flex items-center gap-1.5 rounded-lg bg-[#17181e]/50 px-3 py-1.5 text-xs text-[#70707b] hover:text-white transition-colors"
           >
             <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
@@ -94,11 +94,11 @@ export default function MarketPage() {
         <h1 className="text-2xl font-bold text-white">{market.question}</h1>
         {/* Implied probability */}
         <div className="mt-3 flex items-center gap-3">
-          <span className="text-2xl font-bold text-emerald-400">{yesPct.toFixed(0)}%</span>
-          <span className="text-sm text-slate-500">YES</span>
-          <span className="text-slate-600">·</span>
-          <span className="text-2xl font-bold text-rose-400">{noPct.toFixed(0)}%</span>
-          <span className="text-sm text-slate-500">NO</span>
+          <span className="text-2xl font-bold text-[#19bf86]">{yesPct.toFixed(0)}%</span>
+          <span className="text-sm text-[#f4f4f5]0">YES</span>
+          <span className="text-[#3f3f46]">·</span>
+          <span className="text-2xl font-bold text-[#f8495e]">{noPct.toFixed(0)}%</span>
+          <span className="text-sm text-[#f4f4f5]0">NO</span>
         </div>
       </div>
 
@@ -108,47 +108,47 @@ export default function MarketPage() {
         <div className="space-y-6 md:col-span-3 lg:col-span-3">
           {/* Pool distribution */}
           <div className="glass-card p-6">
-            <h2 className="mb-4 text-sm font-semibold text-slate-400 uppercase tracking-wider">Pool Distribution</h2>
+            <h2 className="mb-4 text-sm font-semibold text-[#70707b] uppercase tracking-wider">Pool Distribution</h2>
             <PoolBar yesPool={market.yesPool} noPool={market.noPool} />
             <div className="mt-4 grid grid-cols-2 gap-4">
-              <div className="rounded-xl bg-emerald-500/5 border border-emerald-500/10 p-4 text-center">
-                <p className="text-lg sm:text-xl font-bold text-emerald-400 truncate">
+              <div className="rounded-xl bg-[#19bf86]/5 border border-[#19bf86]/10 p-4 text-center">
+                <p className="text-lg sm:text-xl font-bold text-[#19bf86] truncate">
                   {Number(formatUnits(market.yesPool, TOKEN_DECIMALS)).toLocaleString()}
                 </p>
-                <p className="text-xs text-slate-500 mt-1">YES Pool (mUSDC)</p>
+                <p className="text-xs text-[#f4f4f5]0 mt-1">YES Pool (mUSDC)</p>
               </div>
-              <div className="rounded-xl bg-rose-500/5 border border-rose-500/10 p-4 text-center">
-                <p className="text-lg sm:text-xl font-bold text-rose-400 truncate">
+              <div className="rounded-xl bg-[#f8495e]/5 border border-[#f8495e]/10 p-4 text-center">
+                <p className="text-lg sm:text-xl font-bold text-[#f8495e] truncate">
                   {Number(formatUnits(market.noPool, TOKEN_DECIMALS)).toLocaleString()}
                 </p>
-                <p className="text-xs text-slate-500 mt-1">NO Pool (mUSDC)</p>
+                <p className="text-xs text-[#f4f4f5]0 mt-1">NO Pool (mUSDC)</p>
               </div>
             </div>
           </div>
 
           {/* Market details */}
           <div className="glass-card p-6">
-            <h2 className="mb-4 text-sm font-semibold text-slate-400 uppercase tracking-wider">Details</h2>
+            <h2 className="mb-4 text-sm font-semibold text-[#70707b] uppercase tracking-wider">Details</h2>
             <div className="space-y-3 text-sm">
               <div className="flex justify-between">
-                <span className="text-slate-400">Creator</span>
-                <span className="font-mono text-xs text-slate-300">{market.creator.slice(0, 6)}...{market.creator.slice(-4)}</span>
+                <span className="text-[#70707b]">Creator</span>
+                <span className="font-mono text-xs text-[#d1d1d6]">{market.creator.slice(0, 6)}...{market.creator.slice(-4)}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-slate-400">Created</span>
-                <span className="text-slate-300">{new Date(Number(market.createdAt) * 1000).toLocaleString()}</span>
+                <span className="text-[#70707b]">Created</span>
+                <span className="text-[#d1d1d6]">{new Date(Number(market.createdAt) * 1000).toLocaleString()}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-slate-400">Resolution</span>
-                <span className="text-slate-300">{new Date(Number(market.resolutionTime) * 1000).toLocaleString()}</span>
+                <span className="text-[#70707b]">Resolution</span>
+                <span className="text-[#d1d1d6]">{new Date(Number(market.resolutionTime) * 1000).toLocaleString()}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-slate-400">Creation Fee</span>
-                <span className="text-slate-300">{formatUnits(market.creationFee, TOKEN_DECIMALS)} mUSDC</span>
+                <span className="text-[#70707b]">Creation Fee</span>
+                <span className="text-[#d1d1d6]">{formatUnits(market.creationFee, TOKEN_DECIMALS)} mUSDC</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-slate-400">Total Volume</span>
-                <span className="text-amber-400 font-medium">
+                <span className="text-[#70707b]">Total Volume</span>
+                <span className="text-[#9f6ffd] font-medium">
                   {Number(formatUnits(market.yesPool + market.noPool, TOKEN_DECIMALS)).toLocaleString()} mUSDC
                 </span>
               </div>
@@ -160,7 +160,7 @@ export default function MarketPage() {
         <div className="space-y-6 md:col-span-2 lg:col-span-2">
           {balance !== undefined && (
             <div className="glass-card p-4 text-center">
-              <p className="text-xs text-slate-400">Your Balance</p>
+              <p className="text-xs text-[#70707b]">Your Balance</p>
               <p className="text-lg font-bold text-white">{Number(formatUnits(balance, TOKEN_DECIMALS)).toLocaleString()} mUSDC</p>
             </div>
           )}

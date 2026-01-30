@@ -20,7 +20,7 @@ export default function PortfolioPage() {
   if (!isConnected) {
     return (
       <div className="glass-card mx-auto max-w-lg p-12 text-center">
-        <p className="text-slate-400">Connect your wallet to view your portfolio.</p>
+        <p className="text-[#70707b]">Connect your wallet to view your portfolio.</p>
       </div>
     );
   }
@@ -50,17 +50,17 @@ export default function PortfolioPage() {
   return (
     <div className="min-w-0 overflow-hidden">
       <h1 className="mb-2 text-2xl sm:text-3xl font-bold text-white">My Portfolio</h1>
-      <p className="mb-8 text-slate-400">Track your positions and markets</p>
+      <p className="mb-8 text-[#70707b]">Track your positions and markets</p>
 
       {/* Summary cards */}
       <div className="mb-8 grid grid-cols-2 gap-3 sm:gap-4 sm:grid-cols-4">
         <div className="glass-card p-3 sm:p-4 text-center overflow-hidden">
-          <p className="text-xl sm:text-2xl font-bold text-amber-400">{entries.length}</p>
-          <p className="text-xs text-slate-400 mt-1">Total Positions</p>
+          <p className="text-xl sm:text-2xl font-bold text-[#9f6ffd]">{entries.length}</p>
+          <p className="text-xs text-[#70707b] mt-1">Total Positions</p>
         </div>
         <div className="glass-card p-3 sm:p-4 text-center overflow-hidden">
-          <p className="text-xl sm:text-2xl font-bold text-emerald-400">{claimable.length}</p>
-          <p className="text-xs text-slate-400 mt-1">Claimable</p>
+          <p className="text-xl sm:text-2xl font-bold text-[#19bf86]">{claimable.length}</p>
+          <p className="text-xs text-[#70707b] mt-1">Claimable</p>
         </div>
         <div className="glass-card p-3 sm:p-4 text-center overflow-hidden">
           <p className="text-xl sm:text-2xl font-bold text-white truncate">
@@ -69,11 +69,11 @@ export default function PortfolioPage() {
               TOKEN_DECIMALS
             )).toLocaleString()}
           </p>
-          <p className="text-[10px] sm:text-xs text-slate-400 mt-1">Total Invested (mUSDC)</p>
+          <p className="text-[10px] sm:text-xs text-[#70707b] mt-1">Total Invested (mUSDC)</p>
         </div>
         <div className="glass-card p-3 sm:p-4 text-center overflow-hidden">
-          <p className="text-xl sm:text-2xl font-bold text-purple-400">{createdMarkets.length}</p>
-          <p className="text-xs text-slate-400 mt-1">Markets Created</p>
+          <p className="text-xl sm:text-2xl font-bold text-[#9f6ffd]">{createdMarkets.length}</p>
+          <p className="text-xs text-[#70707b] mt-1">Markets Created</p>
         </div>
       </div>
 
@@ -85,13 +85,13 @@ export default function PortfolioPage() {
             onClick={() => setTab(t)}
             className={`rounded-xl px-3 sm:px-4 py-2.5 text-xs sm:text-sm font-medium transition-all ${
               tab === t
-                ? "bg-amber-500/10 text-amber-400 border border-amber-500/20"
-                : "text-slate-400 hover:text-white hover:bg-slate-800/50"
+                ? "bg-[#9f6ffd]/10 text-[#9f6ffd] border border-[#9f6ffd]/20"
+                : "text-[#70707b] hover:text-white hover:bg-[#17181e]/50"
             }`}
           >
             {t}
             {counts[t] > 0 && (
-              <span className="ml-1.5 rounded-full bg-slate-800 px-1.5 py-0.5 text-xs">{counts[t]}</span>
+              <span className="ml-1.5 rounded-full bg-[#17181e] px-1.5 py-0.5 text-xs">{counts[t]}</span>
             )}
           </button>
         ))}
@@ -107,7 +107,7 @@ export default function PortfolioPage() {
       ) : tab === "My Markets" ? (
         createdMarkets.length === 0 ? (
           <div className="glass-card p-12 text-center">
-            <p className="text-slate-400">You haven&apos;t created any markets yet.</p>
+            <p className="text-[#70707b]">You haven&apos;t created any markets yet.</p>
           </div>
         ) : (
           <div className="space-y-3">
@@ -115,12 +115,12 @@ export default function PortfolioPage() {
               <Link
                 key={m.id.toString()}
                 href={`/markets/${m.id.toString()}`}
-                className="glass-card block p-5 transition-all hover:border-slate-600/50"
+                className="glass-card block p-5 transition-all hover:border-[#3f3f46]/50"
               >
                 <div className="flex items-center justify-between gap-3">
                   <div className="min-w-0">
                     <p className="text-sm font-medium text-white truncate">{m.question}</p>
-                    <p className="text-xs text-slate-500 mt-1">
+                    <p className="text-xs text-[#f4f4f5]0 mt-1">
                       Volume: {Number(formatUnits(m.yesPool + m.noPool, TOKEN_DECIMALS)).toLocaleString()} mUSDC
                     </p>
                   </div>
@@ -136,7 +136,7 @@ export default function PortfolioPage() {
           if (items.length === 0) {
             return (
               <div className="glass-card p-12 text-center">
-                <p className="text-slate-400">No positions in this category.</p>
+                <p className="text-[#70707b]">No positions in this category.</p>
               </div>
             );
           }
@@ -172,24 +172,24 @@ function PositionRow({ entry, onClaimed }: { entry: PortfolioEntry; onClaimed: (
     <div className="glass-card p-4 sm:p-5 overflow-hidden">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
-          <Link href={`/markets/${market.id.toString()}`} className="text-sm font-medium text-white hover:text-amber-400 transition-colors line-clamp-2">
+          <Link href={`/markets/${market.id.toString()}`} className="text-sm font-medium text-white hover:text-[#9f6ffd] transition-colors line-clamp-2">
             {market.question}
           </Link>
           <div className="mt-2 flex flex-wrap gap-2 sm:gap-3 text-xs">
             <MarketStatus state={market.state} resolutionTime={market.resolutionTime} />
             {position.yesBet > 0n && (
-              <span className="text-emerald-400">YES: {formatUnits(position.yesBet, TOKEN_DECIMALS)}</span>
+              <span className="text-[#19bf86]">YES: {formatUnits(position.yesBet, TOKEN_DECIMALS)}</span>
             )}
             {position.noBet > 0n && (
-              <span className="text-rose-400">NO: {formatUnits(position.noBet, TOKEN_DECIMALS)}</span>
+              <span className="text-[#f8495e]">NO: {formatUnits(position.noBet, TOKEN_DECIMALS)}</span>
             )}
-            <span className="text-slate-500">Total: {formatUnits(totalBet, TOKEN_DECIMALS)} mUSDC</span>
+            <span className="text-[#f4f4f5]0">Total: {formatUnits(totalBet, TOKEN_DECIMALS)} mUSDC</span>
             {payout > 0n && !position.claimed && (
-              <span className="text-amber-400 font-medium">Payout: {formatUnits(payout, TOKEN_DECIMALS)} mUSDC</span>
+              <span className="text-[#9f6ffd] font-medium">Payout: {formatUnits(payout, TOKEN_DECIMALS)} mUSDC</span>
             )}
-            {position.claimed && <span className="text-slate-500">Claimed</span>}
+            {position.claimed && <span className="text-[#f4f4f5]0">Claimed</span>}
             {market.state === 1 && !position.claimed && payout === 0n && (
-              <span className="text-slate-500">No payout</span>
+              <span className="text-[#f4f4f5]0">No payout</span>
             )}
           </div>
         </div>
@@ -204,13 +204,13 @@ function PositionRow({ entry, onClaimed }: { entry: PortfolioEntry; onClaimed: (
               })
             }
             disabled={isPending || waiting}
-            className="shrink-0 rounded-xl gradient-primary px-4 py-2 text-xs font-semibold text-slate-900 hover:opacity-90 disabled:opacity-50 transition-all"
+            className="shrink-0 rounded-xl gradient-primary px-4 py-2 text-xs font-semibold text-black hover:opacity-90 disabled:opacity-50 transition-all"
           >
             {isPending || waiting ? "Claiming..." : market.state === 2 ? "Refund" : "Claim"}
           </button>
         )}
       </div>
-      {error && <p className="mt-2 text-xs text-rose-400">{error.message?.split("\n")[0]}</p>}
+      {error && <p className="mt-2 text-xs text-[#f8495e]">{error.message?.split("\n")[0]}</p>}
     </div>
   );
 }

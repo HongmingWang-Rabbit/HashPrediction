@@ -29,9 +29,9 @@ function timeAgo(ts: number) {
 
 const typeConfig = {
   bet: { label: "Bet", emoji: "🎲", color: "text-blue-400" },
-  create: { label: "Created", emoji: "✨", color: "text-purple-400" },
-  resolve: { label: "Resolved", emoji: "⚖️", color: "text-yellow-400" },
-  claim: { label: "Claimed", emoji: "💰", color: "text-green-400" },
+  create: { label: "Created", emoji: "✨", color: "text-[#9f6ffd]" },
+  resolve: { label: "Resolved", emoji: "⚖️", color: "text-[#ff9f2e]" },
+  claim: { label: "Claimed", emoji: "💰", color: "text-[#19bf86]" },
 };
 
 // Extract event ABIs for decoding
@@ -195,7 +195,7 @@ export function ActivityFeed({ marketId }: { marketId: number }) {
                         {a.user === "Admin" ? "Admin" : shortenAddress(a.user)}
                       </span>
                       {a.type === "bet" && a.outcome !== undefined && (
-                        <span className={`ml-2 text-sm font-medium ${a.outcome === 1 ? "text-emerald-400" : "text-rose-400"}`}>
+                        <span className={`ml-2 text-sm font-medium ${a.outcome === 1 ? "text-[#19bf86]" : "text-[#f8495e]"}`}>
                           {a.outcome === 1 ? "YES" : "NO"}
                         </span>
                       )}
