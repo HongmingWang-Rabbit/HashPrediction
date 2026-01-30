@@ -34,7 +34,8 @@ export function Navbar() {
     <nav className="sticky top-0 z-50 border-b border-[#3f3f46]/50 bg-[#26272b]/80 backdrop-blur-md">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
         <div className="flex items-center gap-4 sm:gap-8 min-w-0">
-          <Link href="/" className="flex items-center gap-1 shrink-0">
+          <Link href="/" className="flex items-center gap-2 shrink-0">
+            <img src="/favicon.svg" alt="HashPrediction" className="h-7 w-7" />
             <span className="text-lg sm:text-xl font-bold text-[#9f6ffd]">Hash</span>
             <span className="hidden sm:inline text-xl font-bold text-white">Prediction</span>
           </Link>

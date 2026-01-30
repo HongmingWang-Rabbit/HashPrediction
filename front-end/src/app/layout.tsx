@@ -12,6 +12,10 @@ const inter = Inter({ subsets: ["latin"] });
 export const metadata: Metadata = {
   title: "HashPrediction",
   description: "Binary prediction markets on HashKey Chain",
+  icons: {
+    icon: "/favicon.svg",
+    apple: "/logo.svg",
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
