@@ -17,48 +17,18 @@ export const hashkeyTestnet = defineChain({
 // ─── Deployed Contract Addresses ───────────────────────────────────
 // Source-controlled config — no .env needed.
 // When contract dev deploys new contracts, update these addresses here.
-export const HASH_PREDICTION_ADDRESS = "0x03545F86EfC72522f569EB467b7687b6A5FB5D98" as `0x${string}`;
-export const MOCK_USDC_ADDRESS = "0xf067B0D3E685AD87845a9b0B7a9d46a21a7Fa877" as `0x${string}`;
+export const HASH_PREDICTION_ADDRESS = "0xcC502F4b4Ebd5DF402Df83C7CbCE1c7E6FCA7787" as `0x${string}`;
+export const HASH_PREDICTION_IMPL_ADDRESS = "0xDbC69FcE5966B4f224d9D761F997662b51A1C7fF" as `0x${string}`;
+export const MOCK_USDC_ADDRESS = "0x896504918289f0B3B346574Fe47190074Cfd31Cc" as `0x${string}`;
 export const ADMIN_ADDRESS = "0xafb5963275f4E0F75AC472F7ABDfAeD06903d85C" as `0x${string}`;
 
 // Block number when the contract was deployed — use as fromBlock instead of "earliest"
-export const DEPLOY_BLOCK = 23286506n;
+export const DEPLOY_BLOCK = 23308055n;
 
 export const HASH_PREDICTION_ABI = [
   {
     "type": "constructor",
-    "inputs": [
-      {
-        "name": "_stablecoin",
-        "type": "address",
-        "internalType": "address"
-      },
-      {
-        "name": "_stablecoinDecimals",
-        "type": "uint8",
-        "internalType": "uint8"
-      },
-      {
-        "name": "_admin",
-        "type": "address",
-        "internalType": "address"
-      },
-      {
-        "name": "_feeRecipient",
-        "type": "address",
-        "internalType": "address"
-      },
-      {
-        "name": "_maxFeePercentage",
-        "type": "uint256",
-        "internalType": "uint256"
-      },
-      {
-        "name": "_creatorRewardPercentage",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ],
+    "inputs": [],
     "stateMutability": "nonpayable"
   },
   {
@@ -532,6 +502,44 @@ export const HASH_PREDICTION_ABI = [
   },
   {
     "type": "function",
+    "name": "initialize",
+    "inputs": [
+      {
+        "name": "_stablecoin",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "_stablecoinDecimals",
+        "type": "uint8",
+        "internalType": "uint8"
+      },
+      {
+        "name": "_admin",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "_feeRecipient",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "_maxFeePercentage",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "_creatorRewardPercentage",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
     "name": "marketCounter",
     "inputs": [],
     "outputs": [
@@ -661,6 +669,19 @@ export const HASH_PREDICTION_ABI = [
   },
   {
     "type": "function",
+    "name": "proxiableUUID",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
     "name": "resolveMarket",
     "inputs": [
       {
@@ -732,6 +753,37 @@ export const HASH_PREDICTION_ABI = [
     ],
     "outputs": [],
     "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "upgradeTo",
+    "inputs": [
+      {
+        "name": "newImplementation",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "upgradeToAndCall",
+    "inputs": [
+      {
+        "name": "newImplementation",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "data",
+        "type": "bytes",
+        "internalType": "bytes"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "payable"
   },
   {
     "type": "function",
@@ -820,6 +872,38 @@ export const HASH_PREDICTION_ABI = [
       }
     ],
     "stateMutability": "view"
+  },
+  {
+    "type": "event",
+    "name": "AdminChanged",
+    "inputs": [
+      {
+        "name": "previousAdmin",
+        "type": "address",
+        "indexed": false,
+        "internalType": "address"
+      },
+      {
+        "name": "newAdmin",
+        "type": "address",
+        "indexed": false,
+        "internalType": "address"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "BeaconUpgraded",
+    "inputs": [
+      {
+        "name": "beacon",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      }
+    ],
+    "anonymous": false
   },
   {
     "type": "event",
@@ -930,6 +1014,19 @@ export const HASH_PREDICTION_ABI = [
         "type": "uint256",
         "indexed": false,
         "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "Initialized",
+    "inputs": [
+      {
+        "name": "version",
+        "type": "uint8",
+        "indexed": false,
+        "internalType": "uint8"
       }
     ],
     "anonymous": false
@@ -1054,6 +1151,19 @@ export const HASH_PREDICTION_ABI = [
         "type": "uint256",
         "indexed": false,
         "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "Upgraded",
+    "inputs": [
+      {
+        "name": "implementation",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
       }
     ],
     "anonymous": false
