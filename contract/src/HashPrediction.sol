@@ -162,6 +162,9 @@ contract HashPrediction {
     /// @notice Emitted when contract is unpaused
     event ContractUnpaused(address indexed admin);
 
+    /// @notice Emitted when daily streak is updated (T9)
+    event StreakUpdated(address indexed user, uint256 streak);
+
     /// @notice Emitted when creator reward is paid (T11)
     event CreatorRewardPaid(
         uint256 indexed marketId,
@@ -207,6 +210,9 @@ contract HashPrediction {
 
     /// @notice Mapping of market ID to user address to position
     mapping(uint256 => mapping(address => UserPosition)) public userPositions;
+
+    /// @notice Mapping of user address to stats (T1)
+    mapping(address => UserStats) public userStats;
 
     // ============ Modifiers ============
 
@@ -467,6 +473,31 @@ contract HashPrediction {
             position.noBet += _amount;
         }
 
+        // Update user stats (T1 + T9)
+        UserStats storage stats = userStats[msg.sender];
+        stats.totalBets++;
+        stats.totalVolume += _amount;
+
+        // Daily streak tracking (T9)
+        uint256 today = block.timestamp / 86400;
+        if (stats.totalBets == 1) {
+            // First ever bet (totalBets already incremented above)
+            stats.dailyStreak = 1;
+            stats.lastBetDay = today;
+            emit StreakUpdated(msg.sender, 1);
+        } else if (today > stats.lastBetDay) {
+            if (today == stats.lastBetDay + 1) {
+                // Consecutive day
+                stats.dailyStreak++;
+            } else {
+                // Missed a day, reset
+                stats.dailyStreak = 1;
+            }
+            stats.lastBetDay = today;
+            emit StreakUpdated(msg.sender, stats.dailyStreak);
+        }
+        // Same day: no streak change
+
         emit BetPlaced(_marketId, msg.sender, _outcome, _amount, block.timestamp);
     }
 
@@ -506,6 +537,11 @@ contract HashPrediction {
 
         // Mark as claimed
         position.claimed = true;
+
+        // Update user stats (T1)
+        if (market.state == MarketState.Resolved) {
+            _updateClaimStats(msg.sender, payout);
+        }
 
         // Transfer payout
         if (payout > 0) {
@@ -550,6 +586,11 @@ contract HashPrediction {
             }
 
             position.claimed = true;
+
+            // Update user stats (T1)
+            if (market.state == MarketState.Resolved) {
+                _updateClaimStats(msg.sender, payout);
+            }
 
             if (payout > 0) {
                 bool success = stablecoin.transfer(msg.sender, payout);
@@ -624,5 +665,31 @@ contract HashPrediction {
     /// @return Total market count
     function getMarketCount() external view returns (uint256) {
         return marketCounter;
+    }
+
+    /// @notice Gets user statistics for leaderboard (T1)
+    /// @param _user User address
+    /// @return UserStats struct
+    function getUserStats(address _user) external view returns (UserStats memory) {
+        return userStats[_user];
+    }
+
+    // ============ Internal Functions ============
+
+    /// @notice Updates claim stats for a user (T1)
+    /// @param _user User address
+    /// @param _payout Payout amount (0 = loss)
+    function _updateClaimStats(address _user, uint256 _payout) internal {
+        UserStats storage stats = userStats[_user];
+        if (_payout > 0) {
+            stats.totalWins++;
+            stats.currentStreak++;
+            if (stats.currentStreak > stats.bestStreak) {
+                stats.bestStreak = stats.currentStreak;
+            }
+        } else {
+            stats.totalLosses++;
+            stats.currentStreak = 0;
+        }
     }
 }

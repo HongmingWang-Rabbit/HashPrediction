@@ -39,8 +39,23 @@ export default function MarketPage() {
   const noPct = Math.round((100 - yesPct) * 100) / 100;
 
   const [copied, setCopied] = useState(false);
-  function handleShare() {
-    navigator.clipboard.writeText(window.location.href);
+  async function handleShare() {
+    const url = window.location.href;
+    const shareData = {
+      title: market.question,
+      text: `Check out this prediction market: ${market.question}`,
+      url,
+    };
+    // Use native share on mobile if available
+    if (typeof navigator !== "undefined" && navigator.share) {
+      try {
+        await navigator.share(shareData);
+        return;
+      } catch {
+        // User cancelled or not supported, fall through to clipboard
+      }
+    }
+    navigator.clipboard.writeText(url);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   }
@@ -141,7 +156,7 @@ export default function MarketPage() {
             </div>
           )}
 
-          {bettingOpen && <BetForm marketId={marketId} onSuccess={refetch} />}
+          {bettingOpen && <BetForm marketId={marketId} yesPool={market.yesPool} noPool={market.noPool} onSuccess={refetch} />}
 
           <PositionDisplay
             marketId={marketId}
