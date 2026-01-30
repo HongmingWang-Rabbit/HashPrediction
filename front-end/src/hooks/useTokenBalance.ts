@@ -40,7 +40,7 @@ export function useTokenBalance() {
       if (!address) return;
       const addr = address.toLowerCase();
       if (logs.some((l) => {
-        const args = l.args as any;
+        const args = l.args as { from?: string; to?: string; value?: bigint };
         return args?.from?.toLowerCase() === addr || args?.to?.toLowerCase() === addr;
       })) {
         balance.refetch();
@@ -56,7 +56,7 @@ export function useTokenBalance() {
     onLogs: (logs) => {
       if (!address) return;
       const addr = address.toLowerCase();
-      if (logs.some((l) => (l.args as any)?.owner?.toLowerCase() === addr)) {
+      if (logs.some((l) => (l.args as { owner?: string })?.owner?.toLowerCase() === addr)) {
         allowance.refetch();
       }
     },
@@ -70,7 +70,7 @@ export function useTokenBalance() {
     onLogs: (logs) => {
       if (!address) return;
       const addr = address.toLowerCase();
-      if (logs.some((l) => (l.args as any)?.bettor?.toLowerCase() === addr)) {
+      if (logs.some((l) => (l.args as { bettor?: string })?.bettor?.toLowerCase() === addr)) {
         balance.refetch();
       }
     },

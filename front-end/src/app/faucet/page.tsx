@@ -1,12 +1,12 @@
 "use client";
 
 import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt } from "wagmi";
-import { MOCK_USDC_ADDRESS, ERC20_ABI, TOKEN_DECIMALS } from "@/config/contracts";
+import { MOCK_USDC_ADDRESS, ERC20_ABI, TOKEN_DECIMALS, ONE_TOKEN } from "@/config/contracts";
 import { txToast } from "@/lib/toast";
 import { useEffect, useRef } from "react";
 import { formatUnits } from "viem";
 
-const MINT_AMOUNT = BigInt(1000) * BigInt(10 ** TOKEN_DECIMALS); // 1000 mUSDC
+const MINT_AMOUNT = BigInt(1000) * ONE_TOKEN; // 1000 mUSDC
 
 export default function FaucetPage() {
   const { address, isConnected } = useAccount();

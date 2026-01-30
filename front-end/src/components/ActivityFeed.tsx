@@ -3,7 +3,7 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useEffect, useState } from "react";
 import { usePublicClient } from "wagmi";
-import { decodeEventLog, formatUnits } from "viem";
+import { formatUnits } from "viem";
 import { HASH_PREDICTION_ADDRESS, HASH_PREDICTION_ABI, hashkeyTestnet, TOKEN_DECIMALS, DEPLOY_BLOCK } from "@/config/contracts";
 
 interface Activity {
@@ -34,24 +34,22 @@ const typeConfig = {
   claim: { label: "Claimed", emoji: "💰", color: "text-[#19bf86]" },
 };
 
-// Extract event ABIs for decoding
-const BetPlacedEvent = HASH_PREDICTION_ABI.find(
-  (e) => e.type === "event" && e.name === "BetPlaced"
-)!;
-const WingsClaimedEvent = HASH_PREDICTION_ABI.find(
-  (e) => e.type === "event" && e.name === "WinningsClaimed"
-)!;
-const MarketResolvedEvent = HASH_PREDICTION_ABI.find(
-  (e) => e.type === "event" && e.name === "MarketResolved"
-)!;
+const ACTIVITY_CACHE_TTL = 120_000; // 2 minutes
+const activityCache = new Map<number, { data: Activity[]; at: number }>();
 
 export function ActivityFeed({ marketId }: { marketId: number }) {
-  const [activities, setActivities] = useState<Activity[]>([]);
-  const [loading, setLoading] = useState(true);
+  const cached = activityCache.get(marketId);
+  const [activities, setActivities] = useState<Activity[]>(cached?.data ?? []);
+  const [loading, setLoading] = useState(!cached);
   const client = usePublicClient({ chainId: hashkeyTestnet.id });
 
   useEffect(() => {
     if (!client) return;
+    if (cached && Date.now() - cached.at < ACTIVITY_CACHE_TTL) {
+      setActivities(cached.data);
+      setLoading(false);
+      return;
+    }
 
     async function fetchLogs() {
       try {
@@ -148,7 +146,9 @@ export function ActivityFeed({ marketId }: { marketId: number }) {
 
         // Sort by timestamp desc, take last 20
         parsed.sort((a, b) => b.timestamp - a.timestamp);
-        setActivities(parsed.slice(0, 20));
+        const result = parsed.slice(0, 20);
+        activityCache.set(marketId, { data: result, at: Date.now() });
+        setActivities(result);
       } catch (err) {
         console.error("Failed to fetch activity:", err);
       } finally {

@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 
-export function CountdownTimer({ target }: { target: bigint }) {
+export const CountdownTimer = React.memo(function CountdownTimer({ target }: { target: bigint }) {
   const [now, setNow] = useState(() => Math.floor(Date.now() / 1000));
 
   useEffect(() => {
@@ -35,4 +35,4 @@ export function CountdownTimer({ target }: { target: bigint }) {
       ))}
     </div>
   );
-}
+});

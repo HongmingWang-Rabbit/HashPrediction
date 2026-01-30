@@ -43,7 +43,7 @@ export function useUserPosition(marketId: number) {
     abi: HASH_PREDICTION_ABI,
     eventName: "BetPlaced",
     onLogs: (logs) => {
-      if (logs.some((l) => Number((l.args as any)?.marketId) === marketId)) {
+      if (logs.some((l) => Number(((l.args as { marketId?: bigint })?.marketId)) === marketId)) {
         position.refetch();
         payout.refetch();
       }
@@ -56,7 +56,7 @@ export function useUserPosition(marketId: number) {
     abi: HASH_PREDICTION_ABI,
     eventName: "MarketResolved",
     onLogs: (logs) => {
-      if (logs.some((l) => Number((l.args as any)?.marketId) === marketId)) {
+      if (logs.some((l) => Number(((l.args as { marketId?: bigint })?.marketId)) === marketId)) {
         position.refetch();
         payout.refetch();
       }
@@ -69,7 +69,7 @@ export function useUserPosition(marketId: number) {
     abi: HASH_PREDICTION_ABI,
     eventName: "WinningsClaimed",
     onLogs: (logs) => {
-      if (logs.some((l) => Number((l.args as any)?.marketId) === marketId)) {
+      if (logs.some((l) => Number(((l.args as { marketId?: bigint })?.marketId)) === marketId)) {
         position.refetch();
         payout.refetch();
       }

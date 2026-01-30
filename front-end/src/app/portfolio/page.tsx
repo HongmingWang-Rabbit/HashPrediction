@@ -8,6 +8,7 @@ import { useAccount, useWriteContract, useWaitForTransactionReceipt } from "wagm
 import { Id } from "react-toastify";
 import { HASH_PREDICTION_ADDRESS, HASH_PREDICTION_ABI, TOKEN_DECIMALS } from "@/config/contracts";
 import { txToast } from "@/lib/toast";
+import { getErrorMessage } from "@/lib/errors";
 import { useUserPortfolio, type PortfolioEntry } from "@/hooks/useUserPortfolio";
 import { MarketStatus } from "@/components/MarketStatus";
 import { SkeletonCard } from "@/components/Skeleton";
@@ -123,7 +124,7 @@ export default function PortfolioPage() {
                 <div className="flex items-center justify-between gap-3">
                   <div className="min-w-0">
                     <p className="text-sm font-medium text-white truncate">{m.question}</p>
-                    <p className="text-xs text-[#f4f4f5]0 mt-1">
+                    <p className="text-xs text-[#70707b] mt-1">
                       Volume: {Number(formatUnits(m.yesPool + m.noPool, TOKEN_DECIMALS)).toLocaleString()} mUSDC
                     </p>
                   </div>
@@ -190,7 +191,7 @@ function PositionRow({ entry, onClaimed }: { entry: PortfolioEntry; onClaimed: (
 
   useEffect(() => {
     if (error && toastId.current !== null) {
-      txToast.error(toastId.current, error.message?.includes("User rejected") ? "Transaction rejected" : error.message?.split("\n")[0] ?? "Claim failed");
+      txToast.error(toastId.current, getErrorMessage(error));
       toastId.current = null;
     }
   }, [error]);
@@ -210,13 +211,13 @@ function PositionRow({ entry, onClaimed }: { entry: PortfolioEntry; onClaimed: (
             {position.noBet > 0n && (
               <span className="text-[#f8495e]">NO: {formatUnits(position.noBet, TOKEN_DECIMALS)}</span>
             )}
-            <span className="text-[#f4f4f5]0">Total: {formatUnits(totalBet, TOKEN_DECIMALS)} mUSDC</span>
+            <span className="text-[#70707b]">Total: {formatUnits(totalBet, TOKEN_DECIMALS)} mUSDC</span>
             {payout > 0n && !position.claimed && (
               <span className="text-[#9f6ffd] font-medium">Payout: {formatUnits(payout, TOKEN_DECIMALS)} mUSDC</span>
             )}
-            {position.claimed && <span className="text-[#f4f4f5]0">Claimed</span>}
+            {position.claimed && <span className="text-[#70707b]">Claimed</span>}
             {market.state === 1 && !position.claimed && payout === 0n && (
-              <span className="text-[#f4f4f5]0">No payout</span>
+              <span className="text-[#70707b]">No payout</span>
             )}
           </div>
         </div>
@@ -232,7 +233,7 @@ function PositionRow({ entry, onClaimed }: { entry: PortfolioEntry; onClaimed: (
               });
             }}
             disabled={isPending || waiting}
-            className="shrink-0 rounded-xl gradient-primary px-4 py-2 text-xs font-semibold text-black hover:opacity-90 disabled:opacity-50 transition-all"
+            className="shrink-0 rounded-xl gradient-primary px-4 py-2 text-xs font-semibold text-white hover:opacity-90 disabled:opacity-50 transition-all"
           >
             {isPending || waiting ? "Claiming..." : market.state === 2 ? "Refund" : "Claim"}
           </button>

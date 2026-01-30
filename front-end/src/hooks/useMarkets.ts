@@ -44,6 +44,8 @@ export function useMarkets() {
   const { data: count } = useMarketCount();
   const marketCount = Number(count ?? 0);
 
+  // NOTE: Individual getMarket calls are auto-batched via wagmi's multicall.
+  // This scales to ~100 markets. TODO: Add pagination (page/pageSize params) for larger scale.
   const contracts = Array.from({ length: marketCount }, (_, i) => ({
     address: HASH_PREDICTION_ADDRESS,
     abi: HASH_PREDICTION_ABI,

@@ -1,9 +1,10 @@
 "use client";
 
+import React from "react";
 import { formatUnits } from "viem";
 import { TOKEN_DECIMALS } from "@/config/contracts";
 
-export function PoolBar({ yesPool, noPool }: { yesPool: bigint; noPool: bigint }) {
+export const PoolBar = React.memo(function PoolBar({ yesPool, noPool }: { yesPool: bigint; noPool: bigint }) {
   const total = yesPool + noPool;
   const yesPct = total > 0n ? Math.round(Number(yesPool) / Number(total) * 100) : 50;
   const noPct = total > 0n ? 100 - yesPct : 50;
@@ -14,8 +15,8 @@ export function PoolBar({ yesPool, noPool }: { yesPool: bigint; noPool: bigint }
   return (
     <div>
       <div className="mb-2 flex justify-between text-xs sm:text-sm font-medium">
-        <span className="text-[#19bf86] truncate">YES {yesPct}%<span className="ml-1 text-[#f4f4f5]0">({yesFormatted})</span></span>
-        <span className="text-[#f8495e] truncate text-right">NO {noPct}%<span className="ml-1 text-[#f4f4f5]0">({noFormatted})</span></span>
+        <span className="text-[#19bf86] truncate">YES {yesPct}%<span className="ml-1 text-[#70707b]">({yesFormatted})</span></span>
+        <span className="text-[#f8495e] truncate text-right">NO {noPct}%<span className="ml-1 text-[#70707b]">({noFormatted})</span></span>
       </div>
       <div className="flex h-3 overflow-hidden rounded-full bg-[#17181e]">
         <div
@@ -29,4 +30,4 @@ export function PoolBar({ yesPool, noPool }: { yesPool: bigint; noPool: bigint }
       </div>
     </div>
   );
-}
+});

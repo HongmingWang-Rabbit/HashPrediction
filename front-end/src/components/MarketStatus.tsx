@@ -1,5 +1,7 @@
 "use client";
 
+import React from "react";
+
 const config = [
   { label: "Active", dot: "bg-[#19bf86]", bg: "bg-[#19bf86]/10", text: "text-[#19bf86]", border: "border-[#19bf86]/20" },
   { label: "Resolved", dot: "bg-blue-400", bg: "bg-blue-500/10", text: "text-blue-400", border: "border-blue-500/20" },
@@ -8,7 +10,7 @@ const config = [
 
 const endedConfig = { label: "Ended", dot: "bg-slate-400", bg: "bg-slate-500/10", text: "text-slate-400", border: "border-slate-500/20" };
 
-export function MarketStatus({ state, resolutionTime }: { state: number; resolutionTime?: bigint }) {
+export const MarketStatus = React.memo(function MarketStatus({ state, resolutionTime }: { state: number; resolutionTime?: bigint }) {
   const now = Math.floor(Date.now() / 1000);
   const ended = state === 0 && resolutionTime !== undefined && now >= Number(resolutionTime);
   const c = ended ? endedConfig : (config[state] ?? config[0]);
@@ -19,4 +21,4 @@ export function MarketStatus({ state, resolutionTime }: { state: number; resolut
       {c.label}
     </span>
   );
-}
+});

@@ -115,7 +115,7 @@ export default function Home() {
             className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${
               sort === s
                 ? "bg-[#3f3f46]/50 text-white"
-                : "text-[#f4f4f5]0 hover:text-[#d1d1d6]"
+                : "text-[#70707b] hover:text-[#d1d1d6]"
             }`}
           >
             {s}
@@ -136,7 +136,10 @@ export default function Home() {
           animate={{ opacity: 1 }}
           transition={{ duration: 0.4 }}
         >
-          <p className="text-[#70707b]">No markets found.</p>
+          <p className="text-[#70707b] mb-3">No markets found.</p>
+          <a href="/create" className="inline-block rounded-xl gradient-cta px-5 py-2.5 text-sm font-semibold text-white hover:opacity-90 transition-all">
+            Create a Market
+          </a>
         </motion.div>
       ) : (
         <AnimatePresence mode="wait">

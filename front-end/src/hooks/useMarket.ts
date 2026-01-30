@@ -23,7 +23,7 @@ export function useMarket(id: number) {
     abi: HASH_PREDICTION_ABI,
     eventName: "BetPlaced",
     onLogs: (logs) => {
-      if (logs.some((l) => Number((l.args as any)?.marketId) === id)) {
+      if (logs.some((l) => Number(((l.args as { marketId?: bigint })?.marketId)) === id)) {
         result.refetch();
       }
     },
@@ -35,7 +35,7 @@ export function useMarket(id: number) {
     abi: HASH_PREDICTION_ABI,
     eventName: "MarketResolved",
     onLogs: (logs) => {
-      if (logs.some((l) => Number((l.args as any)?.marketId) === id)) {
+      if (logs.some((l) => Number(((l.args as { marketId?: bigint })?.marketId)) === id)) {
         result.refetch();
       }
     },
@@ -47,7 +47,7 @@ export function useMarket(id: number) {
     abi: HASH_PREDICTION_ABI,
     eventName: "MarketCancelled",
     onLogs: (logs) => {
-      if (logs.some((l) => Number((l.args as any)?.marketId) === id)) {
+      if (logs.some((l) => Number(((l.args as { marketId?: bigint })?.marketId)) === id)) {
         result.refetch();
       }
     },

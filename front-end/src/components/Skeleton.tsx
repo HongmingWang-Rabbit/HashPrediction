@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import { motion } from "framer-motion";
 
 const pulseTransition = {
@@ -18,7 +19,7 @@ function SkeletonBar({ className }: { className?: string }) {
   );
 }
 
-export function SkeletonCard() {
+export const SkeletonCard = React.memo(function SkeletonCard() {
   return (
     <div className="glass-card p-6 space-y-4">
       <div className="flex items-start justify-between">
@@ -35,4 +36,4 @@ export function SkeletonCard() {
       <SkeletonBar className="h-4 w-24 rounded" />
     </div>
   );
-}
+});

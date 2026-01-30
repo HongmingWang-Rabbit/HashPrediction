@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState } from "react";
 import { useParams } from "next/navigation";
 import { motion } from "framer-motion";
 import { formatUnits } from "viem";
@@ -30,7 +30,7 @@ export default function MarketPage() {
       </div>
     );
   }
-  if (!market) return <p className="text-[#f4f4f5]0">Market not found.</p>;
+  if (!market) return <p className="text-[#70707b]">Market not found.</p>;
 
   const isActive = market.state === 0;
   const now = Math.floor(Date.now() / 1000);
@@ -92,10 +92,10 @@ export default function MarketPage() {
         {/* Implied probability */}
         <div className="mt-3 flex items-center gap-3">
           <span className="text-2xl font-bold text-[#19bf86]">{yesPct.toFixed(0)}%</span>
-          <span className="text-sm text-[#f4f4f5]0">YES</span>
+          <span className="text-sm text-[#70707b]">YES</span>
           <span className="text-[#3f3f46]">·</span>
           <span className="text-2xl font-bold text-[#f8495e]">{noPct.toFixed(0)}%</span>
-          <span className="text-sm text-[#f4f4f5]0">NO</span>
+          <span className="text-sm text-[#70707b]">NO</span>
         </div>
       </div>
 
@@ -112,13 +112,13 @@ export default function MarketPage() {
                 <p className="text-lg sm:text-xl font-bold text-[#19bf86] truncate">
                   {Number(formatUnits(market.yesPool, TOKEN_DECIMALS)).toLocaleString()}
                 </p>
-                <p className="text-xs text-[#f4f4f5]0 mt-1">YES Pool (mUSDC)</p>
+                <p className="text-xs text-[#70707b] mt-1">YES Pool (mUSDC)</p>
               </div>
               <div className="rounded-xl bg-[#f8495e]/5 border border-[#f8495e]/10 p-4 text-center">
                 <p className="text-lg sm:text-xl font-bold text-[#f8495e] truncate">
                   {Number(formatUnits(market.noPool, TOKEN_DECIMALS)).toLocaleString()}
                 </p>
-                <p className="text-xs text-[#f4f4f5]0 mt-1">NO Pool (mUSDC)</p>
+                <p className="text-xs text-[#70707b] mt-1">NO Pool (mUSDC)</p>
               </div>
             </div>
           </div>
@@ -153,8 +153,8 @@ export default function MarketPage() {
           </div>
         </div>
 
-        {/* Right column - Actions */}
-        <div className="space-y-6 md:col-span-2 lg:col-span-2">
+        {/* Right column - Actions (shown first on mobile for primary action) */}
+        <div className="order-first md:order-none space-y-6 md:col-span-2 lg:col-span-2">
           {balance !== undefined && (
             <div className="glass-card p-4 text-center">
               <p className="text-xs text-[#70707b]">Your Balance</p>

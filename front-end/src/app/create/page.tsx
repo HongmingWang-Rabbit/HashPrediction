@@ -15,6 +15,7 @@ import {
 } from "@/config/contracts";
 import { useTokenBalance } from "@/hooks/useTokenBalance";
 import { txToast } from "@/lib/toast";
+import { getErrorMessage } from "@/lib/errors";
 
 const STEPS = ["Details", "Fee", "Review"];
 
@@ -55,26 +56,16 @@ export default function CreatePage() {
   }, [approveSuccess, refetchToken]);
 
   useEffect(() => {
-    if (approveError) {
-      const msg = approveError.message?.includes("User rejected")
-        ? "Approval rejected by wallet"
-        : approveError.message?.split("\n")[0] ?? "Approval failed";
-      if (approveToastId.current !== null) {
-        txToast.error(approveToastId.current, msg);
-        approveToastId.current = null;
-      }
+    if (approveError && approveToastId.current !== null) {
+      txToast.error(approveToastId.current, getErrorMessage(approveError));
+      approveToastId.current = null;
     }
   }, [approveError]);
 
   useEffect(() => {
-    if (createError) {
-      const msg = createError.message?.includes("User rejected")
-        ? "Transaction rejected by wallet"
-        : createError.message?.split("\n")[0] ?? "Market creation failed";
-      if (createToastId.current !== null) {
-        txToast.error(createToastId.current, msg);
-        createToastId.current = null;
-      }
+    if (createError && createToastId.current !== null) {
+      txToast.error(createToastId.current, getErrorMessage(createError));
+      createToastId.current = null;
     }
   }, [createError]);
 
@@ -180,12 +171,12 @@ export default function CreatePage() {
                   ? "bg-[#9f6ffd] text-black"
                   : i < step
                   ? "bg-[#9f6ffd]/20 text-[#9f6ffd] cursor-pointer"
-                  : "bg-[#17181e] text-[#f4f4f5]0"
+                  : "bg-[#17181e] text-[#70707b]"
               }`}
             >
               {i + 1}
             </button>
-            <span className={`text-[10px] sm:text-xs ${i === step ? "text-white" : "text-[#f4f4f5]0"}`}>{s}</span>
+            <span className={`text-[10px] sm:text-xs ${i === step ? "text-white" : "text-[#70707b]"}`}>{s}</span>
             {i < STEPS.length - 1 && <div className="mx-1 sm:mx-2 h-px w-4 sm:w-8 bg-[#3f3f46]" />}
           </div>
         ))}
@@ -238,7 +229,7 @@ export default function CreatePage() {
                 className="input-field"
                 placeholder="0"
               />
-              <p className="mt-2 text-xs text-[#f4f4f5]0">Fee paid to the protocol for creating this market</p>
+              <p className="mt-2 text-xs text-[#70707b]">Fee paid to the protocol for creating this market</p>
             </div>
             <div className="flex gap-3">
               <button
@@ -285,7 +276,7 @@ export default function CreatePage() {
               <button
                 type="submit"
                 disabled={busy || !question.trim() || !resolutionDate}
-                className="flex-1 rounded-xl gradient-primary py-3 text-sm font-semibold text-black hover:opacity-90 disabled:opacity-50 transition-all"
+                className="flex-1 rounded-xl gradient-primary py-3 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-50 transition-all"
               >
                 {needsApproval
                   ? busy ? "Approving..." : "Approve mUSDC"

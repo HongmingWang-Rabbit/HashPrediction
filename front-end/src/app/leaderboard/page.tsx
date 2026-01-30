@@ -6,6 +6,7 @@ import { formatUnits } from "viem";
 import { useAccount } from "wagmi";
 import { useLeaderboard, type LeaderboardEntry } from "@/hooks/useLeaderboard";
 import { TOKEN_DECIMALS } from "@/config/contracts";
+import { SkeletonCard } from "@/components/Skeleton";
 
 type SortKey = "wins" | "volume" | "winRate";
 
@@ -63,9 +64,9 @@ export default function LeaderboardPage() {
         </div>
 
         {loading ? (
-          <div className="space-y-3">
-            {Array.from({ length: 8 }).map((_, i) => (
-              <div key={i} className="h-14 animate-pulse rounded-xl bg-white/5" />
+          <div className="grid gap-4 sm:grid-cols-2">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <SkeletonCard key={i} />
             ))}
           </div>
         ) : sorted.length === 0 ? (
@@ -78,7 +79,7 @@ export default function LeaderboardPage() {
             <div className="hidden sm:block glass-card overflow-hidden">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-white/10 text-left text-xs uppercase tracking-wider text-[#f4f4f5]0">
+                  <tr className="border-b border-white/10 text-left text-xs uppercase tracking-wider text-[#70707b]">
                     <th className="px-6 py-4 w-12">#</th>
                     <th className="px-6 py-4">Address</th>
                     <th className="px-6 py-4 text-right">Bets</th>
@@ -102,7 +103,7 @@ export default function LeaderboardPage() {
                             : "hover:bg-white/5"
                         }`}
                       >
-                        <td className="px-6 py-4 font-bold text-[#f4f4f5]0">
+                        <td className="px-6 py-4 font-bold text-[#70707b]">
                           {i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : i + 1}
                         </td>
                         <td className="px-6 py-4">
@@ -144,7 +145,7 @@ export default function LeaderboardPage() {
                   >
                     <div className="flex items-center justify-between mb-3">
                       <div className="flex items-center gap-2">
-                        <span className="text-lg font-bold text-[#f4f4f5]0">
+                        <span className="text-lg font-bold text-[#70707b]">
                           {i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : `#${i + 1}`}
                         </span>
                         <span className={`font-mono text-xs ${isMe ? "text-[#9f6ffd]" : "text-[#d1d1d6]"}`}>
@@ -158,17 +159,17 @@ export default function LeaderboardPage() {
                     <div className="grid grid-cols-3 gap-2 text-center text-xs">
                       <div>
                         <p className="text-[#19bf86] font-bold text-sm">{entry.totalWins}</p>
-                        <p className="text-[#f4f4f5]0">Wins</p>
+                        <p className="text-[#70707b]">Wins</p>
                       </div>
                       <div>
                         <p className="text-[#d1d1d6] font-bold text-sm">{entry.winRate.toFixed(0)}%</p>
-                        <p className="text-[#f4f4f5]0">Win Rate</p>
+                        <p className="text-[#70707b]">Win Rate</p>
                       </div>
                       <div>
                         <p className="text-[#d1d1d6] font-bold text-sm">
                           {Number(formatUnits(entry.totalVolume, TOKEN_DECIMALS)).toLocaleString()}
                         </p>
-                        <p className="text-[#f4f4f5]0">mUSDC</p>
+                        <p className="text-[#70707b]">mUSDC</p>
                       </div>
                     </div>
                   </motion.div>

@@ -14,13 +14,14 @@ import {
 } from "@/config/contracts";
 import { useTokenBalance } from "@/hooks/useTokenBalance";
 import { txToast } from "@/lib/toast";
+import { getErrorMessage } from "@/lib/errors";
 
 const PRESETS = ["10", "50", "100", "500"];
 
 function PayoutPreview({ amount, outcome, yesPool, noPool }: { amount: bigint; outcome: 1 | 2; yesPool: bigint; noPool: bigint }) {
   if (amount <= 0n) {
     return (
-      <div className="mb-4 rounded-lg border border-[#3f3f46]/50 bg-[#17181e]/30 px-4 py-3 text-sm text-[#f4f4f5]0">
+      <div className="mb-4 rounded-lg border border-[#3f3f46]/50 bg-[#17181e]/30 px-4 py-3 text-sm text-[#70707b]">
         Potential Return: —
       </div>
     );
@@ -147,26 +148,16 @@ export function BetForm({ marketId, yesPool, noPool, onSuccess }: { marketId: nu
   }, [betSuccess, refetchToken, onSuccess]);
 
   useEffect(() => {
-    if (approveError) {
-      const msg = approveError.message?.includes("User rejected")
-        ? "Approval rejected by wallet"
-        : approveError.message?.split("\n")[0] ?? "Approval failed";
-      if (approveToastId.current !== null) {
-        txToast.error(approveToastId.current, msg);
-        approveToastId.current = null;
-      }
+    if (approveError && approveToastId.current !== null) {
+      txToast.error(approveToastId.current, getErrorMessage(approveError));
+      approveToastId.current = null;
     }
   }, [approveError]);
 
   useEffect(() => {
-    if (betError) {
-      const msg = betError.message?.includes("User rejected")
-        ? "Transaction rejected by wallet"
-        : betError.message?.split("\n")[0] ?? "Bet failed";
-      if (betToastId.current !== null) {
-        txToast.error(betToastId.current, msg);
-        betToastId.current = null;
-      }
+    if (betError && betToastId.current !== null) {
+      txToast.error(betToastId.current, getErrorMessage(betError));
+      betToastId.current = null;
     }
   }, [betError]);
 
@@ -274,7 +265,7 @@ export function BetForm({ marketId, yesPool, noPool, onSuccess }: { marketId: nu
         <button
           onClick={handleApprove}
           disabled={busy}
-          className="w-full rounded-xl gradient-primary py-3 text-sm font-semibold text-black hover:opacity-90 disabled:opacity-50 transition-all"
+          className="w-full rounded-xl gradient-primary py-3 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-50 transition-all"
         >
           {busy ? "Approving..." : "Approve mUSDC"}
         </button>
@@ -284,8 +275,8 @@ export function BetForm({ marketId, yesPool, noPool, onSuccess }: { marketId: nu
           disabled={busy || parsedAmount === 0n}
           className={`w-full rounded-xl py-3 text-sm font-semibold text-white transition-all disabled:opacity-50 ${
             selectedOutcome === 1
-              ? "bg-[#19bf86] hover:bg-[#19bf86]"
-              : "bg-[#f8495e] hover:bg-[#f8495e]"
+              ? "bg-[#19bf86] hover:brightness-110"
+              : "bg-[#f8495e] hover:brightness-110"
           }`}
         >
           {busy ? "Placing bet..." : `Bet ${selectedOutcome === 1 ? "YES" : "NO"}`}

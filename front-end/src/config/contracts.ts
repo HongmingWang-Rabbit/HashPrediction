@@ -1379,3 +1379,4 @@ export const ERC20_ABI = [
 ] as const;
 
 export const TOKEN_DECIMALS = 6;
+export const ONE_TOKEN = BigInt(10 ** TOKEN_DECIMALS);

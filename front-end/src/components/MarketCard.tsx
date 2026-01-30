@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { formatUnits } from "viem";
@@ -9,7 +10,7 @@ import { MarketStatus } from "./MarketStatus";
 import { CountdownTimer } from "./CountdownTimer";
 import { PoolBar } from "./PoolBar";
 
-export function MarketCard({ market }: { market: Market }) {
+export const MarketCard = React.memo(function MarketCard({ market }: { market: Market }) {
   const volume = Number(formatUnits(market.yesPool + market.noPool, TOKEN_DECIMALS));
   const totalPool = market.yesPool + market.noPool;
   const yesPct = totalPool > 0n ? Number((market.yesPool * 10000n) / totalPool) / 100 : 50;
@@ -58,4 +59,4 @@ export function MarketCard({ market }: { market: Market }) {
       </motion.div>
     </Link>
   );
-}
+});

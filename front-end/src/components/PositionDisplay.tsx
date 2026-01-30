@@ -7,6 +7,7 @@ import { Id } from "react-toastify";
 import { HASH_PREDICTION_ADDRESS, HASH_PREDICTION_ABI, TOKEN_DECIMALS } from "@/config/contracts";
 import { useUserPosition } from "@/hooks/useUserPosition";
 import { txToast } from "@/lib/toast";
+import { getErrorMessage } from "@/lib/errors";
 
 interface Props {
   marketId: number;
@@ -36,7 +37,7 @@ export function PositionDisplay({ marketId, marketState, yesPool, noPool }: Prop
 
   useEffect(() => {
     if (claimError && toastId.current !== null) {
-      txToast.error(toastId.current, claimError.message?.includes("User rejected") ? "Transaction rejected" : claimError.message?.split("\n")[0] ?? "Claim failed");
+      txToast.error(toastId.current, getErrorMessage(claimError));
       toastId.current = null;
     }
   }, [claimError]);
@@ -66,7 +67,7 @@ export function PositionDisplay({ marketId, marketState, yesPool, noPool }: Prop
     <div className="glass-card p-6">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-base font-semibold text-white">Your Position</h3>
-        <span className="text-xs text-[#f4f4f5]0">Total: {formatUnits(totalBet, TOKEN_DECIMALS)} mUSDC</span>
+        <span className="text-xs text-[#70707b]">Total: {formatUnits(totalBet, TOKEN_DECIMALS)} mUSDC</span>
       </div>
 
       <div className="space-y-3">
@@ -88,7 +89,7 @@ export function PositionDisplay({ marketId, marketState, yesPool, noPool }: Prop
           <div className="flex items-center justify-between rounded-xl bg-[#9f6ffd]/5 border border-[#9f6ffd]/10 px-4 py-3">
             <div>
               <span className="text-sm text-[#d1d1d6]">Est. Value</span>
-              <p className="text-xs text-[#f4f4f5]0 mt-0.5">If resolved in your favor now</p>
+              <p className="text-xs text-[#70707b] mt-0.5">If resolved in your favor now</p>
             </div>
             <span className="text-sm font-semibold text-[#9f6ffd]">{formatUnits(estimatedValue, TOKEN_DECIMALS)} mUSDC</span>
           </div>
@@ -98,32 +99,32 @@ export function PositionDisplay({ marketId, marketState, yesPool, noPool }: Prop
         {isCancelled && !position.claimed && (
           <div className="rounded-xl bg-blue-500/5 border border-blue-500/10 px-4 py-3 text-center">
             <p className="text-sm font-medium text-blue-400">Full Refund Available</p>
-            <p className="text-xs text-[#f4f4f5]0 mt-1">Market was cancelled. Claim your refund below.</p>
+            <p className="text-xs text-[#70707b] mt-1">Market was cancelled. Claim your refund below.</p>
           </div>
         )}
 
         {userWon && !position.claimed && (
           <div className="rounded-xl bg-[#19bf86]/5 border border-[#19bf86]/10 px-4 py-3 text-center">
             <p className="text-lg font-bold text-[#19bf86]">{formatUnits(payout ?? 0n, TOKEN_DECIMALS)} mUSDC</p>
-            <p className="text-xs text-[#f4f4f5]0 mt-0.5">Winnings available</p>
+            <p className="text-xs text-[#70707b] mt-0.5">Winnings available</p>
           </div>
         )}
 
         {userLost && (
           <div className="rounded-xl bg-[#17181e]/50 px-4 py-3 text-center">
-            <p className="text-sm text-[#f4f4f5]0">No payout — your side did not win</p>
+            <p className="text-sm text-[#70707b]">No payout — your side did not win</p>
           </div>
         )}
 
         {position.claimed && (
           <div className="rounded-xl bg-[#17181e]/50 px-4 py-3 text-center">
-            <p className="text-sm text-[#f4f4f5]0">Already claimed</p>
+            <p className="text-sm text-[#70707b]">Already claimed</p>
           </div>
         )}
 
         {/* Info tooltip for active markets */}
         {marketState === 0 && (
-          <p className="text-xs text-[#f4f4f5]0 text-center">
+          <p className="text-xs text-[#70707b] text-center">
             Positions can be claimed once the market is resolved
           </p>
         )}
@@ -141,7 +142,7 @@ export function PositionDisplay({ marketId, marketState, yesPool, noPool }: Prop
             });
           }}
           disabled={isPending || waiting}
-          className="mt-4 w-full rounded-xl gradient-primary py-3 text-sm font-semibold text-black hover:opacity-90 disabled:opacity-50 transition-all"
+          className="mt-4 w-full rounded-xl gradient-primary py-3 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-50 transition-all"
         >
           {isPending || waiting ? "Claiming..." : isCancelled ? "Claim Refund" : "Claim Winnings"}
         </button>

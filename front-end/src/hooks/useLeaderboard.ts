@@ -32,6 +32,7 @@ export function useLeaderboard() {
 
     async function fetch() {
       try {
+        // TODO: This O(n) scan of all events should move to an indexer/subgraph at scale.
         // Scan BetPlaced events to collect unique addresses and stats
         const betLogs = await client!.getLogs({
           address: HASH_PREDICTION_ADDRESS,
@@ -70,9 +71,9 @@ export function useLeaderboard() {
         const stats = new Map<string, { bets: number; volume: bigint; wins: number; markets: Set<string> }>();
 
         for (const log of betLogs) {
-          const addr = (log.args as any).bettor as string;
-          const amount = (log.args as any).amount as bigint;
-          const marketId = ((log.args as any).marketId as bigint).toString();
+          const addr = ((log.args as { bettor?: string; amount?: bigint; marketId?: bigint })).bettor as string;
+          const amount = ((log.args as { bettor?: string; amount?: bigint; marketId?: bigint })).amount as bigint;
+          const marketId = (((log.args as { bettor?: string; amount?: bigint; marketId?: bigint })).marketId as bigint).toString();
           if (!addr) continue;
           const key = addr.toLowerCase();
           const existing = stats.get(key) ?? { bets: 0, volume: 0n, wins: 0, markets: new Set<string>() };
@@ -85,7 +86,7 @@ export function useLeaderboard() {
         // Track wins from claim events
         const claimers = new Set<string>();
         for (const log of claimLogs) {
-          const addr = (log.args as any).bettor as string;
+          const addr = ((log.args as { bettor?: string; amount?: bigint; marketId?: bigint })).bettor as string;
           if (!addr) continue;
           const key = addr.toLowerCase();
           const existing = stats.get(key);

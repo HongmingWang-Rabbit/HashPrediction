@@ -14,6 +14,7 @@ import {
 } from "@/config/contracts";
 import { useMarkets } from "@/hooks/useMarkets";
 import { txToast } from "@/lib/toast";
+import { getErrorMessage } from "@/lib/errors";
 
 export default function AdminPage() {
   const { address } = useAccount();
@@ -92,7 +93,7 @@ function PauseSection() {
 
   useEffect(() => {
     if (error && toastId.current !== null) {
-      txToast.error(toastId.current, error.message?.includes("User rejected") ? "Transaction rejected" : error.message?.split("\n")[0] ?? "Failed");
+      txToast.error(toastId.current, getErrorMessage(error));
       toastId.current = null;
     }
   }, [error]);
@@ -115,7 +116,7 @@ function PauseSection() {
           }}
           disabled={busy}
           className={`rounded-xl px-5 py-2 text-sm font-semibold disabled:opacity-50 transition-all ${
-            paused ? "bg-[#19bf86] hover:bg-[#19bf86] text-white" : "bg-[#f8495e] hover:bg-[#f8495e] text-white"
+            paused ? "bg-[#19bf86] hover:brightness-110 text-white" : "bg-[#f8495e] hover:brightness-110 text-white"
           }`}
         >
           {busy ? "..." : paused ? "Unpause" : "Pause"}
@@ -145,7 +146,7 @@ function ConfigSection() {
 
   useEffect(() => {
     if (error && toastId.current !== null) {
-      txToast.error(toastId.current, error.message?.includes("User rejected") ? "Transaction rejected" : error.message?.split("\n")[0] ?? "Update failed");
+      txToast.error(toastId.current, getErrorMessage(error));
       toastId.current = null;
     }
   }, [error]);
@@ -222,7 +223,7 @@ function MarketManagement() {
 
   useEffect(() => {
     if (error && toastId.current !== null) {
-      txToast.error(toastId.current, error.message?.includes("User rejected") ? "Transaction rejected" : error.message?.split("\n")[0] ?? "Action failed");
+      txToast.error(toastId.current, getErrorMessage(error));
       toastId.current = null;
     }
   }, [error]);
@@ -235,14 +236,14 @@ function MarketManagement() {
   return (
     <SectionCard title="Resolve / Cancel Markets">
       {actionable.length === 0 ? (
-        <p className="text-sm text-[#f4f4f5]0">No markets past resolution time.</p>
+        <p className="text-sm text-[#70707b]">No markets past resolution time.</p>
       ) : (
         <div className="space-y-3">
           {actionable.map((m) => (
             <div key={m.id.toString()} className="flex items-center justify-between gap-3 rounded-xl border border-[#3f3f46]/30 bg-[#17181e]/30 p-4">
               <div className="min-w-0">
-                <p className="truncate text-sm text-white font-medium">{m.question}</p>
-                <div className="flex gap-3 text-xs text-[#f4f4f5]0 mt-1">
+                <p className="truncate break-words text-sm text-white font-medium">{m.question}</p>
+                <div className="flex gap-3 text-xs text-[#70707b] mt-1">
                   <span>YES: {formatUnits(m.yesPool, TOKEN_DECIMALS)}</span>
                   <span>NO: {formatUnits(m.noPool, TOKEN_DECIMALS)}</span>
                 </div>
@@ -259,7 +260,7 @@ function MarketManagement() {
                     });
                   }}
                   disabled={busy}
-                  className="rounded-lg bg-[#19bf86] px-3 py-2 text-xs font-medium text-white hover:bg-[#19bf86] disabled:opacity-50 transition-all"
+                  className="rounded-lg bg-[#19bf86] px-3 py-2 text-xs font-medium text-white hover:brightness-110 disabled:opacity-50 transition-all"
                 >
                   YES
                 </button>
@@ -274,7 +275,7 @@ function MarketManagement() {
                     });
                   }}
                   disabled={busy}
-                  className="rounded-lg bg-[#f8495e] px-3 py-2 text-xs font-medium text-white hover:bg-[#f8495e] disabled:opacity-50 transition-all"
+                  className="rounded-lg bg-[#f8495e] px-3 py-2 text-xs font-medium text-white hover:brightness-110 disabled:opacity-50 transition-all"
                 >
                   NO
                 </button>
@@ -289,7 +290,7 @@ function MarketManagement() {
                     });
                   }}
                   disabled={busy}
-                  className="rounded-lg bg-[#3f3f46] px-3 py-2 text-xs font-medium text-white hover:bg-[#3f3f46] disabled:opacity-50 transition-all"
+                  className="rounded-lg bg-[#3f3f46] px-3 py-2 text-xs font-medium text-white hover:brightness-110 disabled:opacity-50 transition-all"
                 >
                   Cancel
                 </button>
@@ -318,7 +319,7 @@ function MintSection() {
 
   useEffect(() => {
     if (error && toastId.current !== null) {
-      txToast.error(toastId.current, error.message?.includes("User rejected") ? "Transaction rejected" : error.message?.split("\n")[0] ?? "Mint failed");
+      txToast.error(toastId.current, getErrorMessage(error));
       toastId.current = null;
     }
   }, [error]);
