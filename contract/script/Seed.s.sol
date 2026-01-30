@@ -12,8 +12,8 @@ contract SeedScript is Script {
         uint256 pk = vm.envUint("PRIVATE_KEY");
         address deployer = vm.addr(pk);
 
-        HashPrediction hp = HashPrediction(0x03545F86EfC72522f569EB467b7687b6A5FB5D98);
-        MockERC20 token = MockERC20(0xf067B0D3E685AD87845a9b0B7a9d46a21a7Fa877);
+        HashPrediction hp = HashPrediction(0xcC502F4b4Ebd5DF402Df83C7CbCE1c7E6FCA7787);
+        MockERC20 token = MockERC20(0x896504918289f0B3B346574Fe47190074Cfd31Cc);
 
         console.log("=== Seed Script ===");
         console.log("Deployer:", deployer);
