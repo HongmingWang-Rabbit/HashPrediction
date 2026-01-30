@@ -12,14 +12,19 @@ import { getErrorMessage } from "@/lib/errors";
 import { useUserPortfolio, type PortfolioEntry } from "@/hooks/useUserPortfolio";
 import { MarketStatus } from "@/components/MarketStatus";
 import { SkeletonCard } from "@/components/Skeleton";
+import { PageSkeleton } from "@/components/PageSkeleton";
 
 const TABS = ["Active", "Claimable", "History", "My Markets"] as const;
 type Tab = (typeof TABS)[number];
 
 export default function PortfolioPage() {
-  const { isConnected } = useAccount();
+  const { isConnected, isConnecting, isReconnecting } = useAccount();
   const [tab, setTab] = useState<Tab>("Active");
   const { entries, createdMarkets, isLoading, refetch } = useUserPortfolio();
+
+  if (isConnecting || isReconnecting) {
+    return <PageSkeleton variant="portfolio" />;
+  }
 
   if (!isConnected) {
     return (
@@ -58,27 +63,38 @@ export default function PortfolioPage() {
 
       {/* Summary cards */}
       <div className="mb-8 grid grid-cols-2 gap-3 sm:gap-4 sm:grid-cols-4">
-        <div className="glass-card p-3 sm:p-4 text-center overflow-hidden">
-          <p className="text-xl sm:text-2xl font-bold text-[#9f6ffd]">{entries.length}</p>
-          <p className="text-xs text-[#70707b] mt-1">Total Positions</p>
-        </div>
-        <div className="glass-card p-3 sm:p-4 text-center overflow-hidden">
-          <p className="text-xl sm:text-2xl font-bold text-[#19bf86]">{claimable.length}</p>
-          <p className="text-xs text-[#70707b] mt-1">Claimable</p>
-        </div>
-        <div className="glass-card p-3 sm:p-4 text-center overflow-hidden">
-          <p className="text-xl sm:text-2xl font-bold text-white truncate">
-            {Number(formatUnits(
-              entries.reduce((acc, e) => acc + e.position.yesBet + e.position.noBet, 0n),
-              TOKEN_DECIMALS
-            )).toLocaleString()}
-          </p>
-          <p className="text-[10px] sm:text-xs text-[#70707b] mt-1">Total Invested (mUSDC)</p>
-        </div>
-        <div className="glass-card p-3 sm:p-4 text-center overflow-hidden">
-          <p className="text-xl sm:text-2xl font-bold text-[#9f6ffd]">{createdMarkets.length}</p>
-          <p className="text-xs text-[#70707b] mt-1">Markets Created</p>
-        </div>
+        {isLoading ? (
+          Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="glass-card p-3 sm:p-4 text-center space-y-2">
+              <div className="h-7 w-12 mx-auto rounded bg-[#3f3f46]/50 animate-pulse" />
+              <div className="h-3 w-20 mx-auto rounded bg-[#3f3f46]/50 animate-pulse" />
+            </div>
+          ))
+        ) : (
+          <>
+            <div className="glass-card p-3 sm:p-4 text-center overflow-hidden">
+              <p className="text-xl sm:text-2xl font-bold text-[#9f6ffd]">{entries.length}</p>
+              <p className="text-xs text-[#70707b] mt-1">Total Positions</p>
+            </div>
+            <div className="glass-card p-3 sm:p-4 text-center overflow-hidden">
+              <p className="text-xl sm:text-2xl font-bold text-[#19bf86]">{claimable.length}</p>
+              <p className="text-xs text-[#70707b] mt-1">Claimable</p>
+            </div>
+            <div className="glass-card p-3 sm:p-4 text-center overflow-hidden">
+              <p className="text-xl sm:text-2xl font-bold text-white truncate">
+                {Number(formatUnits(
+                  entries.reduce((acc, e) => acc + e.position.yesBet + e.position.noBet, 0n),
+                  TOKEN_DECIMALS
+                )).toLocaleString()}
+              </p>
+              <p className="text-[10px] sm:text-xs text-[#70707b] mt-1">Total Invested (mUSDC)</p>
+            </div>
+            <div className="glass-card p-3 sm:p-4 text-center overflow-hidden">
+              <p className="text-xl sm:text-2xl font-bold text-[#9f6ffd]">{createdMarkets.length}</p>
+              <p className="text-xs text-[#70707b] mt-1">Markets Created</p>
+            </div>
+          </>
+        )}
       </div>
 
       {/* Tabs */}
@@ -94,9 +110,11 @@ export default function PortfolioPage() {
             }`}
           >
             {t}
-            {counts[t] > 0 && (
+            {isLoading ? (
+              <span className="ml-1.5 inline-block h-4 w-5 rounded-full bg-[#3f3f46]/50 animate-pulse align-middle" />
+            ) : counts[t] > 0 ? (
               <span className="ml-1.5 rounded-full bg-[#17181e] px-1.5 py-0.5 text-xs">{counts[t]}</span>
-            )}
+            ) : null}
           </button>
         ))}
       </div>

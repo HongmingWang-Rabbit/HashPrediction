@@ -56,6 +56,7 @@ export default function FaucetPage() {
     }
   }, [isSuccess, isError, refetchBalance, reset]);
 
+  const balanceLoading = balance === undefined && isConnected;
   const formattedBalance = balance !== undefined
     ? Number(formatUnits(balance as bigint, TOKEN_DECIMALS)).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
     : "—";
@@ -75,12 +76,16 @@ export default function FaucetPage() {
           <>
             <div className="rounded-xl bg-[#17181e]/50 border border-[#3f3f46] p-4">
               <p className="text-xs text-[#70707b] uppercase tracking-wider mb-1">Your Balance</p>
-              <p className="text-2xl font-bold text-white">{formattedBalance} <span className="text-sm text-[#a1a1aa]">mUSDC</span></p>
+              {balanceLoading ? (
+                <div className="h-8 w-32 mx-auto rounded bg-[#3f3f46]/50 animate-pulse" />
+              ) : (
+                <p className="text-2xl font-bold text-white">{formattedBalance} <span className="text-sm text-[#a1a1aa]">mUSDC</span></p>
+              )}
             </div>
 
             <button
               onClick={handleClaim}
-              disabled={isBusy}
+              disabled={isBusy || balanceLoading}
               className="w-full rounded-xl gradient-primary py-3 px-6 text-sm font-semibold text-white glow-primary hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isBusy ? "Claiming..." : "Claim 1,000 mUSDC"}

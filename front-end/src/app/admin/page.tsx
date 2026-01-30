@@ -17,8 +17,19 @@ import { txToast } from "@/lib/toast";
 import { getErrorMessage } from "@/lib/errors";
 
 export default function AdminPage() {
-  const { address } = useAccount();
+  const { address, isConnecting, isReconnecting } = useAccount();
   const isAdmin = address?.toLowerCase() === ADMIN_ADDRESS.toLowerCase();
+
+  if (isConnecting || isReconnecting) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <div className="glass-card p-8 text-center space-y-4 max-w-sm w-full">
+          <div className="h-10 w-10 rounded-full bg-[#3f3f46]/50 animate-pulse mx-auto" />
+          <div className="h-5 w-40 rounded bg-[#3f3f46]/50 animate-pulse mx-auto" />
+        </div>
+      </div>
+    );
+  }
 
   if (!address) {
     return (
@@ -79,6 +90,7 @@ function PauseSection() {
     query: { enabled: !!tx },
   });
 
+  const configLoading = config === undefined;
   const paused = (config as Config | undefined)?.paused;
   const busy = isPending || isLoading;
   const toastId = useRef<Id | null>(null);
@@ -100,6 +112,15 @@ function PauseSection() {
 
   return (
     <SectionCard title="Contract Status">
+      {configLoading ? (
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="h-3 w-3 rounded-full bg-[#3f3f46]/50 animate-pulse" />
+            <div className="h-5 w-16 rounded bg-[#3f3f46]/50 animate-pulse" />
+          </div>
+          <div className="h-9 w-24 rounded-xl bg-[#3f3f46]/50 animate-pulse" />
+        </div>
+      ) : (
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <span className={`inline-block h-3 w-3 rounded-full ${paused ? "bg-[#f8495e]" : "bg-[#19bf86]"}`} />
@@ -122,6 +143,7 @@ function PauseSection() {
           {busy ? "..." : paused ? "Unpause" : "Pause"}
         </button>
       </div>
+      )}
     </SectionCard>
   );
 }
@@ -207,7 +229,7 @@ function ConfigSection() {
 }
 
 function MarketManagement() {
-  const { data: markets, refetch } = useMarkets();
+  const { data: markets, isLoading: marketsLoading, refetch } = useMarkets();
   const { writeContract, data: tx, isPending, error } = useWriteContract();
   const { isLoading, isSuccess } = useWaitForTransactionReceipt({ hash: tx, query: { enabled: !!tx } });
   const busy = isPending || isLoading;
@@ -235,7 +257,13 @@ function MarketManagement() {
 
   return (
     <SectionCard title="Resolve / Cancel Markets">
-      {actionable.length === 0 ? (
+      {marketsLoading ? (
+        <div className="space-y-3">
+          {Array.from({ length: 2 }).map((_, i) => (
+            <div key={i} className="h-16 rounded-xl bg-[#3f3f46]/30 animate-pulse" />
+          ))}
+        </div>
+      ) : actionable.length === 0 ? (
         <p className="text-sm text-[#70707b]">No markets past resolution time.</p>
       ) : (
         <div className="space-y-3">

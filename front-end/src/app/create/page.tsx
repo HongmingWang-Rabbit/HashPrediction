@@ -21,7 +21,7 @@ const STEPS = ["Details", "Fee", "Review"];
 
 export default function CreatePage() {
   const router = useRouter();
-  const { isConnected } = useAccount();
+  const { isConnected, isConnecting, isReconnecting } = useAccount();
   const publicClient = usePublicClient();
   const { allowance, refetch: refetchToken } = useTokenBalance();
 
@@ -137,6 +137,17 @@ export default function CreatePage() {
           }
         },
       }
+    );
+  }
+
+  if (isConnecting || isReconnecting) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <div className="glass-card p-8 text-center space-y-4 max-w-sm w-full">
+          <div className="h-10 w-10 rounded-full bg-[#3f3f46]/50 animate-pulse mx-auto" />
+          <div className="h-5 w-40 rounded bg-[#3f3f46]/50 animate-pulse mx-auto" />
+        </div>
+      </div>
     );
   }
 

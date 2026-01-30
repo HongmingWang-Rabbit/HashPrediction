@@ -165,6 +165,7 @@ export function BetForm({ marketId, yesPool, noPool, onSuccess }: { marketId: nu
     try { return parseUnits(amount, TOKEN_DECIMALS); } catch { return 0n; }
   })();
 
+  const allowanceLoading = allowance === undefined;
   const needsApproval = allowance !== undefined && parsedAmount > 0n && allowance < parsedAmount;
   const busy = approving || waitingApprove || betting || waitingBet;
 
@@ -261,7 +262,14 @@ export function BetForm({ marketId, yesPool, noPool, onSuccess }: { marketId: nu
       <RulesExplainer />
 
       {/* Action button */}
-      {needsApproval ? (
+      {allowanceLoading ? (
+        <button
+          disabled
+          className="w-full rounded-xl bg-[#3f3f46]/50 py-3 text-sm font-semibold text-[#70707b] transition-all"
+        >
+          Loading...
+        </button>
+      ) : needsApproval ? (
         <button
           onClick={handleApprove}
           disabled={busy}

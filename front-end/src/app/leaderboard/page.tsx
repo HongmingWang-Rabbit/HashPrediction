@@ -6,7 +6,7 @@ import { formatUnits } from "viem";
 import { useAccount } from "wagmi";
 import { useLeaderboard, type LeaderboardEntry } from "@/hooks/useLeaderboard";
 import { TOKEN_DECIMALS } from "@/config/contracts";
-import { SkeletonCard } from "@/components/Skeleton";
+import { PageSkeleton } from "@/components/PageSkeleton";
 
 type SortKey = "wins" | "volume" | "winRate";
 
@@ -64,11 +64,7 @@ export default function LeaderboardPage() {
         </div>
 
         {loading ? (
-          <div className="grid gap-4 sm:grid-cols-2">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <SkeletonCard key={i} />
-            ))}
-          </div>
+          <PageSkeleton variant="table" />
         ) : sorted.length === 0 ? (
           <div className="glass-card p-12 text-center">
             <p className="text-[#70707b]">No bets placed yet. Be the first!</p>

@@ -17,7 +17,7 @@ interface Props {
 }
 
 export function PositionDisplay({ marketId, marketState, yesPool, noPool }: Props) {
-  const { position, payout, refetch } = useUserPosition(marketId);
+  const { position, payout, refetch, isLoading: positionLoading } = useUserPosition(marketId);
   const { writeContract, data: tx, isPending, error: claimError } = useWriteContract();
   const { isLoading: waiting, isSuccess } = useWaitForTransactionReceipt({
     hash: tx,
@@ -41,6 +41,16 @@ export function PositionDisplay({ marketId, marketState, yesPool, noPool }: Prop
       toastId.current = null;
     }
   }, [claimError]);
+
+  if (positionLoading) {
+    return (
+      <div className="glass-card p-6 space-y-3">
+        <div className="h-5 w-28 rounded bg-[#3f3f46]/50 animate-pulse" />
+        <div className="h-12 w-full rounded-xl bg-[#3f3f46]/30 animate-pulse" />
+        <div className="h-12 w-full rounded-xl bg-[#3f3f46]/30 animate-pulse" />
+      </div>
+    );
+  }
 
   if (!position || (position.yesBet === 0n && position.noBet === 0n)) return null;
 

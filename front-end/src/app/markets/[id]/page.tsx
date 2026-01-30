@@ -13,6 +13,7 @@ import { PoolBar } from "@/components/PoolBar";
 import { BetForm } from "@/components/BetForm";
 import { PositionDisplay } from "@/components/PositionDisplay";
 import { ActivityFeed } from "@/components/ActivityFeed";
+import { PageSkeleton } from "@/components/PageSkeleton";
 
 export default function MarketPage() {
   const { id } = useParams<{ id: string }>();
@@ -22,15 +23,16 @@ export default function MarketPage() {
   const [copied, setCopied] = useState(false);
 
   if (isLoading) {
-    return (
-      <div className="mx-auto max-w-5xl">
-        <div className="skeleton h-8 w-64 rounded-lg mb-4" />
-        <div className="skeleton h-6 w-full rounded-lg mb-6" />
-        <div className="skeleton h-40 w-full rounded-2xl" />
-      </div>
-    );
+    return <PageSkeleton variant="detail" />;
   }
-  if (!market) return <p className="text-[#70707b]">Market not found.</p>;
+  if (!market) return (
+    <div className="glass-card mx-auto max-w-lg p-12 text-center">
+      <p className="text-[#70707b] mb-4">Market not found.</p>
+      <a href="/" className="inline-block rounded-xl gradient-cta px-5 py-2.5 text-sm font-semibold text-white hover:opacity-90 transition-all">
+        ← Back to Markets
+      </a>
+    </div>
+  );
 
   const isActive = market.state === 0;
   const now = Math.floor(Date.now() / 1000);

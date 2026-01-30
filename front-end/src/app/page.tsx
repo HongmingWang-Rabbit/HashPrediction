@@ -142,21 +142,26 @@ export default function Home() {
           </a>
         </motion.div>
       ) : (
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={`${filter}-${sort}`}
-            className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3"
-            variants={containerVariants}
-            initial="hidden"
-            animate="show"
-          >
+        <motion.div
+          className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3"
+          variants={containerVariants}
+          initial="hidden"
+          animate="show"
+          layout
+        >
+          <AnimatePresence mode="popLayout">
             {sorted.map((m) => (
-              <motion.div key={m.id.toString()} variants={cardVariants}>
+              <motion.div
+                key={m.id.toString()}
+                variants={cardVariants}
+                layout
+                exit={{ opacity: 0, scale: 0.95, transition: { duration: 0.2 } }}
+              >
                 <MarketCard market={m} />
               </motion.div>
             ))}
-          </motion.div>
-        </AnimatePresence>
+          </AnimatePresence>
+        </motion.div>
       )}
     </div>
   );
