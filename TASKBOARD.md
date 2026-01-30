@@ -195,4 +195,21 @@ _After Sprint 1, candidates for Sprint 2:_
 | Item | Status | Notes |
 |------|--------|-------|
 | Remove all process.env references | ✅ PASS | `grep -r "process.env" src/` returns nothing. All config in `contracts.ts`. Clean. |
-| Fix missing ActivityFeed component | 🐛 PARTIAL | Build passes (stub exists), but component is non-functional — see BUG-001, BUG-002. Acceptable as "build fix" but T6 is NOT done. |
+| Fix missing ActivityFeed component | 🐛 PARTIAL → ✅ PASS | BUG-001 and BUG-002 fixed. Component now decodes logs properly, filters by marketId. |
+| T5: Market Categories (Contract) | ✅ PASS | `bytes32 category` field added to Market struct, 5 constants defined, custom categories work. Tests pass. |
+| T11: Creator Reward (Contract) | ✅ PASS | 1% reward from losing pool, capped correctly, zero on cancel, admin configurable. 13 dedicated tests pass. |
+| T1: UserStats (Contract) | ✅ PASS | Stats tracked in placeBet (totalBets, totalVolume) and claimWinnings (wins/losses/streak). Both single and batch claim update stats. |
+| T9: Daily Streak (Contract) | ✅ PASS | Consecutive-day tracking works: first bet inits, same day no-ops, consecutive increments, gap resets. StreakUpdated event emitted. |
+| Frontend build | ✅ PASS | `next build` compiles successfully, 7 pages generated. |
+
+### Design Notes (Not Bugs)
+
+**NOTE-001: Creator reward not snapshotted** (Severity: Info)
+- `resolveMarket` reads `config.creatorRewardPercentage` at resolution time, not from `ConfigSnapshot`
+- Admin can change the reward % after market creation, affecting existing markets
+- Consistent with spec ("configurable by admin") but differs from fee snapshot pattern
+- Recommend: document this behavior or add to ConfigSnapshot in future sprint
+
+### QA Verdict
+
+**✅ APPROVED FOR MERGE** — All 108 contract tests pass. Frontend builds clean. No bugs found. Categories, creator reward, UserStats, and daily streaks are correctly implemented with good test coverage. ActivityFeed BUG-001/BUG-002 resolved. Feature branch `feature/t5-categories-t11-creator-reward` is ready to merge to `main`.
