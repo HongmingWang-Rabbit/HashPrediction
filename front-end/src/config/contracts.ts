@@ -13,9 +13,12 @@ export const hashkeyTestnet = defineChain({
   testnet: true,
 });
 
-export const HASH_PREDICTION_ADDRESS = (process.env.NEXT_PUBLIC_HASH_PREDICTION_ADDRESS ?? "0xC89bE9D4124E75869174ABd46b47De5a0d7e57E9") as `0x${string}`;
-export const MOCK_USDC_ADDRESS = (process.env.NEXT_PUBLIC_MOCK_USDC_ADDRESS ?? "0x9cefc16AD9dD2a4be819c616017F51d3A016C6ab") as `0x${string}`;
-export const ADMIN_ADDRESS = (process.env.NEXT_PUBLIC_ADMIN_ADDRESS ?? "0xafb5963275f4E0F75AC472F7ABDfAeD06903d85C") as `0x${string}`;
+// ─── Deployed Contract Addresses ───────────────────────────────────
+// Source-controlled config — no .env needed.
+// When contract dev deploys new contracts, update these addresses here.
+export const HASH_PREDICTION_ADDRESS = "0xC89bE9D4124E75869174ABd46b47De5a0d7e57E9" as `0x${string}`;
+export const MOCK_USDC_ADDRESS = "0x9cefc16AD9dD2a4be819c616017F51d3A016C6ab" as `0x${string}`;
+export const ADMIN_ADDRESS = "0xafb5963275f4E0F75AC472F7ABDfAeD06903d85C" as `0x${string}`;
 
 export const HASH_PREDICTION_ABI = [
   {

@@ -14,6 +14,59 @@ import { useTokenBalance } from "@/hooks/useTokenBalance";
 
 const PRESETS = ["10", "50", "100", "500"];
 
+function RulesExplainer() {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="mb-4">
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        className="flex w-full items-center gap-1.5 text-xs font-medium text-slate-400 hover:text-slate-200 transition-colors"
+      >
+        <svg
+          className={`h-3.5 w-3.5 transition-transform ${open ? "rotate-90" : ""}`}
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          strokeWidth={2}
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+        </svg>
+        How prediction markets work
+      </button>
+      {open && (
+        <div className="mt-2 rounded-lg border border-slate-700/50 bg-slate-800/40 p-3.5 text-xs leading-relaxed text-slate-300 space-y-2">
+          <p>
+            <span className="font-semibold text-amber-400">1. Pick an outcome</span> — Choose{" "}
+            <span className="text-emerald-400 font-medium">YES</span> or{" "}
+            <span className="text-rose-400 font-medium">NO</span> and enter the amount of mUSDC you
+            want to bet.
+          </p>
+          <p>
+            <span className="font-semibold text-amber-400">2. Pool-based payouts</span> — All bets
+            go into a shared pool. If your side wins, you receive a share of the <em>entire</em>{" "}
+            pool proportional to your contribution.
+          </p>
+          <p>
+            <span className="font-semibold text-amber-400">3. Potential return</span> — The less
+            popular the winning side, the higher the payout per token. Early bets on the correct
+            outcome earn the most.
+          </p>
+          <p>
+            <span className="font-semibold text-amber-400">4. Resolution</span> — After the
+            deadline, an admin resolves the market. Winners can then claim their payout; losers
+            forfeit their bet.
+          </p>
+          <p>
+            <span className="font-semibold text-amber-400">5. Fees</span> — A small fee is deducted
+            at market creation. There are no additional fees on bets or claims.
+          </p>
+        </div>
+      )}
+    </div>
+  );
+}
+
 type Toast = { type: "success" | "error"; message: string } | null;
 
 export function BetForm({ marketId, onSuccess }: { marketId: number; onSuccess?: () => void }) {
@@ -161,6 +214,9 @@ export function BetForm({ marketId, onSuccess }: { marketId: number; onSuccess?:
           </button>
         ))}
       </div>
+
+      {/* Rules explanation */}
+      <RulesExplainer />
 
       {/* Action button */}
       {needsApproval ? (
