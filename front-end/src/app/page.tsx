@@ -26,7 +26,11 @@ export default function Home() {
   const [sort, setSort] = useState<Sort>("Newest");
   const { data: markets, isLoading } = useMarkets();
 
+  const now = Math.floor(Date.now() / 1000);
+  const isEnded = (m: (typeof markets)[number]) => m.state === 0 && now >= Number(m.resolutionTime);
+
   const filtered = markets.filter((m) => {
+    if (isEnded(m)) return false;
     if (filter === "Active") return m.state === 0;
     if (filter === "Resolved") return m.state === 1;
     if (filter === "Cancelled") return m.state === 2;
@@ -35,7 +39,12 @@ export default function Home() {
 
   const sorted = [...filtered].sort((a, b) => {
     if (sort === "Volume") return Number((b.yesPool + b.noPool) - (a.yesPool + a.noPool));
-    return Number(b.id - a.id); // Newest
+    // Newest: active first, then by id desc
+    if (a.state !== b.state) {
+      if (a.state === 0) return -1;
+      if (b.state === 0) return 1;
+    }
+    return Number(b.id - a.id);
   });
 
   return (

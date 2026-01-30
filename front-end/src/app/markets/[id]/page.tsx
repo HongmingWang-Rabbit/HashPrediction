@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import Link from "next/link";
 import { useParams } from "next/navigation";
 import { formatUnits } from "viem";
 import { useMarket } from "@/hooks/useMarket";
@@ -62,10 +63,18 @@ export default function MarketPage() {
 
   return (
     <div className="mx-auto max-w-5xl">
+      {/* Back button */}
+      <Link href="/" className="mb-4 inline-flex items-center gap-1.5 text-sm text-slate-400 hover:text-white transition-colors">
+        <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+        </svg>
+        Back to Markets
+      </Link>
+
       {/* Header */}
       <div className="mb-8">
         <div className="mb-3 flex flex-wrap items-center gap-3">
-          <MarketStatus state={market.state} />
+          <MarketStatus state={market.state} resolutionTime={market.resolutionTime} />
           {isActive && <CountdownTimer target={market.resolutionTime} />}
           {market.state === 1 && (
             <span className={`text-sm font-semibold ${market.winningOutcome === 1 ? "text-emerald-400" : "text-rose-400"}`}>

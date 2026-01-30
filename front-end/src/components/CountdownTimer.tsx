@@ -26,11 +26,11 @@ export function CountdownTimer({ target }: { target: bigint }) {
   ].filter((seg, i) => i >= (d > 0 ? 0 : 1));
 
   return (
-    <div className="flex gap-1.5">
+    <div className="flex gap-2">
       {segments.map((seg) => (
         <span key={seg.label} className="text-sm">
           <span className="font-mono font-bold text-white">{String(seg.value).padStart(2, "0")}</span>
-          <span className="text-slate-500">{seg.label} </span>
+          <span className="text-slate-500 ml-0.5">{seg.label}</span>
         </span>
       ))}
     </div>

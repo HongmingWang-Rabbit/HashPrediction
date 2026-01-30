@@ -124,7 +124,7 @@ export default function PortfolioPage() {
                       Volume: {Number(formatUnits(m.yesPool + m.noPool, TOKEN_DECIMALS)).toLocaleString()} mUSDC
                     </p>
                   </div>
-                  <MarketStatus state={m.state} />
+                  <MarketStatus state={m.state} resolutionTime={m.resolutionTime} />
                 </div>
               </Link>
             ))}
@@ -176,7 +176,7 @@ function PositionRow({ entry, onClaimed }: { entry: PortfolioEntry; onClaimed: (
             {market.question}
           </Link>
           <div className="mt-2 flex flex-wrap gap-2 sm:gap-3 text-xs">
-            <MarketStatus state={market.state} />
+            <MarketStatus state={market.state} resolutionTime={market.resolutionTime} />
             {position.yesBet > 0n && (
               <span className="text-emerald-400">YES: {formatUnits(position.yesBet, TOKEN_DECIMALS)}</span>
             )}

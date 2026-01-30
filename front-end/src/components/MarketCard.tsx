@@ -28,7 +28,7 @@ export function MarketCard({ market }: { market: Market }) {
       >
         <div className="mb-4 flex items-start justify-between gap-3">
           <h3 className="text-sm font-semibold leading-snug text-slate-100 line-clamp-2">{market.question}</h3>
-          <MarketStatus state={market.state} />
+          <MarketStatus state={market.state} resolutionTime={market.resolutionTime} />
         </div>
 
         {/* Implied probability */}

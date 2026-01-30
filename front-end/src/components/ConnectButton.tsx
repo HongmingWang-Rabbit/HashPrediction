@@ -1,24 +1,42 @@
 "use client";
 
+import { useState, useRef, useEffect } from "react";
 import { useAccount, useConnect, useDisconnect } from "wagmi";
 
 export function ConnectButton() {
   const { address, isConnected } = useAccount();
   const { connectors, connect, isPending } = useConnect();
   const { disconnect } = useDisconnect();
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    }
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, []);
 
   if (isConnected && address) {
     return (
-      <div className="flex items-center gap-2">
-        <span className="rounded-lg bg-slate-800 px-3 py-1.5 text-xs font-mono text-slate-300">
-          {address.slice(0, 6)}...{address.slice(-4)}
-        </span>
+      <div ref={ref} className="relative">
         <button
-          onClick={() => disconnect()}
-          className="rounded-xl bg-slate-800 px-3 py-2 text-xs font-medium text-slate-300 hover:bg-slate-700 transition-colors"
+          onClick={() => setOpen((o) => !o)}
+          className="rounded-lg bg-slate-800 px-3 py-1.5 text-xs font-mono text-slate-300 hover:bg-slate-700 transition-colors"
         >
-          Disconnect
+          {address.slice(0, 6)}...{address.slice(-4)}
         </button>
+        {open && (
+          <div className="absolute right-0 mt-2 w-40 rounded-xl border border-slate-700/50 bg-slate-900 p-1 shadow-xl z-50">
+            <button
+              onClick={() => { disconnect(); setOpen(false); }}
+              className="w-full rounded-lg px-3 py-2 text-left text-sm text-slate-300 hover:bg-slate-800 transition-colors"
+            >
+              Disconnect
+            </button>
+          </div>
+        )}
       </div>
     );
   }

@@ -6,8 +6,13 @@ const config = [
   { label: "Cancelled", dot: "bg-rose-400", bg: "bg-rose-500/10", text: "text-rose-400", border: "border-rose-500/20" },
 ] as const;
 
-export function MarketStatus({ state }: { state: number }) {
-  const c = config[state] ?? config[0];
+const endedConfig = { label: "Ended", dot: "bg-slate-400", bg: "bg-slate-500/10", text: "text-slate-400", border: "border-slate-500/20" };
+
+export function MarketStatus({ state, resolutionTime }: { state: number; resolutionTime?: bigint }) {
+  const now = Math.floor(Date.now() / 1000);
+  const ended = state === 0 && resolutionTime !== undefined && now >= Number(resolutionTime);
+  const c = ended ? endedConfig : (config[state] ?? config[0]);
+
   return (
     <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium ${c.bg} ${c.text} ${c.border}`}>
       <span className={`inline-block h-1.5 w-1.5 rounded-full ${c.dot}`} />
