@@ -77,7 +77,8 @@ contract Deploy is Script {
             stablecoinDecimals,
             admin,
             feeRecipient,
-            maxFeePercentage
+            maxFeePercentage,
+            100 // 1% creator reward
         );
 
         vm.stopBroadcast();

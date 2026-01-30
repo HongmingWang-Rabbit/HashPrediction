@@ -70,8 +70,8 @@ contract ViewFunctionsTest is BaseTest {
 
         uint256 payout = market.calculatePayout(marketId, alice);
 
-        // 100 + (100/100) * 50 = 150
-        assertEq(payout, usdc(150));
+        // After 1% creator reward: NO pool 50→48.5, payout=100+48.5=148.5
+        assertEq(payout, 148500000);
     }
 
     /// @notice TC-VF-004: Calculate Payout (Losing Side)

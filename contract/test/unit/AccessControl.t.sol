@@ -14,7 +14,7 @@ contract AccessControlTest is BaseTest {
         emit ConfigUpdated(admin, charlie, 100);
 
         vm.prank(admin);
-        market.updateConfig(charlie, 100);
+        market.updateConfig(charlie, 100, 100);
 
         HashPrediction.Config memory cfg = market.getConfig();
         assertEq(cfg.feeRecipient, charlie);
@@ -25,14 +25,14 @@ contract AccessControlTest is BaseTest {
     function test_UpdateConfig_RevertIf_NonAdmin() public {
         vm.prank(alice);
         vm.expectRevert(HashPrediction.NotAdmin.selector);
-        market.updateConfig(charlie, 100);
+        market.updateConfig(charlie, 100, 100);
     }
 
     /// @notice Test max fee limit enforcement
     function test_UpdateConfig_RevertIf_FeeExceedsLimit() public {
         vm.prank(admin);
         vm.expectRevert(HashPrediction.InvalidFee.selector);
-        market.updateConfig(feeRecipient, 1001); // > 10%
+        market.updateConfig(feeRecipient, 1001, 100); // > 10%
     }
 
     // ============ Pause Tests ============
@@ -110,7 +110,8 @@ contract AccessControlTest is BaseTest {
             DECIMALS,
             admin,
             feeRecipient,
-            MAX_FEE_PERCENTAGE
+            MAX_FEE_PERCENTAGE,
+            100
         );
     }
 
@@ -122,7 +123,8 @@ contract AccessControlTest is BaseTest {
             DECIMALS,
             address(0),
             feeRecipient,
-            MAX_FEE_PERCENTAGE
+            MAX_FEE_PERCENTAGE,
+            100
         );
     }
 
@@ -134,7 +136,8 @@ contract AccessControlTest is BaseTest {
             DECIMALS,
             admin,
             feeRecipient,
-            1001 // > 10%
+            1001, // > 10%
+            100
         );
     }
 }

@@ -25,8 +25,9 @@ contract ClaimingTest is BaseTest {
 
         uint256 aliceBalanceBefore = stablecoin.balanceOf(alice);
 
-        // Expected payout: 100 + (100/100) * 50 = 150
-        uint256 expectedPayout = usdc(150);
+        // Creator reward: 1% of 150 total = 1.5, deducted from NO pool (50 → 48.5)
+        // Expected payout: 100 + (100/100) * 48.5 = 148.5
+        uint256 expectedPayout = 148500000;
 
         vm.expectEmit(true, true, true, true);
         emit WinningsClaimed(marketId, alice, expectedPayout, block.timestamp);
@@ -101,12 +102,13 @@ contract ClaimingTest is BaseTest {
         uint256 aliceBalanceBefore = stablecoin.balanceOf(alice);
         uint256 bobBalanceBefore = stablecoin.balanceOf(bob);
 
-        // Each YES bettor gets: 100 + (100/200) * 100 = 150
+        // Creator reward: 1% of 300 total = 3, deducted from NO pool (100 → 97)
+        // Each YES bettor gets: 100 + (100/200) * 97 = 148.5
         claimWinnings(alice, marketId);
         claimWinnings(bob, marketId);
 
-        assertEq(stablecoin.balanceOf(alice), aliceBalanceBefore + usdc(150));
-        assertEq(stablecoin.balanceOf(bob), bobBalanceBefore + usdc(150));
+        assertEq(stablecoin.balanceOf(alice), aliceBalanceBefore + 148500000);
+        assertEq(stablecoin.balanceOf(bob), bobBalanceBefore + 148500000);
     }
 
     /// @notice Test single bettor wins entire losing pool
@@ -119,10 +121,11 @@ contract ClaimingTest is BaseTest {
 
         uint256 aliceBalanceBefore = stablecoin.balanceOf(alice);
 
-        // Alice gets: 100 + 100 = 200 (entire losing pool)
+        // Creator reward: 1% of 200 total = 2, deducted from NO pool (100 → 98)
+        // Alice gets: 100 + 98 = 198
         claimWinnings(alice, marketId);
 
-        assertEq(stablecoin.balanceOf(alice), aliceBalanceBefore + usdc(200));
+        assertEq(stablecoin.balanceOf(alice), aliceBalanceBefore + usdc(198));
     }
 
     // ============ Failure Cases ============
@@ -195,9 +198,9 @@ contract ClaimingTest is BaseTest {
         vm.prank(alice);
         market.claimMultipleWinnings(marketIds);
 
-        // Market 1: 100 + (100/100) * 50 = 150
-        // Market 2: 100 + (100/100) * 50 = 150
-        // Total: 300
-        assertEq(stablecoin.balanceOf(alice), aliceBalanceBefore + usdc(300));
+        // Market 1: reward=1.5, NO pool 50→48.5, payout=100+48.5=148.5
+        // Market 2: reward=1.5, YES pool 50→48.5, payout=100+48.5=148.5
+        // Total: 297
+        assertEq(stablecoin.balanceOf(alice), aliceBalanceBefore + 297000000);
     }
 }

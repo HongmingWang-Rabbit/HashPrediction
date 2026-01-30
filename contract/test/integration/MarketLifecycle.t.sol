@@ -38,12 +38,12 @@ contract MarketLifecycleTest is BaseTest {
         claimWinnings(bob, marketId);
         claimWinnings(charlie, marketId);
 
-        // Verify payouts
-        // Alice: 100 + (100/200) * 100 = 150
-        // Bob: 100 + (100/200) * 100 = 150
+        // Creator reward: 1% of 300 = 3, deducted from NO pool (100→97)
+        // Alice: 100 + (100/200)*97 = 148.5
+        // Bob: 100 + (100/200)*97 = 148.5
         // Charlie: 0 (lost)
-        assertEq(stablecoin.balanceOf(alice), aliceBalanceBefore + usdc(150));
-        assertEq(stablecoin.balanceOf(bob), bobBalanceBefore + usdc(150));
+        assertEq(stablecoin.balanceOf(alice), aliceBalanceBefore + 148500000);
+        assertEq(stablecoin.balanceOf(bob), bobBalanceBefore + 148500000);
         assertEq(stablecoin.balanceOf(charlie), charlieBalanceBefore);
 
         // Verify all claimed
@@ -71,12 +71,12 @@ contract MarketLifecycleTest is BaseTest {
         claimWinnings(bob, marketId);
         claimWinnings(charlie, marketId);
 
-        // Alice: 0 (lost)
-        // Bob: 100 + (100/200) * 50 = 125
-        // Charlie: 100 + (100/200) * 50 = 125
+        // Creator reward: 1% of 250 = 2.5, from YES pool (50→47.5)
+        // Bob: 100 + (100/200)*47.5 = 123.75
+        // Charlie: 100 + (100/200)*47.5 = 123.75
         assertEq(stablecoin.balanceOf(alice), aliceBalanceBefore);
-        assertEq(stablecoin.balanceOf(bob), bobBalanceBefore + usdc(125));
-        assertEq(stablecoin.balanceOf(charlie), charlieBalanceBefore + usdc(125));
+        assertEq(stablecoin.balanceOf(bob), bobBalanceBefore + 123750000);
+        assertEq(stablecoin.balanceOf(charlie), charlieBalanceBefore + 123750000);
     }
 
     /// @notice TC-IT-003: Complete Market Flow (Cancelled)
@@ -139,20 +139,22 @@ contract MarketLifecycleTest is BaseTest {
         claimWinnings(bob, marketId);
         claimWinnings(charlie, marketId);
 
+        // Creator reward: 1% of 275 = 2.75, from NO pool (100→97.25)
         // Check with some tolerance for rounding
+        uint256 adjNoPool = usdc(100) - (usdc(275) * 100 / 10000); // 97250000
         assertApproxEqAbs(
             stablecoin.balanceOf(alice) - aliceBalanceBefore,
-            usdc(100) + (usdc(100) * usdc(100)) / usdc(175),
+            usdc(100) + (usdc(100) * adjNoPool) / usdc(175),
             1
         );
         assertApproxEqAbs(
             stablecoin.balanceOf(bob) - bobBalanceBefore,
-            usdc(50) + (usdc(50) * usdc(100)) / usdc(175),
+            usdc(50) + (usdc(50) * adjNoPool) / usdc(175),
             1
         );
         assertApproxEqAbs(
             stablecoin.balanceOf(charlie) - charlieBalanceBefore,
-            usdc(25) + (usdc(25) * usdc(100)) / usdc(175),
+            usdc(25) + (usdc(25) * adjNoPool) / usdc(175),
             1
         );
     }
@@ -172,8 +174,9 @@ contract MarketLifecycleTest is BaseTest {
 
         claimWinnings(alice, marketId);
 
-        // Alice gets: 100 + 100 = 200 (entire losing pool)
-        assertEq(stablecoin.balanceOf(alice), aliceBalanceBefore + usdc(200));
+        // Creator reward: 1% of 200 = 2, from NO pool (100→98)
+        // Alice gets: 100 + 98 = 198
+        assertEq(stablecoin.balanceOf(alice), aliceBalanceBefore + usdc(198));
     }
 
     /// @notice TC-IT-007: Equal Pool Sizes
@@ -190,8 +193,9 @@ contract MarketLifecycleTest is BaseTest {
 
         claimWinnings(alice, marketId);
 
-        // Alice gets: 100 + 100 = 200
-        assertEq(stablecoin.balanceOf(alice), aliceBalanceBefore + usdc(200));
+        // Creator reward: 1% of 200 = 2, from NO pool (100→98)
+        // Alice gets: 100 + 98 = 198
+        assertEq(stablecoin.balanceOf(alice), aliceBalanceBefore + usdc(198));
     }
 
     /// @notice TC-IT-008: Very Small Winning Pool
@@ -208,8 +212,9 @@ contract MarketLifecycleTest is BaseTest {
 
         claimWinnings(alice, marketId);
 
-        // Alice gets: 1 + 1000 = 1001
-        assertEq(stablecoin.balanceOf(alice), aliceBalanceBefore + usdc(1001));
+        // Creator reward: 1% of 1001 = 10.01, from NO pool (1000→989.99)
+        // Alice gets: 1 + (1/1)*989.99 = 990.99
+        assertEq(stablecoin.balanceOf(alice), aliceBalanceBefore + 990990000);
     }
 
     /// @notice TC-IT-009: Very Small Losing Pool
@@ -226,8 +231,10 @@ contract MarketLifecycleTest is BaseTest {
 
         claimWinnings(alice, marketId);
 
-        // Alice gets: 1000 + 1 = 1001
-        assertEq(stablecoin.balanceOf(alice), aliceBalanceBefore + usdc(1001));
+        // Creator reward: 1% of 1001 = 10.01, from NO pool (1→0 capped)
+        // Reward capped to noPool=1, so noPool→0
+        // Alice gets: 1000 + 0 = 1000
+        assertEq(stablecoin.balanceOf(alice), aliceBalanceBefore + usdc(1000));
     }
 
     /// @notice TC-IT-010: Hedged Position On Resolved Market
@@ -246,10 +253,9 @@ contract MarketLifecycleTest is BaseTest {
 
         claimWinnings(alice, marketId);
 
-        // YES pool = 100, NO pool = 150
-        // Alice's YES bet wins: 100 + (100/100) * 150 = 250
-        // Alice's NO bet is lost
-        assertEq(stablecoin.balanceOf(alice), aliceBalanceBefore + usdc(250));
+        // Creator reward: 1% of 250 = 2.5, from NO pool (150→147.5)
+        // Alice's YES bet wins: 100 + (100/100) * 147.5 = 247.5
+        assertEq(stablecoin.balanceOf(alice), aliceBalanceBefore + 247500000);
     }
 
     /// @notice TC-IT-011: Multiple Markets Same User
@@ -273,10 +279,10 @@ contract MarketLifecycleTest is BaseTest {
         claimWinnings(alice, marketId1);
         claimWinnings(alice, marketId2);
 
-        // Market 1: Alice wins 100 + 100 = 200
-        // Market 2: Alice wins 100 + 100 = 200
-        // Total: 400
-        assertEq(stablecoin.balanceOf(alice), aliceBalanceBefore + usdc(400));
+        // Market 1: reward=2, NO pool 100→98, Alice wins 100+98=198
+        // Market 2: reward=2, YES pool 100→98, Alice wins 100+98=198
+        // Total: 396
+        assertEq(stablecoin.balanceOf(alice), aliceBalanceBefore + usdc(396));
     }
 
     /// @notice Test contract balance remains zero after all claims

@@ -87,7 +87,8 @@ abstract contract BaseTest is Test {
             DECIMALS,
             admin,
             feeRecipient,
-            MAX_FEE_PERCENTAGE
+            MAX_FEE_PERCENTAGE,
+            100 // 1% creator reward (T11)
         );
         vm.stopPrank();
 
@@ -121,7 +122,18 @@ abstract contract BaseTest is Test {
         uint256 fee
     ) internal returns (uint256 marketId) {
         vm.prank(alice);
-        return market.createMarket(question, resolutionTime, fee);
+        return market.createMarket(question, resolutionTime, fee, bytes32(0));
+    }
+
+    /// @notice Creates a market with custom parameters including category (T5)
+    function createMarketWithCategory(
+        string memory question,
+        uint256 resolutionTime,
+        uint256 fee,
+        bytes32 category
+    ) internal returns (uint256 marketId) {
+        vm.prank(alice);
+        return market.createMarket(question, resolutionTime, fee, category);
     }
 
     /// @notice Places a bet on a market

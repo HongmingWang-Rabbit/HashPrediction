@@ -33,16 +33,24 @@ contract PayoutFuzzTest is BaseTest {
             yesWins ? HashPrediction.Outcome.Yes : HashPrediction.Outcome.No;
         resolveMarket(marketId, winningOutcome);
 
-        // Calculate expected payouts
+        // Calculate expected payouts (accounting for 1% creator reward)
+        uint256 totalPool = yesBetAmount + noBetAmount;
+        uint256 creatorReward = (totalPool * 100) / 10000; // 1%
         uint256 aliceExpected;
         uint256 bobExpected;
 
         if (yesWins) {
-            aliceExpected = yesBetAmount + (yesBetAmount * noBetAmount) / yesBetAmount;
+            uint256 adjNoPool = noBetAmount;
+            if (creatorReward > adjNoPool) creatorReward = adjNoPool;
+            adjNoPool -= creatorReward;
+            aliceExpected = yesBetAmount + (yesBetAmount * adjNoPool) / yesBetAmount;
             bobExpected = 0;
         } else {
+            uint256 adjYesPool = yesBetAmount;
+            if (creatorReward > adjYesPool) creatorReward = adjYesPool;
+            adjYesPool -= creatorReward;
             aliceExpected = 0;
-            bobExpected = noBetAmount + (noBetAmount * yesBetAmount) / noBetAmount;
+            bobExpected = noBetAmount + (noBetAmount * adjYesPool) / noBetAmount;
         }
 
         // Get actual payouts
@@ -63,8 +71,8 @@ contract PayoutFuzzTest is BaseTest {
         assertEq(stablecoin.balanceOf(alice), aliceBalanceBefore + aliceExpected);
         assertEq(stablecoin.balanceOf(bob), bobBalanceBefore + bobExpected);
 
-        // Invariant: Total payout equals total pool
-        assertEq(alicePayout + bobPayout, yesBetAmount + noBetAmount);
+        // Invariant: Total payout + creator reward equals total pool
+        assertEq(alicePayout + bobPayout + creatorReward, yesBetAmount + noBetAmount);
     }
 
     /// @notice TC-FZ-002: Fuzz test with multiple bettors
@@ -118,14 +126,20 @@ contract PayoutFuzzTest is BaseTest {
             yesWins ? HashPrediction.Outcome.Yes : HashPrediction.Outcome.No;
         resolveMarket(marketId, winningOutcome);
 
-        // Calculate and verify total payout
+        // Calculate and verify total payout (accounting for creator reward)
         uint256 totalPayout;
         for (uint256 i = 0; i < 3; i++) {
             totalPayout += market.calculatePayout(marketId, bettors[i]);
         }
 
-        // Total payout should equal total pool (minus any rounding dust)
-        assertApproxEqAbs(totalPayout, totalYes + totalNo, 3);
+        // Creator reward = 1% of total pool, capped to losing pool
+        uint256 totalPool = totalYes + totalNo;
+        uint256 creatorReward = (totalPool * 100) / 10000;
+        uint256 losingPool = yesWins ? totalNo : totalYes;
+        if (creatorReward > losingPool) creatorReward = losingPool;
+
+        // Total payout + reward should equal total pool (minus rounding dust)
+        assertApproxEqAbs(totalPayout + creatorReward, totalPool, 3);
     }
 
     /// @notice TC-FZ-003: Fuzz test boundary values
@@ -146,9 +160,12 @@ contract PayoutFuzzTest is BaseTest {
         warpToResolution(marketId);
         resolveMarket(marketId, HashPrediction.Outcome.Yes);
 
-        // Winner gets double
+        // Creator reward: 1% of 2*amount, deducted from losing pool
+        uint256 creatorReward = (amount * 2 * 100) / 10000;
+        if (creatorReward > amount) creatorReward = amount;
+        // Winner gets: amount + (amount - reward)
         uint256 payout = market.calculatePayout(marketId, alice);
-        assertEq(payout, amount * 2);
+        assertEq(payout, amount + (amount - creatorReward));
     }
 
     /// @notice Fuzz test cancelled market refunds
@@ -188,7 +205,7 @@ contract PayoutFuzzTest is BaseTest {
         uint256 resolutionTime = block.timestamp + futureOffset;
 
         vm.prank(alice);
-        uint256 marketId = market.createMarket("Test?", resolutionTime, 0);
+        uint256 marketId = market.createMarket("Test?", resolutionTime, 0, bytes32(0));
 
         HashPrediction.Market memory m = market.getMarket(marketId);
         assertEq(m.resolutionTime, resolutionTime);

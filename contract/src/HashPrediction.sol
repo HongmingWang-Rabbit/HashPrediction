@@ -35,6 +35,7 @@ contract HashPrediction {
         address admin;              // Contract admin address
         address feeRecipient;       // Fee recipient address
         uint256 maxFeePercentage;   // Max fee percentage (basis points, 100 = 1%)
+        uint256 creatorRewardPercentage; // Creator reward percentage (basis points, 100 = 1%) (T11)
         bool paused;                // Emergency pause flag
     }
 
@@ -57,6 +58,19 @@ contract HashPrediction {
         address creator;                // Market creator address
         uint256 createdAt;              // Creation timestamp
         ConfigSnapshot configSnapshot;  // Config snapshot at creation
+        bytes32 category;               // Market category (T5)
+    }
+
+    /// @notice User statistics for leaderboard tracking (T1)
+    struct UserStats {
+        uint256 totalBets;          // Total bets placed
+        uint256 totalWins;          // Total winning claims
+        uint256 totalLosses;        // Total losing claims
+        uint256 totalVolume;        // Total volume bet
+        uint256 currentStreak;      // Current win streak
+        uint256 bestStreak;         // Best win streak ever
+        uint256 lastBetDay;         // Last bet day number (T9)
+        uint256 dailyStreak;        // Consecutive daily betting streak (T9)
     }
 
     /// @notice User position in a market
@@ -148,10 +162,28 @@ contract HashPrediction {
     /// @notice Emitted when contract is unpaused
     event ContractUnpaused(address indexed admin);
 
+    /// @notice Emitted when creator reward is paid (T11)
+    event CreatorRewardPaid(
+        uint256 indexed marketId,
+        address indexed creator,
+        uint256 amount
+    );
+
     // ============ Constants ============
 
     /// @notice Maximum fee percentage allowed (10% = 1000 basis points)
     uint256 public constant MAX_FEE_LIMIT = 1000;
+
+    /// @notice Maximum creator reward percentage (5% = 500 basis points)
+    uint256 public constant MAX_CREATOR_REWARD = 500;
+
+    // ============ Category Constants (T5) ============
+
+    bytes32 public constant CATEGORY_CRYPTO = keccak256("CRYPTO");
+    bytes32 public constant CATEGORY_SPORTS = keccak256("SPORTS");
+    bytes32 public constant CATEGORY_POLITICS = keccak256("POLITICS");
+    bytes32 public constant CATEGORY_ENTERTAINMENT = keccak256("ENTERTAINMENT");
+    bytes32 public constant CATEGORY_OTHER = keccak256("OTHER");
 
     // ============ State Variables ============
 
@@ -217,11 +249,13 @@ contract HashPrediction {
         uint8 _stablecoinDecimals,
         address _admin,
         address _feeRecipient,
-        uint256 _maxFeePercentage
+        uint256 _maxFeePercentage,
+        uint256 _creatorRewardPercentage
     ) {
         if (_stablecoin == address(0)) revert InvalidMarket();
         if (_admin == address(0)) revert NotAdmin();
         if (_maxFeePercentage > MAX_FEE_LIMIT) revert InvalidFee();
+        if (_creatorRewardPercentage > MAX_CREATOR_REWARD) revert InvalidFee();
 
         stablecoin = IERC20(_stablecoin);
         stablecoinDecimals = _stablecoinDecimals;
@@ -230,6 +264,7 @@ contract HashPrediction {
             admin: _admin,
             feeRecipient: _feeRecipient,
             maxFeePercentage: _maxFeePercentage,
+            creatorRewardPercentage: _creatorRewardPercentage,
             paused: false
         });
     }
@@ -239,11 +274,13 @@ contract HashPrediction {
     /// @notice Updates the global configuration
     /// @param _feeRecipient New fee recipient address
     /// @param _maxFeePercentage New max fee percentage in basis points
-    function updateConfig(address _feeRecipient, uint256 _maxFeePercentage) external onlyAdmin {
+    function updateConfig(address _feeRecipient, uint256 _maxFeePercentage, uint256 _creatorRewardPercentage) external onlyAdmin {
         if (_maxFeePercentage > MAX_FEE_LIMIT) revert InvalidFee();
+        if (_creatorRewardPercentage > MAX_CREATOR_REWARD) revert InvalidFee();
 
         config.feeRecipient = _feeRecipient;
         config.maxFeePercentage = _maxFeePercentage;
+        config.creatorRewardPercentage = _creatorRewardPercentage;
 
         emit ConfigUpdated(msg.sender, _feeRecipient, _maxFeePercentage);
     }
@@ -280,6 +317,26 @@ contract HashPrediction {
 
         // Check for opposition
         if (market.yesPool == 0 || market.noPool == 0) revert NoOpposition();
+
+        // Pay creator reward (T11) — skim from losing pool before resolution
+        uint256 totalPool = market.yesPool + market.noPool;
+        uint256 creatorReward = (totalPool * config.creatorRewardPercentage) / 10000;
+        if (creatorReward > 0) {
+            // Deduct reward from the losing pool
+            if (_winningOutcome == Outcome.Yes) {
+                // Cap reward to losing pool size
+                if (creatorReward > market.noPool) creatorReward = market.noPool;
+                market.noPool -= creatorReward;
+            } else {
+                if (creatorReward > market.yesPool) creatorReward = market.yesPool;
+                market.yesPool -= creatorReward;
+            }
+
+            bool rewardSuccess = stablecoin.transfer(market.creator, creatorReward);
+            if (!rewardSuccess) revert TransferFailed();
+
+            emit CreatorRewardPaid(_marketId, market.creator, creatorReward);
+        }
 
         // Resolve market
         market.state = MarketState.Resolved;
@@ -319,7 +376,8 @@ contract HashPrediction {
     function createMarket(
         string calldata _question,
         uint256 _resolutionTime,
-        uint256 _feeAmount
+        uint256 _feeAmount,
+        bytes32 _category
     ) external nonReentrant whenNotPaused returns (uint256 marketId) {
         // Validations
         if (bytes(_question).length == 0) revert EmptyQuestion();
@@ -359,7 +417,8 @@ contract HashPrediction {
             configSnapshot: ConfigSnapshot({
                 feeRecipient: config.feeRecipient,
                 maxFeePercentage: config.maxFeePercentage
-            })
+            }),
+            category: _category
         });
 
         emit MarketCreated(marketId, _question, _resolutionTime, msg.sender, _feeAmount);
