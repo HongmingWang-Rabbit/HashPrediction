@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import Link from "next/link";
 import { useParams } from "next/navigation";
+import { motion } from "framer-motion";
 import { formatUnits } from "viem";
 import { useMarket } from "@/hooks/useMarket";
 import { useTokenBalance } from "@/hooks/useTokenBalance";
@@ -18,7 +18,7 @@ export default function MarketPage() {
   const { id } = useParams<{ id: string }>();
   const marketId = Number(id);
   const { data: market, isLoading, refetch } = useMarket(marketId);
-  const { balance, allowance, refetch: refetchToken } = useTokenBalance();
+  const { balance } = useTokenBalance();
   const [copied, setCopied] = useState(false);
 
   if (isLoading) {
@@ -62,19 +62,16 @@ export default function MarketPage() {
   }
 
   return (
-    <div className="mx-auto max-w-5xl">
-      {/* Back button */}
-      <Link href="/" className="mb-4 inline-flex items-center gap-1.5 text-sm text-slate-400 hover:text-white transition-colors">
-        <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-        </svg>
-        Back to Markets
-      </Link>
-
+    <motion.div
+      className="mx-auto max-w-5xl"
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4, ease: "easeOut" }}
+    >
       {/* Header */}
       <div className="mb-8">
         <div className="mb-3 flex flex-wrap items-center gap-3">
-          <MarketStatus state={market.state} resolutionTime={market.resolutionTime} />
+          <MarketStatus state={market.state} />
           {isActive && <CountdownTimer target={market.resolutionTime} />}
           {market.state === 1 && (
             <span className={`text-sm font-semibold ${market.winningOutcome === 1 ? "text-[#19bf86]" : "text-[#f8495e]"}`}>
@@ -165,7 +162,7 @@ export default function MarketPage() {
             </div>
           )}
 
-          {bettingOpen && <BetForm marketId={marketId} yesPool={market.yesPool} noPool={market.noPool} onSuccess={refetch} allowance={allowance} balance={balance} refetchToken={refetchToken} />}
+          {bettingOpen && <BetForm marketId={marketId} yesPool={market.yesPool} noPool={market.noPool} onSuccess={refetch} />}
 
           <PositionDisplay
             marketId={marketId}
@@ -180,6 +177,6 @@ export default function MarketPage() {
       <div className="mt-8">
         <ActivityFeed marketId={marketId} />
       </div>
-    </div>
+    </motion.div>
   );
 }

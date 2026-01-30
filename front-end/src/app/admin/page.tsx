@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { parseUnits, formatUnits } from "viem";
 import { useAccount, useWriteContract, useWaitForTransactionReceipt, useReadContract } from "wagmi";
+import { Id } from "react-toastify";
 import {
   HASH_PREDICTION_ADDRESS,
   HASH_PREDICTION_ABI,
@@ -12,6 +13,7 @@ import {
   TOKEN_DECIMALS,
 } from "@/config/contracts";
 import { useMarkets } from "@/hooks/useMarkets";
+import { txToast } from "@/lib/toast";
 
 export default function AdminPage() {
   const { address } = useAccount();
@@ -67,16 +69,33 @@ function PauseSection() {
     address: HASH_PREDICTION_ADDRESS,
     abi: HASH_PREDICTION_ABI,
     functionName: "getConfig",
+    query: { staleTime: 10_000, refetchOnWindowFocus: true },
   });
 
   const { writeContract, data: tx, isPending, error } = useWriteContract();
-  const { isLoading } = useWaitForTransactionReceipt({
+  const { isLoading, isSuccess } = useWaitForTransactionReceipt({
     hash: tx,
     query: { enabled: !!tx },
   });
 
   const paused = (config as Config | undefined)?.paused;
   const busy = isPending || isLoading;
+  const toastId = useRef<Id | null>(null);
+
+  useEffect(() => {
+    if (isSuccess && toastId.current !== null) {
+      txToast.success(toastId.current, paused ? "Contract unpaused ✅" : "Contract paused ⏸️");
+      toastId.current = null;
+      setTimeout(refetch, 2000);
+    }
+  }, [isSuccess, paused, refetch]);
+
+  useEffect(() => {
+    if (error && toastId.current !== null) {
+      txToast.error(toastId.current, error.message?.includes("User rejected") ? "Transaction rejected" : error.message?.split("\n")[0] ?? "Failed");
+      toastId.current = null;
+    }
+  }, [error]);
 
   return (
     <SectionCard title="Contract Status">
@@ -87,14 +106,12 @@ function PauseSection() {
         </div>
         <button
           onClick={() => {
-            writeContract(
-              {
-                address: HASH_PREDICTION_ADDRESS,
-                abi: HASH_PREDICTION_ABI,
-                functionName: paused ? "unpause" : "pause",
-              },
-              { onSuccess: () => setTimeout(refetch, 2000) }
-            );
+            toastId.current = txToast.pending(paused ? "Unpausing contract..." : "Pausing contract...");
+            writeContract({
+              address: HASH_PREDICTION_ADDRESS,
+              abi: HASH_PREDICTION_ABI,
+              functionName: paused ? "unpause" : "pause",
+            });
           }}
           disabled={busy}
           className={`rounded-xl px-5 py-2 text-sm font-semibold disabled:opacity-50 transition-all ${
@@ -104,7 +121,6 @@ function PauseSection() {
           {busy ? "..." : paused ? "Unpause" : "Pause"}
         </button>
       </div>
-      {error && <p className="mt-3 text-xs text-[#f8495e]">{error.message?.split("\n")[0]}</p>}
     </SectionCard>
   );
 }
@@ -115,9 +131,24 @@ function ConfigSection() {
   const [feeRecipient, setFeeRecipient] = useState("");
   const [maxFee, setMaxFee] = useState("");
   const { writeContract, data: tx, isPending, error } = useWriteContract();
-  const { isLoading } = useWaitForTransactionReceipt({ hash: tx, query: { enabled: !!tx } });
+  const { isLoading, isSuccess } = useWaitForTransactionReceipt({ hash: tx, query: { enabled: !!tx } });
+  const toastId = useRef<Id | null>(null);
 
   const isValidAddress = ADDRESS_RE.test(feeRecipient);
+
+  useEffect(() => {
+    if (isSuccess && toastId.current !== null) {
+      txToast.success(toastId.current, "Config updated ✅");
+      toastId.current = null;
+    }
+  }, [isSuccess]);
+
+  useEffect(() => {
+    if (error && toastId.current !== null) {
+      txToast.error(toastId.current, error.message?.includes("User rejected") ? "Transaction rejected" : error.message?.split("\n")[0] ?? "Update failed");
+      toastId.current = null;
+    }
+  }, [error]);
 
   function handleUpdate() {
     if (!isValidAddress) return;
@@ -127,6 +158,7 @@ function ConfigSection() {
     } catch {
       return;
     }
+    toastId.current = txToast.pending("Updating config...");
     writeContract({
       address: HASH_PREDICTION_ADDRESS,
       abi: HASH_PREDICTION_ABI,
@@ -169,7 +201,6 @@ function ConfigSection() {
       {feeRecipient && !isValidAddress && (
         <p className="mt-3 text-xs text-[#9f6ffd]">Enter a valid Ethereum address (0x + 40 hex characters)</p>
       )}
-      {error && <p className="mt-3 text-xs text-[#f8495e]">{error.message?.split("\n")[0]}</p>}
     </SectionCard>
   );
 }
@@ -177,8 +208,23 @@ function ConfigSection() {
 function MarketManagement() {
   const { data: markets } = useMarkets();
   const { writeContract, data: tx, isPending, error } = useWriteContract();
-  const { isLoading } = useWaitForTransactionReceipt({ hash: tx, query: { enabled: !!tx } });
+  const { isLoading, isSuccess } = useWaitForTransactionReceipt({ hash: tx, query: { enabled: !!tx } });
   const busy = isPending || isLoading;
+  const toastId = useRef<Id | null>(null);
+
+  useEffect(() => {
+    if (isSuccess && toastId.current !== null) {
+      txToast.success(toastId.current, "Market action completed ✅");
+      toastId.current = null;
+    }
+  }, [isSuccess]);
+
+  useEffect(() => {
+    if (error && toastId.current !== null) {
+      txToast.error(toastId.current, error.message?.includes("User rejected") ? "Transaction rejected" : error.message?.split("\n")[0] ?? "Action failed");
+      toastId.current = null;
+    }
+  }, [error]);
 
   const now = Math.floor(Date.now() / 1000);
   const actionable = markets.filter(
@@ -202,42 +248,45 @@ function MarketManagement() {
               </div>
               <div className="flex flex-col sm:flex-row shrink-0 gap-2">
                 <button
-                  onClick={() =>
+                  onClick={() => {
+                    toastId.current = txToast.pending("Resolving market as YES...");
                     writeContract({
                       address: HASH_PREDICTION_ADDRESS,
                       abi: HASH_PREDICTION_ABI,
                       functionName: "resolveMarket",
                       args: [m.id, 1],
-                    })
-                  }
+                    });
+                  }}
                   disabled={busy}
                   className="rounded-lg bg-[#19bf86] px-3 py-2 text-xs font-medium text-white hover:bg-[#19bf86] disabled:opacity-50 transition-all"
                 >
                   YES
                 </button>
                 <button
-                  onClick={() =>
+                  onClick={() => {
+                    toastId.current = txToast.pending("Resolving market as NO...");
                     writeContract({
                       address: HASH_PREDICTION_ADDRESS,
                       abi: HASH_PREDICTION_ABI,
                       functionName: "resolveMarket",
                       args: [m.id, 2],
-                    })
-                  }
+                    });
+                  }}
                   disabled={busy}
                   className="rounded-lg bg-[#f8495e] px-3 py-2 text-xs font-medium text-white hover:bg-[#f8495e] disabled:opacity-50 transition-all"
                 >
                   NO
                 </button>
                 <button
-                  onClick={() =>
+                  onClick={() => {
+                    toastId.current = txToast.pending("Cancelling market...");
                     writeContract({
                       address: HASH_PREDICTION_ADDRESS,
                       abi: HASH_PREDICTION_ABI,
                       functionName: "cancelMarket",
                       args: [m.id],
-                    })
-                  }
+                    });
+                  }}
                   disabled={busy}
                   className="rounded-lg bg-[#3f3f46] px-3 py-2 text-xs font-medium text-white hover:bg-[#3f3f46] disabled:opacity-50 transition-all"
                 >
@@ -248,7 +297,6 @@ function MarketManagement() {
           ))}
         </div>
       )}
-      {error && <p className="mt-3 text-xs text-[#f8495e]">{error.message?.split("\n")[0]}</p>}
     </SectionCard>
   );
 }
@@ -257,7 +305,22 @@ function MintSection() {
   const [mintTo, setMintTo] = useState("");
   const [mintAmount, setMintAmount] = useState("1000");
   const { writeContract, data: tx, isPending, error } = useWriteContract();
-  const { isLoading } = useWaitForTransactionReceipt({ hash: tx, query: { enabled: !!tx } });
+  const { isLoading, isSuccess } = useWaitForTransactionReceipt({ hash: tx, query: { enabled: !!tx } });
+  const toastId = useRef<Id | null>(null);
+
+  useEffect(() => {
+    if (isSuccess && toastId.current !== null) {
+      txToast.success(toastId.current, "Tokens minted ✅");
+      toastId.current = null;
+    }
+  }, [isSuccess]);
+
+  useEffect(() => {
+    if (error && toastId.current !== null) {
+      txToast.error(toastId.current, error.message?.includes("User rejected") ? "Transaction rejected" : error.message?.split("\n")[0] ?? "Mint failed");
+      toastId.current = null;
+    }
+  }, [error]);
 
   function handleMint() {
     let parsed: bigint;
@@ -266,6 +329,7 @@ function MintSection() {
     } catch {
       return;
     }
+    toastId.current = txToast.pending("Minting tokens...");
     writeContract({
       address: MOCK_USDC_ADDRESS,
       abi: ERC20_ABI,
@@ -305,7 +369,6 @@ function MintSection() {
           {isPending || isLoading ? "Minting..." : "Mint"}
         </button>
       </div>
-      {error && <p className="mt-3 text-xs text-[#f8495e]">{error.message?.split("\n")[0]}</p>}
     </SectionCard>
   );
 }

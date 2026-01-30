@@ -4,6 +4,7 @@
 
 html {
   overflow-x: hidden;
+  scroll-behavior: smooth;
 }
 
 body {
@@ -84,6 +85,44 @@ body {
 /* Shared form input */
 .input-field {
   @apply w-full rounded-xl border border-[#3f3f46] bg-[#17181e]/50 px-4 py-3 text-sm text-white outline-none placeholder:text-[#70707b] focus:border-[#9f6ffd]/50 transition-colors;
+}
+
+/* Interactive element transitions */
+button, a, [role="button"] {
+  transition: transform 150ms ease, opacity 150ms ease, filter 150ms ease, box-shadow 150ms ease;
+}
+button:active:not(:disabled), [role="button"]:active:not(:disabled) {
+  transform: scale(0.97);
+}
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Focus states for accessibility */
+button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible {
+  outline: 2px solid rgba(159, 111, 253, 0.6);
+  outline-offset: 2px;
+}
+
+/* Glass card hover */
+.glass-card {
+  transition: border-color 200ms ease, box-shadow 200ms ease;
+}
+
+/* Page enter animation */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.animate-fade-in-up {
+  animation: fadeInUp 0.4s ease-out both;
 }
 
 /* Input styling */

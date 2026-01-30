@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { parseUnits, decodeEventLog } from "viem";
 import { useWriteContract, useWaitForTransactionReceipt, useAccount, usePublicClient } from "wagmi";
+import { Id } from "react-toastify";
 import {
   HASH_PREDICTION_ADDRESS,
   HASH_PREDICTION_ABI,
@@ -12,6 +13,7 @@ import {
   TOKEN_DECIMALS,
 } from "@/config/contracts";
 import { useTokenBalance } from "@/hooks/useTokenBalance";
+import { txToast } from "@/lib/toast";
 
 const STEPS = ["Details", "Fee", "Review"];
 
@@ -25,6 +27,8 @@ export default function CreatePage() {
   const [resolutionDate, setResolutionDate] = useState("");
   const [feeAmount, setFeeAmount] = useState("0");
   const [step, setStep] = useState(0);
+  const approveToastId = useRef<Id | null>(null);
+  const createToastId = useRef<Id | null>(null);
 
   const { writeContract: approve, data: approveTx, isPending: approving, error: approveError } = useWriteContract();
   const { writeContract: create, data: createTx, isPending: creating, error: createError } = useWriteContract();
@@ -40,8 +44,38 @@ export default function CreatePage() {
   });
 
   useEffect(() => {
-    if (approveSuccess) refetchToken();
+    if (approveSuccess) {
+      refetchToken();
+      if (approveToastId.current !== null) {
+        txToast.success(approveToastId.current, "Approval successful ✅");
+        approveToastId.current = null;
+      }
+    }
   }, [approveSuccess, refetchToken]);
+
+  useEffect(() => {
+    if (approveError) {
+      const msg = approveError.message?.includes("User rejected")
+        ? "Approval rejected by wallet"
+        : approveError.message?.split("\n")[0] ?? "Approval failed";
+      if (approveToastId.current !== null) {
+        txToast.error(approveToastId.current, msg);
+        approveToastId.current = null;
+      }
+    }
+  }, [approveError]);
+
+  useEffect(() => {
+    if (createError) {
+      const msg = createError.message?.includes("User rejected")
+        ? "Transaction rejected by wallet"
+        : createError.message?.split("\n")[0] ?? "Market creation failed";
+      if (createToastId.current !== null) {
+        txToast.error(createToastId.current, msg);
+        createToastId.current = null;
+      }
+    }
+  }, [createError]);
 
   const parsedFee = (() => {
     try {
@@ -62,6 +96,7 @@ export default function CreatePage() {
     const resolutionTime = BigInt(Math.floor(timestamp / 1000));
 
     if (needsApproval) {
+      approveToastId.current = txToast.pending("Approving mUSDC...");
       approve({
         address: MOCK_USDC_ADDRESS,
         abi: ERC20_ABI,
@@ -71,6 +106,7 @@ export default function CreatePage() {
       return;
     }
 
+    createToastId.current = txToast.pending("Creating market...");
     create(
       {
         address: HASH_PREDICTION_ADDRESS,
@@ -81,20 +117,31 @@ export default function CreatePage() {
       {
         onSuccess: async (hash) => {
           if (!publicClient) return;
-          const receipt = await publicClient.waitForTransactionReceipt({ hash });
-          const log = receipt.logs.find((l) => {
-            try {
-              decodeEventLog({ abi: HASH_PREDICTION_ABI, eventName: "MarketCreated", topics: l.topics, data: l.data });
-              return true;
-            } catch {
-              return false;
+          try {
+            const receipt = await publicClient.waitForTransactionReceipt({ hash });
+            if (createToastId.current !== null) {
+              txToast.success(createToastId.current, "Market created! 🎉");
+              createToastId.current = null;
             }
-          });
-          if (log) {
-            const decoded = decodeEventLog({ abi: HASH_PREDICTION_ABI, eventName: "MarketCreated", topics: log.topics, data: log.data });
-            router.push(`/markets/${(decoded.args as { marketId: bigint }).marketId.toString()}`);
-          } else {
-            router.push("/");
+            const log = receipt.logs.find((l) => {
+              try {
+                decodeEventLog({ abi: HASH_PREDICTION_ABI, eventName: "MarketCreated", topics: l.topics, data: l.data });
+                return true;
+              } catch {
+                return false;
+              }
+            });
+            if (log) {
+              const decoded = decodeEventLog({ abi: HASH_PREDICTION_ABI, eventName: "MarketCreated", topics: log.topics, data: log.data });
+              router.push(`/markets/${(decoded.args as { marketId: bigint }).marketId.toString()}`);
+            } else {
+              router.push("/");
+            }
+          } catch {
+            if (createToastId.current !== null) {
+              txToast.error(createToastId.current, "Market creation failed");
+              createToastId.current = null;
+            }
           }
         },
       }
@@ -242,9 +289,6 @@ export default function CreatePage() {
           </>
         )}
 
-        {(approveError || createError) && (
-          <p className="text-xs text-[#f8495e]">{(approveError || createError)?.message?.split("\n")[0]}</p>
-        )}
       </form>
     </div>
   );

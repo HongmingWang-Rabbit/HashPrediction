@@ -1,10 +1,13 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
+import { motion, AnimatePresence } from "framer-motion";
 import { formatUnits } from "viem";
 import { useAccount, useWriteContract, useWaitForTransactionReceipt } from "wagmi";
+import { Id } from "react-toastify";
 import { HASH_PREDICTION_ADDRESS, HASH_PREDICTION_ABI, TOKEN_DECIMALS } from "@/config/contracts";
+import { txToast } from "@/lib/toast";
 import { useUserPortfolio, type PortfolioEntry } from "@/hooks/useUserPortfolio";
 import { MarketStatus } from "@/components/MarketStatus";
 import { SkeletonCard } from "@/components/Skeleton";
@@ -141,11 +144,21 @@ export default function PortfolioPage() {
             );
           }
           return (
-            <div className="space-y-3">
+            <motion.div
+              className="space-y-3"
+              initial="hidden"
+              animate="show"
+              variants={{ hidden: {}, show: { transition: { staggerChildren: 0.06 } } }}
+            >
               {items.map((e) => (
-                <PositionRow key={e.market.id.toString()} entry={e} onClaimed={refetch} />
+                <motion.div
+                  key={e.market.id.toString()}
+                  variants={{ hidden: { opacity: 0, y: 16 }, show: { opacity: 1, y: 0, transition: { duration: 0.35 } } }}
+                >
+                  <PositionRow entry={e} onClaimed={refetch} />
+                </motion.div>
               ))}
-            </div>
+            </motion.div>
           );
         })()
       )}
@@ -163,10 +176,24 @@ function PositionRow({ entry, onClaimed }: { entry: PortfolioEntry; onClaimed: (
     hash: tx,
     query: { enabled: !!tx },
   });
+  const toastId = useRef<Id | null>(null);
 
   useEffect(() => {
-    if (isSuccess) onClaimed();
-  }, [isSuccess, onClaimed]);
+    if (isSuccess) {
+      if (toastId.current !== null) {
+        txToast.success(toastId.current, market.state === 2 ? "Refund claimed! 💰" : "Winnings claimed! 💰");
+        toastId.current = null;
+      }
+      onClaimed();
+    }
+  }, [isSuccess, onClaimed, market.state]);
+
+  useEffect(() => {
+    if (error && toastId.current !== null) {
+      txToast.error(toastId.current, error.message?.includes("User rejected") ? "Transaction rejected" : error.message?.split("\n")[0] ?? "Claim failed");
+      toastId.current = null;
+    }
+  }, [error]);
 
   return (
     <div className="glass-card p-4 sm:p-5 overflow-hidden">
@@ -195,14 +222,15 @@ function PositionRow({ entry, onClaimed }: { entry: PortfolioEntry; onClaimed: (
         </div>
         {canClaim && (
           <button
-            onClick={() =>
+            onClick={() => {
+              toastId.current = txToast.pending(market.state === 2 ? "Claiming refund..." : "Claiming winnings...");
               writeContract({
                 address: HASH_PREDICTION_ADDRESS,
                 abi: HASH_PREDICTION_ABI,
                 functionName: "claimWinnings",
                 args: [market.id],
-              })
-            }
+              });
+            }}
             disabled={isPending || waiting}
             className="shrink-0 rounded-xl gradient-primary px-4 py-2 text-xs font-semibold text-black hover:opacity-90 disabled:opacity-50 transition-all"
           >
@@ -210,7 +238,6 @@ function PositionRow({ entry, onClaimed }: { entry: PortfolioEntry; onClaimed: (
           </button>
         )}
       </div>
-      {error && <p className="mt-2 text-xs text-[#f8495e]">{error.message?.split("\n")[0]}</p>}
     </div>
   );
 }

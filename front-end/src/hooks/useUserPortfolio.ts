@@ -1,6 +1,6 @@
 "use client";
 
-import { useAccount, useReadContracts } from "wagmi";
+import { useAccount, useReadContracts, useWatchContractEvent } from "wagmi";
 import { HASH_PREDICTION_ADDRESS, HASH_PREDICTION_ABI } from "@/config/contracts";
 import { useMarkets, type Market } from "./useMarkets";
 import type { UserPosition } from "./useUserPosition";
@@ -38,7 +38,8 @@ export function useUserPortfolio() {
     contracts: positionContracts,
     query: {
       enabled: !!address && markets.length > 0,
-      refetchInterval: 30_000,
+      staleTime: 10_000,
+      refetchOnWindowFocus: true,
     },
   });
 
@@ -46,8 +47,38 @@ export function useUserPortfolio() {
     contracts: payoutContracts,
     query: {
       enabled: !!address && markets.length > 0,
-      refetchInterval: 30_000,
+      staleTime: 10_000,
+      refetchOnWindowFocus: true,
     },
+  });
+
+  // Event-driven refetch
+  useWatchContractEvent({
+    address: HASH_PREDICTION_ADDRESS,
+    abi: HASH_PREDICTION_ABI,
+    eventName: "BetPlaced",
+    onLogs: () => { positions.refetch(); payouts.refetch(); },
+  });
+
+  useWatchContractEvent({
+    address: HASH_PREDICTION_ADDRESS,
+    abi: HASH_PREDICTION_ABI,
+    eventName: "MarketResolved",
+    onLogs: () => { positions.refetch(); payouts.refetch(); },
+  });
+
+  useWatchContractEvent({
+    address: HASH_PREDICTION_ADDRESS,
+    abi: HASH_PREDICTION_ABI,
+    eventName: "WinningsClaimed",
+    onLogs: () => { positions.refetch(); payouts.refetch(); },
+  });
+
+  useWatchContractEvent({
+    address: HASH_PREDICTION_ADDRESS,
+    abi: HASH_PREDICTION_ABI,
+    eventName: "MarketCancelled",
+    onLogs: () => { positions.refetch(); payouts.refetch(); },
   });
 
   const entries: PortfolioEntry[] = [];

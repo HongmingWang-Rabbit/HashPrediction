@@ -1,10 +1,12 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { formatUnits } from "viem";
 import { useWriteContract, useWaitForTransactionReceipt } from "wagmi";
+import { Id } from "react-toastify";
 import { HASH_PREDICTION_ADDRESS, HASH_PREDICTION_ABI, TOKEN_DECIMALS } from "@/config/contracts";
 import { useUserPosition } from "@/hooks/useUserPosition";
+import { txToast } from "@/lib/toast";
 
 interface Props {
   marketId: number;
@@ -20,10 +22,24 @@ export function PositionDisplay({ marketId, marketState, yesPool, noPool }: Prop
     hash: tx,
     query: { enabled: !!tx },
   });
+  const toastId = useRef<Id | null>(null);
 
   useEffect(() => {
-    if (isSuccess) refetch();
-  }, [isSuccess, refetch]);
+    if (isSuccess) {
+      if (toastId.current !== null) {
+        txToast.success(toastId.current, marketState === 2 ? "Refund claimed! 💰" : "Winnings claimed! 💰");
+        toastId.current = null;
+      }
+      refetch();
+    }
+  }, [isSuccess, refetch, marketState]);
+
+  useEffect(() => {
+    if (claimError && toastId.current !== null) {
+      txToast.error(toastId.current, claimError.message?.includes("User rejected") ? "Transaction rejected" : claimError.message?.split("\n")[0] ?? "Claim failed");
+      toastId.current = null;
+    }
+  }, [claimError]);
 
   if (!position || (position.yesBet === 0n && position.noBet === 0n)) return null;
 
@@ -115,14 +131,15 @@ export function PositionDisplay({ marketId, marketState, yesPool, noPool }: Prop
 
       {canClaim && (
         <button
-          onClick={() =>
+          onClick={() => {
+            toastId.current = txToast.pending(isCancelled ? "Claiming refund..." : "Claiming winnings...");
             writeContract({
               address: HASH_PREDICTION_ADDRESS,
               abi: HASH_PREDICTION_ABI,
               functionName: "claimWinnings",
               args: [BigInt(marketId)],
-            })
-          }
+            });
+          }}
           disabled={isPending || waiting}
           className="mt-4 w-full rounded-xl gradient-primary py-3 text-sm font-semibold text-black hover:opacity-90 disabled:opacity-50 transition-all"
         >
@@ -130,9 +147,6 @@ export function PositionDisplay({ marketId, marketState, yesPool, noPool }: Prop
         </button>
       )}
 
-      {claimError && (
-        <p className="mt-3 text-xs text-[#f8495e]">{claimError.message?.split("\n")[0]}</p>
-      )}
     </div>
   );
 }

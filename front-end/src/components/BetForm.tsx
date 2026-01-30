@@ -1,8 +1,10 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { parseUnits, formatUnits } from "viem";
 import { useWriteContract, useWaitForTransactionReceipt } from "wagmi";
+import { Id } from "react-toastify";
 import {
   HASH_PREDICTION_ADDRESS,
   HASH_PREDICTION_ABI,
@@ -10,6 +12,9 @@ import {
   ERC20_ABI,
   TOKEN_DECIMALS,
 } from "@/config/contracts";
+import { useTokenBalance } from "@/hooks/useTokenBalance";
+import { txToast } from "@/lib/toast";
+
 const PRESETS = ["10", "50", "100", "500"];
 
 function PayoutPreview({ amount, outcome, yesPool, noPool }: { amount: bigint; outcome: 1 | 2; yesPool: bigint; noPool: bigint }) {
@@ -25,7 +30,6 @@ function PayoutPreview({ amount, outcome, yesPool, noPool }: { amount: bigint; o
   const losingPool = outcome === 1 ? noPool : yesPool;
   const totalWinning = winningPool + amount;
 
-  // payout = amount + (amount * losingPool) / (winningPool + amount)
   const payout = totalWinning > 0n
     ? amount + (amount * losingPool) / totalWinning
     : amount;
@@ -62,7 +66,15 @@ function RulesExplainer() {
         </svg>
         How prediction markets work
       </button>
+      <AnimatePresence>
       {open && (
+        <motion.div
+          initial={{ opacity: 0, height: 0 }}
+          animate={{ opacity: 1, height: "auto" }}
+          exit={{ opacity: 0, height: 0 }}
+          transition={{ duration: 0.25, ease: "easeInOut" }}
+          className="overflow-hidden"
+        >
         <div className="mt-2 rounded-lg border border-[#3f3f46]/50 bg-[#17181e]/40 p-3.5 text-xs leading-relaxed text-[#d1d1d6] space-y-2">
           <p>
             <span className="font-semibold text-[#9f6ffd]">1. Pick an outcome</span> — Choose{" "}
@@ -90,17 +102,19 @@ function RulesExplainer() {
             at market creation. There are no additional fees on bets or claims.
           </p>
         </div>
+        </motion.div>
       )}
+      </AnimatePresence>
     </div>
   );
 }
 
-type Toast = { type: "success" | "error"; message: string } | null;
-
-export function BetForm({ marketId, yesPool, noPool, onSuccess, allowance, balance, refetchToken }: { marketId: number; yesPool?: bigint; noPool?: bigint; onSuccess?: () => void; allowance?: bigint; balance?: bigint; refetchToken: () => void }) {
+export function BetForm({ marketId, yesPool, noPool, onSuccess }: { marketId: number; yesPool?: bigint; noPool?: bigint; onSuccess?: () => void }) {
   const [amount, setAmount] = useState("");
   const [selectedOutcome, setSelectedOutcome] = useState<1 | 2>(1);
-  const [toast, setToast] = useState<Toast>(null);
+  const { allowance, refetch: refetchToken } = useTokenBalance();
+  const approveToastId = useRef<Id | null>(null);
+  const betToastId = useRef<Id | null>(null);
 
   const { writeContract: approve, data: approveTx, isPending: approving, error: approveError } = useWriteContract();
   const { writeContract: bet, data: betTx, isPending: betting, error: betError } = useWriteContract();
@@ -114,44 +128,57 @@ export function BetForm({ marketId, yesPool, noPool, onSuccess, allowance, balan
     query: { enabled: !!betTx },
   });
 
-  const showToast = useCallback((t: Toast) => {
-    setToast(t);
-    if (t) setTimeout(() => setToast(null), 4000);
-  }, []);
-
   useEffect(() => {
-    if (approveSuccess) {
+    if (approveSuccess && approveToastId.current !== null) {
       refetchToken();
-      showToast({ type: "success", message: "Approval successful" });
+      txToast.success(approveToastId.current, "Approval successful ✅");
+      approveToastId.current = null;
     }
-  }, [approveSuccess, refetchToken, showToast]);
+  }, [approveSuccess, refetchToken]);
 
   useEffect(() => {
-    if (betSuccess) {
+    if (betSuccess && betToastId.current !== null) {
       refetchToken();
       setAmount("");
-      showToast({ type: "success", message: "Bet placed! 🎉 Share your prediction with friends." });
+      txToast.success(betToastId.current, "Bet placed! 🎉");
+      betToastId.current = null;
       onSuccess?.();
     }
-  }, [betSuccess, refetchToken, onSuccess, showToast]);
+  }, [betSuccess, refetchToken, onSuccess]);
 
   useEffect(() => {
-    if (approveError) showToast({ type: "error", message: approveError.message?.split("\n")[0] ?? "Approval failed" });
-  }, [approveError, showToast]);
+    if (approveError) {
+      const msg = approveError.message?.includes("User rejected")
+        ? "Approval rejected by wallet"
+        : approveError.message?.split("\n")[0] ?? "Approval failed";
+      if (approveToastId.current !== null) {
+        txToast.error(approveToastId.current, msg);
+        approveToastId.current = null;
+      }
+    }
+  }, [approveError]);
 
   useEffect(() => {
-    if (betError) showToast({ type: "error", message: betError.message?.split("\n")[0] ?? "Bet failed" });
-  }, [betError, showToast]);
+    if (betError) {
+      const msg = betError.message?.includes("User rejected")
+        ? "Transaction rejected by wallet"
+        : betError.message?.split("\n")[0] ?? "Bet failed";
+      if (betToastId.current !== null) {
+        txToast.error(betToastId.current, msg);
+        betToastId.current = null;
+      }
+    }
+  }, [betError]);
 
   const parsedAmount = (() => {
     try { return parseUnits(amount, TOKEN_DECIMALS); } catch { return 0n; }
   })();
 
   const needsApproval = allowance !== undefined && parsedAmount > 0n && allowance < parsedAmount;
-  const insufficientBalance = balance !== undefined && parsedAmount > 0n && balance < parsedAmount;
   const busy = approving || waitingApprove || betting || waitingBet;
 
   function handleApprove() {
+    approveToastId.current = txToast.pending("Approving mUSDC...");
     approve({
       address: MOCK_USDC_ADDRESS,
       abi: ERC20_ABI,
@@ -166,6 +193,7 @@ export function BetForm({ marketId, yesPool, noPool, onSuccess, allowance, balan
       handleApprove();
       return;
     }
+    betToastId.current = txToast.pending("Placing bet...");
     bet({
       address: HASH_PREDICTION_ADDRESS,
       abi: HASH_PREDICTION_ABI,
@@ -177,19 +205,6 @@ export function BetForm({ marketId, yesPool, noPool, onSuccess, allowance, balan
   return (
     <div className="glass-card p-6">
       <h3 className="mb-4 text-base font-semibold text-white">Place a Bet</h3>
-
-      {/* Toast */}
-      {toast && (
-        <div
-          className={`mb-4 rounded-lg px-4 py-2.5 text-sm font-medium ${
-            toast.type === "success"
-              ? "bg-[#19bf86]/10 text-[#19bf86] border border-[#19bf86]/20"
-              : "bg-[#f8495e]/10 text-[#f8495e] border border-[#f8495e]/20"
-          }`}
-        >
-          {toast.message}
-        </div>
-      )}
 
       {/* Outcome toggle */}
       <div className="mb-4 grid grid-cols-2 gap-2 rounded-xl bg-[#17181e]/50 p-1">
@@ -255,14 +270,7 @@ export function BetForm({ marketId, yesPool, noPool, onSuccess, allowance, balan
       <RulesExplainer />
 
       {/* Action button */}
-      {insufficientBalance ? (
-        <button
-          disabled
-          className="w-full rounded-xl py-3 text-sm font-semibold text-white transition-all disabled:opacity-50 bg-slate-700"
-        >
-          Insufficient Balance
-        </button>
-      ) : needsApproval ? (
+      {needsApproval ? (
         <button
           onClick={handleApprove}
           disabled={busy}

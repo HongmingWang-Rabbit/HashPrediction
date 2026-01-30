@@ -1,6 +1,6 @@
 "use client";
 
-import { useReadContract, useReadContracts } from "wagmi";
+import { useReadContract, useReadContracts, useWatchContractEvent } from "wagmi";
 import { HASH_PREDICTION_ADDRESS, HASH_PREDICTION_ABI } from "@/config/contracts";
 
 export type Market = {
@@ -18,12 +18,26 @@ export type Market = {
 };
 
 export function useMarketCount() {
-  return useReadContract({
+  const result = useReadContract({
     address: HASH_PREDICTION_ADDRESS,
     abi: HASH_PREDICTION_ABI,
     functionName: "getMarketCount",
-    query: { refetchInterval: 60_000 },
+    query: {
+      refetchInterval: 60_000,
+      staleTime: 10_000,
+      refetchOnWindowFocus: true,
+    },
   });
+
+  // Refetch when a new market is created (MarketCreated event)
+  useWatchContractEvent({
+    address: HASH_PREDICTION_ADDRESS,
+    abi: HASH_PREDICTION_ABI,
+    eventName: "MarketCreated",
+    onLogs: () => { result.refetch(); },
+  });
+
+  return result;
 }
 
 export function useMarkets() {
@@ -41,8 +55,32 @@ export function useMarkets() {
     contracts,
     query: {
       enabled: marketCount > 0,
-      refetchInterval: 30_000,
+      refetchInterval: 60_000,
+      staleTime: 10_000,
+      refetchOnWindowFocus: true,
     },
+  });
+
+  // Event-driven refetch for market state changes
+  useWatchContractEvent({
+    address: HASH_PREDICTION_ADDRESS,
+    abi: HASH_PREDICTION_ABI,
+    eventName: "BetPlaced",
+    onLogs: () => { result.refetch(); },
+  });
+
+  useWatchContractEvent({
+    address: HASH_PREDICTION_ADDRESS,
+    abi: HASH_PREDICTION_ABI,
+    eventName: "MarketResolved",
+    onLogs: () => { result.refetch(); },
+  });
+
+  useWatchContractEvent({
+    address: HASH_PREDICTION_ADDRESS,
+    abi: HASH_PREDICTION_ABI,
+    eventName: "MarketCancelled",
+    onLogs: () => { result.refetch(); },
   });
 
   const markets: Market[] = (result.data ?? [])
