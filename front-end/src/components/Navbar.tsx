@@ -43,6 +43,7 @@ export function Navbar() {
             {navLink("/create", "Create")}
             {navLink("/portfolio", "Portfolio")}
             {navLink("/leaderboard", "Leaderboard")}
+            {navLink("/faucet", "💧 Faucet")}
             {isAdmin && navLink("/admin", "Admin", true)}
           </div>
         </div>
@@ -67,6 +68,7 @@ export function Navbar() {
           {navLink("/create", "Create")}
           {navLink("/portfolio", "Portfolio")}
           {navLink("/leaderboard", "Leaderboard")}
+          {navLink("/faucet", "💧 Faucet")}
           {isAdmin && navLink("/admin", "Admin", true)}
         </div>
       )}
