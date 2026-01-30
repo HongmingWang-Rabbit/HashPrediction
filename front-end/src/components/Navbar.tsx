@@ -19,7 +19,7 @@ export function Navbar() {
       <Link
         href={href}
         onClick={() => setMobileOpen(false)}
-        className={`text-sm font-medium transition-colors ${
+        className={`text-sm font-medium transition-colors py-3 sm:py-0 ${
           active
             ? highlight ? "text-amber-400" : "text-white"
             : highlight ? "text-amber-400/70 hover:text-amber-400" : "text-slate-400 hover:text-white"
@@ -50,7 +50,7 @@ export function Navbar() {
           {/* Mobile hamburger */}
           <button
             onClick={() => setMobileOpen(!mobileOpen)}
-            className="sm:hidden flex flex-col gap-1 p-2"
+            className="sm:hidden flex flex-col gap-1 p-3"
             aria-label="Toggle navigation menu"
           >
             <span className={`block h-0.5 w-5 bg-slate-300 transition-transform ${mobileOpen ? "translate-y-1.5 rotate-45" : ""}`} />
@@ -61,7 +61,7 @@ export function Navbar() {
       </div>
       {/* Mobile menu */}
       {mobileOpen && (
-        <div className="border-t border-slate-700/50 px-4 py-4 sm:hidden flex flex-col gap-4">
+        <div className="border-t border-slate-700/50 px-4 py-4 sm:hidden flex flex-col gap-1">
           {navLink("/", "Markets")}
           {navLink("/create", "Create")}
           {navLink("/portfolio", "Portfolio")}

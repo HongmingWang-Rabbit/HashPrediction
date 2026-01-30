@@ -72,7 +72,7 @@ export function PositionDisplay({ marketId, marketState, yesPool, noPool }: Prop
           <div className="flex items-center justify-between rounded-xl bg-amber-500/5 border border-amber-500/10 px-4 py-3">
             <div>
               <span className="text-sm text-slate-300">Est. Value</span>
-              <p className="text-[10px] text-slate-500 mt-0.5">If resolved in your favor now</p>
+              <p className="text-xs text-slate-500 mt-0.5">If resolved in your favor now</p>
             </div>
             <span className="text-sm font-semibold text-amber-400">{formatUnits(estimatedValue, TOKEN_DECIMALS)} mUSDC</span>
           </div>
@@ -107,7 +107,7 @@ export function PositionDisplay({ marketId, marketState, yesPool, noPool }: Prop
 
         {/* Info tooltip for active markets */}
         {marketState === 0 && (
-          <p className="text-[11px] text-slate-500 text-center">
+          <p className="text-xs text-slate-500 text-center">
             Positions can be claimed once the market is resolved
           </p>
         )}

@@ -69,7 +69,7 @@ export default function PortfolioPage() {
               TOKEN_DECIMALS
             )).toLocaleString()}
           </p>
-          <p className="text-xs text-slate-400 mt-1">Total Invested (mUSDC)</p>
+          <p className="text-[10px] sm:text-xs text-slate-400 mt-1">Total Invested (mUSDC)</p>
         </div>
         <div className="glass-card p-4 text-center">
           <p className="text-2xl font-bold text-purple-400">{createdMarkets.length}</p>
@@ -78,12 +78,12 @@ export default function PortfolioPage() {
       </div>
 
       {/* Tabs */}
-      <div className="mb-6 flex gap-2">
+      <div className="mb-6 flex flex-wrap gap-2">
         {TABS.map((t) => (
           <button
             key={t}
             onClick={() => setTab(t)}
-            className={`rounded-xl px-4 py-2 text-sm font-medium transition-all ${
+            className={`rounded-xl px-4 py-2.5 text-sm font-medium transition-all ${
               tab === t
                 ? "bg-amber-500/10 text-amber-400 border border-amber-500/20"
                 : "text-slate-400 hover:text-white hover:bg-slate-800/50"
@@ -91,7 +91,7 @@ export default function PortfolioPage() {
           >
             {t}
             {counts[t] > 0 && (
-              <span className="ml-1.5 rounded-full bg-slate-800 px-1.5 py-0.5 text-[10px]">{counts[t]}</span>
+              <span className="ml-1.5 rounded-full bg-slate-800 px-1.5 py-0.5 text-xs">{counts[t]}</span>
             )}
           </button>
         ))}

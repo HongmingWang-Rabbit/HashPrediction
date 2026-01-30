@@ -30,7 +30,7 @@ export function CountdownTimer({ target }: { target: bigint }) {
       {segments.map((seg) => (
         <div key={seg.label} className="flex flex-col items-center rounded-lg bg-slate-800/80 px-2 py-1 min-w-[2rem]">
           <span className="text-sm font-mono font-bold text-amber-400">{String(seg.value).padStart(2, "0")}</span>
-          <span className="text-[10px] text-slate-500">{seg.label}</span>
+          <span className="text-xs text-slate-500">{seg.label}</span>
         </div>
       ))}
     </div>

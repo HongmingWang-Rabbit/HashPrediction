@@ -17,7 +17,7 @@ export function MarketCard({ market }: { market: Market }) {
       className="glass-card block p-6 transition-all hover:border-slate-600/50 hover:glow-primary"
     >
       <div className="mb-4 flex items-start justify-between gap-3">
-        <h3 className="text-sm font-semibold leading-snug text-slate-100">{market.question}</h3>
+        <h3 className="text-sm font-semibold leading-snug text-slate-100 line-clamp-2">{market.question}</h3>
         <MarketStatus state={market.state} />
       </div>
 

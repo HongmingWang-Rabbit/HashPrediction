@@ -117,7 +117,7 @@ export function BetForm({ marketId, onSuccess }: { marketId: number; onSuccess?:
           <button
             key={p}
             onClick={() => setAmount(p)}
-            className={`flex-1 rounded-lg py-1.5 text-xs font-medium transition-all ${
+            className={`flex-1 rounded-lg py-2.5 text-xs font-medium transition-all ${
               amount === p
                 ? "bg-amber-500/20 text-amber-400 border border-amber-500/30"
                 : "bg-slate-800/50 text-slate-400 hover:text-white border border-transparent"

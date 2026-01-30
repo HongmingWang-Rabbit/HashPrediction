@@ -49,22 +49,22 @@ export default function MarketPage() {
       </div>
 
       {/* Two-column layout */}
-      <div className="grid gap-6 lg:grid-cols-5">
+      <div className="grid gap-4 sm:gap-6 md:grid-cols-5 lg:grid-cols-5">
         {/* Left column - Market info */}
-        <div className="space-y-6 lg:col-span-3">
+        <div className="space-y-6 md:col-span-3 lg:col-span-3">
           {/* Pool distribution */}
           <div className="glass-card p-6">
             <h2 className="mb-4 text-sm font-semibold text-slate-400 uppercase tracking-wider">Pool Distribution</h2>
             <PoolBar yesPool={market.yesPool} noPool={market.noPool} />
             <div className="mt-4 grid grid-cols-2 gap-4">
               <div className="rounded-xl bg-emerald-500/5 border border-emerald-500/10 p-4 text-center">
-                <p className="text-xl font-bold text-emerald-400">
+                <p className="text-lg sm:text-xl font-bold text-emerald-400 truncate">
                   {Number(formatUnits(market.yesPool, TOKEN_DECIMALS)).toLocaleString()}
                 </p>
                 <p className="text-xs text-slate-500 mt-1">YES Pool (mUSDC)</p>
               </div>
               <div className="rounded-xl bg-rose-500/5 border border-rose-500/10 p-4 text-center">
-                <p className="text-xl font-bold text-rose-400">
+                <p className="text-lg sm:text-xl font-bold text-rose-400 truncate">
                   {Number(formatUnits(market.noPool, TOKEN_DECIMALS)).toLocaleString()}
                 </p>
                 <p className="text-xs text-slate-500 mt-1">NO Pool (mUSDC)</p>
@@ -103,7 +103,7 @@ export default function MarketPage() {
         </div>
 
         {/* Right column - Actions */}
-        <div className="space-y-6 lg:col-span-2">
+        <div className="space-y-6 md:col-span-2 lg:col-span-2">
           {balance !== undefined && (
             <div className="glass-card p-4 text-center">
               <p className="text-xs text-slate-400">Your Balance</p>

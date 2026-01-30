@@ -21,17 +21,17 @@ export default function Home() {
 
   return (
     <div>
-      <h1 className="mb-2 text-3xl font-bold text-white">Prediction Markets</h1>
+      <h1 className="mb-2 text-2xl sm:text-3xl font-bold text-white">Prediction Markets</h1>
       <p className="mb-8 text-slate-400">Trade on the outcome of real-world events</p>
 
       {markets.length > 0 && <StatBar markets={markets} />}
 
-      <div className="mb-6 flex gap-2">
+      <div className="mb-6 flex flex-wrap gap-2">
         {FILTERS.map((f) => (
           <button
             key={f}
             onClick={() => setFilter(f)}
-            className={`rounded-xl px-4 py-2 text-sm font-medium transition-all ${
+            className={`rounded-xl px-4 py-2.5 text-sm font-medium transition-all ${
               filter === f
                 ? "bg-amber-500/10 text-amber-400 border border-amber-500/20"
                 : "text-slate-400 hover:text-white hover:bg-slate-800/50"

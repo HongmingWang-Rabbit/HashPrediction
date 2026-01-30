@@ -13,9 +13,9 @@ export function PoolBar({ yesPool, noPool }: { yesPool: bigint; noPool: bigint }
 
   return (
     <div>
-      <div className="mb-2 flex justify-between text-xs font-medium">
-        <span className="text-emerald-400">YES {yesPct}%<span className="ml-1 text-slate-500">({yesFormatted})</span></span>
-        <span className="text-rose-400">NO {noPct}%<span className="ml-1 text-slate-500">({noFormatted})</span></span>
+      <div className="mb-2 flex justify-between text-xs sm:text-sm font-medium">
+        <span className="text-emerald-400 truncate">YES {yesPct}%<span className="ml-1 text-slate-500">({yesFormatted})</span></span>
+        <span className="text-rose-400 truncate text-right">NO {noPct}%<span className="ml-1 text-slate-500">({noFormatted})</span></span>
       </div>
       <div className="flex h-3 overflow-hidden rounded-full bg-slate-800">
         <div

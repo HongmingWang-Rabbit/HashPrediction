@@ -10,12 +10,12 @@ export function ConnectButton() {
   if (isConnected && address) {
     return (
       <div className="flex items-center gap-2">
-        <span className="hidden sm:inline rounded-lg bg-slate-800 px-3 py-1.5 text-xs font-mono text-slate-300">
+        <span className="rounded-lg bg-slate-800 px-3 py-1.5 text-xs font-mono text-slate-300">
           {address.slice(0, 6)}...{address.slice(-4)}
         </span>
         <button
           onClick={() => disconnect()}
-          className="rounded-xl bg-slate-800 px-3 py-1.5 text-xs font-medium text-slate-300 hover:bg-slate-700 transition-colors"
+          className="rounded-xl bg-slate-800 px-3 py-2 text-xs font-medium text-slate-300 hover:bg-slate-700 transition-colors"
         >
           Disconnect
         </button>

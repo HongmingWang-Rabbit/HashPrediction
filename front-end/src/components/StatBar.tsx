@@ -16,9 +16,9 @@ export function StatBar({ markets }: { markets: Market[] }) {
   ];
 
   return (
-    <div className="glass-card mb-8 grid grid-cols-3 divide-x divide-slate-700/50">
+    <div className="glass-card mb-8 grid grid-cols-1 sm:grid-cols-3 sm:divide-x divide-slate-700/50">
       {stats.map((stat) => (
-        <div key={stat.label} className="px-6 py-4 text-center">
+        <div key={stat.label} className="px-4 py-3 sm:px-6 sm:py-4 text-center">
           <p className="text-2xl font-bold text-amber-400">{stat.value}</p>
           <p className="text-xs text-slate-400 mt-1">{stat.label}</p>
         </div>

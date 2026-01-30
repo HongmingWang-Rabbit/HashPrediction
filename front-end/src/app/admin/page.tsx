@@ -200,7 +200,7 @@ function MarketManagement() {
                   <span>NO: {formatUnits(m.noPool, TOKEN_DECIMALS)}</span>
                 </div>
               </div>
-              <div className="flex shrink-0 gap-2">
+              <div className="flex flex-col sm:flex-row shrink-0 gap-2">
                 <button
                   onClick={() =>
                     writeContract({
@@ -211,7 +211,7 @@ function MarketManagement() {
                     })
                   }
                   disabled={busy}
-                  className="rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-emerald-500 disabled:opacity-50 transition-all"
+                  className="rounded-lg bg-emerald-600 px-3 py-2 text-xs font-medium text-white hover:bg-emerald-500 disabled:opacity-50 transition-all"
                 >
                   YES
                 </button>
@@ -225,7 +225,7 @@ function MarketManagement() {
                     })
                   }
                   disabled={busy}
-                  className="rounded-lg bg-rose-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-rose-500 disabled:opacity-50 transition-all"
+                  className="rounded-lg bg-rose-600 px-3 py-2 text-xs font-medium text-white hover:bg-rose-500 disabled:opacity-50 transition-all"
                 >
                   NO
                 </button>
@@ -239,7 +239,7 @@ function MarketManagement() {
                     })
                   }
                   disabled={busy}
-                  className="rounded-lg bg-slate-700 px-3 py-1.5 text-xs font-medium text-white hover:bg-slate-600 disabled:opacity-50 transition-all"
+                  className="rounded-lg bg-slate-700 px-3 py-2 text-xs font-medium text-white hover:bg-slate-600 disabled:opacity-50 transition-all"
                 >
                   Cancel
                 </button>

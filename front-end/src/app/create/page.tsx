@@ -132,8 +132,8 @@ export default function CreatePage() {
             >
               {i + 1}
             </button>
-            <span className={`text-xs ${i === step ? "text-white" : "text-slate-500"}`}>{s}</span>
-            {i < STEPS.length - 1 && <div className="mx-2 h-px w-8 bg-slate-700" />}
+            <span className={`text-[10px] sm:text-xs ${i === step ? "text-white" : "text-slate-500"}`}>{s}</span>
+            {i < STEPS.length - 1 && <div className="mx-1 sm:mx-2 h-px w-4 sm:w-8 bg-slate-700" />}
           </div>
         ))}
       </div>
