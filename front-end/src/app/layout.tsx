@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { Providers } from "@/components/Providers";
 import { Navbar } from "@/components/Navbar";
+import { BottomNav } from "@/components/BottomNav";
 import { MotionConfig } from "framer-motion";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -25,7 +26,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Providers>
           <MotionConfig reducedMotion="user">
             <Navbar />
-            <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 animate-fade-in-up">{children}</main>
+            <main className="mx-auto max-w-7xl px-4 py-8 pb-24 sm:pb-8 sm:px-6 lg:px-8 animate-fade-in-up">{children}</main>
+            <BottomNav />
           </MotionConfig>
           <ToastContainer
             position="bottom-right"

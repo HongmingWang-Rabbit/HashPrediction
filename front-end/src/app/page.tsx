@@ -154,6 +154,36 @@ export default function Home() {
 
       {markets.length > 0 && <StatBar markets={markets} />}
 
+      {/* Trending section */}
+      {(() => {
+        const trending = markets
+          .filter((m) => m.state === 0 && !isEnded(m) && m.yesPool + m.noPool > 0n)
+          .sort((a, b) => Number((b.yesPool + b.noPool) - (a.yesPool + a.noPool)))
+          .slice(0, 5);
+        if (trending.length === 0) return null;
+        return (
+          <motion.div
+            className="mb-8"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            <h2 className="mb-3 text-lg font-bold text-white flex items-center gap-2">
+              🔥 <span className="gradient-text">Trending</span>
+            </h2>
+            <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide">
+              {trending.map((m) => (
+                <div key={m.id.toString()} className="min-w-[300px] max-w-[360px] flex-shrink-0">
+                  <div className="ring-1 ring-[#9f6ffd]/30 rounded-2xl">
+                    <MarketCard market={m} />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </motion.div>
+        );
+      })()}
+
       {/* Ending Soon section */}
       {(() => {
         const endingSoon = markets.filter(

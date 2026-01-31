@@ -13,6 +13,8 @@ import { PoolBar } from "@/components/PoolBar";
 import { BetForm } from "@/components/BetForm";
 import { PositionDisplay } from "@/components/PositionDisplay";
 import { ActivityFeed } from "@/components/ActivityFeed";
+import { OddsChart } from "@/components/OddsChart";
+import { MarketComments } from "@/components/MarketComments";
 import { PageSkeleton } from "@/components/PageSkeleton";
 
 export default function MarketPage() {
@@ -175,8 +177,18 @@ export default function MarketPage() {
         </div>
       </div>
 
-      {/* Activity Feed */}
+      {/* Odds History Chart */}
       <div className="mt-8">
+        <OddsChart marketId={marketId} />
+      </div>
+
+      {/* Comments */}
+      <div className="mt-6">
+        <MarketComments marketId={marketId} />
+      </div>
+
+      {/* Activity Feed */}
+      <div className="mt-6">
         <ActivityFeed marketId={marketId} />
       </div>
     </motion.div>
