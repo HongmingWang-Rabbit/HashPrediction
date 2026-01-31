@@ -72,27 +72,40 @@ export default function PortfolioPage() {
           ))
         ) : (
           <>
-            <div className="glass-card p-3 sm:p-4 text-center overflow-hidden">
-              <p className="text-xl sm:text-2xl font-bold text-[#9f6ffd]">{entries.length}</p>
-              <p className="text-xs text-[#70707b] mt-1">Total Positions</p>
-            </div>
-            <div className="glass-card p-3 sm:p-4 text-center overflow-hidden">
-              <p className="text-xl sm:text-2xl font-bold text-[#19bf86]">{claimable.length}</p>
-              <p className="text-xs text-[#70707b] mt-1">Claimable</p>
-            </div>
-            <div className="glass-card p-3 sm:p-4 text-center overflow-hidden">
-              <p className="text-xl sm:text-2xl font-bold text-white truncate">
-                {Number(formatUnits(
-                  entries.reduce((acc, e) => acc + e.position.yesBet + e.position.noBet, 0n),
-                  TOKEN_DECIMALS
-                )).toLocaleString()}
-              </p>
-              <p className="text-[10px] sm:text-xs text-[#70707b] mt-1">Total Invested (mUSDC)</p>
-            </div>
-            <div className="glass-card p-3 sm:p-4 text-center overflow-hidden">
-              <p className="text-xl sm:text-2xl font-bold text-[#9f6ffd]">{createdMarkets.length}</p>
-              <p className="text-xs text-[#70707b] mt-1">Markets Created</p>
-            </div>
+            {(() => {
+              const totalInvested = entries.reduce((acc, e) => acc + e.position.yesBet + e.position.noBet, 0n);
+              const totalClaimedAndPending = entries.reduce((acc, e) => {
+                if (e.position.claimed || e.payout > 0n) return acc + e.payout;
+                return acc;
+              }, 0n);
+              const netPnL = totalClaimedAndPending - totalInvested;
+              const pnlNum = Number(formatUnits(netPnL < 0n ? -netPnL : netPnL, TOKEN_DECIMALS));
+              const isPositive = netPnL >= 0n;
+              return (
+                <>
+                  <div className="glass-card p-3 sm:p-4 text-center overflow-hidden">
+                    <p className="text-xl sm:text-2xl font-bold text-[#9f6ffd]">{entries.length}</p>
+                    <p className="text-xs text-[#70707b] mt-1">Total Positions</p>
+                  </div>
+                  <div className="glass-card p-3 sm:p-4 text-center overflow-hidden">
+                    <p className="text-xl sm:text-2xl font-bold text-[#19bf86]">{claimable.length}</p>
+                    <p className="text-xs text-[#70707b] mt-1">Claimable</p>
+                  </div>
+                  <div className="glass-card p-3 sm:p-4 text-center overflow-hidden">
+                    <p className="text-xl sm:text-2xl font-bold text-white truncate">
+                      {Number(formatUnits(totalInvested, TOKEN_DECIMALS)).toLocaleString()}
+                    </p>
+                    <p className="text-[10px] sm:text-xs text-[#70707b] mt-1">Total Invested (mUSDC)</p>
+                  </div>
+                  <div className="glass-card p-3 sm:p-4 text-center overflow-hidden">
+                    <p className={`text-xl sm:text-2xl font-bold truncate ${isPositive ? "text-[#19bf86]" : "text-[#f8495e]"}`}>
+                      {isPositive ? "+" : "-"}{pnlNum.toLocaleString()}
+                    </p>
+                    <p className="text-[10px] sm:text-xs text-[#70707b] mt-1">Net P&L (mUSDC)</p>
+                  </div>
+                </>
+              );
+            })()}
           </>
         )}
       </div>
@@ -163,24 +176,76 @@ export default function PortfolioPage() {
             );
           }
           return (
-            <motion.div
-              className="space-y-3"
-              initial="hidden"
-              animate="show"
-              variants={{ hidden: {}, show: { transition: { staggerChildren: 0.06 } } }}
-            >
-              {items.map((e) => (
-                <motion.div
-                  key={e.market.id.toString()}
-                  variants={{ hidden: { opacity: 0, y: 16 }, show: { opacity: 1, y: 0, transition: { duration: 0.35 } } }}
-                >
-                  <PositionRow entry={e} onClaimed={refetch} />
-                </motion.div>
-              ))}
-            </motion.div>
+            <div>
+              {tab === "Claimable" && items.length > 1 && (
+                <ClaimAllButton entries={items} onClaimed={refetch} />
+              )}
+              <motion.div
+                className="space-y-3"
+                initial="hidden"
+                animate="show"
+                variants={{ hidden: {}, show: { transition: { staggerChildren: 0.06 } } }}
+              >
+                {items.map((e) => (
+                  <motion.div
+                    key={e.market.id.toString()}
+                    variants={{ hidden: { opacity: 0, y: 16 }, show: { opacity: 1, y: 0, transition: { duration: 0.35 } } }}
+                  >
+                    <PositionRow entry={e} onClaimed={refetch} />
+                  </motion.div>
+                ))}
+              </motion.div>
+            </div>
           );
         })()
       )}
+    </div>
+  );
+}
+
+function ClaimAllButton({ entries, onClaimed }: { entries: PortfolioEntry[]; onClaimed: () => void }) {
+  const { writeContract, data: tx, isPending, error } = useWriteContract();
+  const { isLoading: waiting, isSuccess } = useWaitForTransactionReceipt({
+    hash: tx,
+    query: { enabled: !!tx },
+  });
+  const toastId = useRef<Id | null>(null);
+
+  useEffect(() => {
+    if (isSuccess) {
+      if (toastId.current !== null) {
+        txToast.success(toastId.current, `All ${entries.length} winnings claimed! 💰`);
+        toastId.current = null;
+      }
+      onClaimed();
+    }
+  }, [isSuccess, onClaimed, entries.length]);
+
+  useEffect(() => {
+    if (error && toastId.current !== null) {
+      txToast.error(toastId.current, getErrorMessage(error));
+      toastId.current = null;
+    }
+  }, [error]);
+
+  return (
+    <div className="mb-4">
+      <button
+        onClick={() => {
+          const ids = entries.map((e) => e.market.id);
+          toastId.current = txToast.pending(`Claiming ${ids.length} winnings...`);
+          writeContract({
+            address: HASH_PREDICTION_ADDRESS,
+            abi: HASH_PREDICTION_ABI,
+            functionName: "claimMultipleWinnings",
+            args: [ids],
+          });
+        }}
+        disabled={isPending || waiting}
+        className="rounded-xl gradient-primary px-5 py-2.5 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-50 transition-all"
+      >
+        {isPending || waiting ? "Claiming All..." : `🎉 Claim All (${entries.length})`}
+      </button>
     </div>
   );
 }

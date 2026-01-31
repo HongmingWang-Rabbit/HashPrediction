@@ -9,7 +9,8 @@ import { TOKEN_DECIMALS } from "@/config/contracts";
 import { MarketStatus } from "./MarketStatus";
 import { CountdownTimer } from "./CountdownTimer";
 import { PoolBar } from "./PoolBar";
-import { getCategoryLabel } from "@/lib/categories";
+import { getCategoryByHash, getCategoryLabel } from "@/lib/categories";
+import { useMarketBettorCount } from "@/hooks/useMarketBettors";
 
 function humanizeTimeLeft(resolutionTime: bigint): string | null {
   const now = Math.floor(Date.now() / 1000);
@@ -26,6 +27,9 @@ function humanizeTimeLeft(resolutionTime: bigint): string | null {
 export const MarketCard = React.memo(function MarketCard({ market }: { market: Market }) {
   const volume = Number(formatUnits(market.yesPool + market.noPool, TOKEN_DECIMALS));
   const totalPool = market.yesPool + market.noPool;
+  const category = getCategoryByHash(market.category);
+  const catColor = category?.color ?? "#a1a1aa";
+  const bettorCount = useMarketBettorCount(market.id);
   const yesPct = totalPool > 0n ? Number((market.yesPool * 10000n) / totalPool) / 100 : 50;
   const noPct = totalPool > 0n ? Math.round((100 - yesPct) * 100) / 100 : 50;
 
@@ -41,10 +45,18 @@ export const MarketCard = React.memo(function MarketCard({ market }: { market: M
         transition={{ duration: 0.2 }}
       >
         <div className="mb-3 flex items-center gap-2 flex-wrap">
-          <span className="rounded-full bg-[#17181e] px-2 py-0.5 text-[10px] text-[#a1a1aa]">
+          <span
+            className="rounded-full px-2 py-0.5 text-[10px] font-medium"
+            style={{ backgroundColor: `${catColor}18`, color: catColor }}
+          >
             {getCategoryLabel(market.category)}
           </span>
           <MarketStatus state={market.state} resolutionTime={market.resolutionTime} />
+          {market.state === 0 && humanizeTimeLeft(market.resolutionTime) && (
+            <span className="ml-auto rounded-full bg-[#9f6ffd]/10 px-2 py-0.5 text-[10px] font-semibold text-[#9f6ffd]">
+              ⏳ {humanizeTimeLeft(market.resolutionTime)}
+            </span>
+          )}
         </div>
         <div className="mb-4">
           <h3 className="text-sm font-semibold leading-snug text-[#f4f4f5] line-clamp-2">{market.question}</h3>
@@ -62,12 +74,7 @@ export const MarketCard = React.memo(function MarketCard({ market }: { market: M
         <div className="mt-4 flex items-center justify-between">
           <div>
             {market.state === 0 && (
-              <div className="flex items-center gap-2">
-                <CountdownTimer target={market.resolutionTime} />
-                {humanizeTimeLeft(market.resolutionTime) && (
-                  <span className="text-[10px] text-[#70707b]">({humanizeTimeLeft(market.resolutionTime)})</span>
-                )}
-              </div>
+              <CountdownTimer target={market.resolutionTime} />
             )}
             {market.state === 1 && (
               <span className={`text-sm font-medium ${market.winningOutcome === 1 ? "text-[#19bf86]" : "text-[#f8495e]"}`}>
@@ -75,11 +82,18 @@ export const MarketCard = React.memo(function MarketCard({ market }: { market: M
               </span>
             )}
           </div>
-          {volume > 0 && (
-            <span className="rounded-full bg-[#17181e] px-2.5 py-0.5 text-xs text-[#70707b]">
-              {volume.toLocaleString()} mUSDC
-            </span>
-          )}
+          <div className="flex items-center gap-2">
+            {bettorCount > 0 && (
+              <span className="rounded-full bg-[#17181e] px-2 py-0.5 text-[10px] text-[#70707b]">
+                👥 {bettorCount}
+              </span>
+            )}
+            {volume > 0 && (
+              <span className="rounded-full bg-[#17181e] px-2.5 py-0.5 text-xs text-[#70707b]">
+                {volume.toLocaleString()} mUSDC
+              </span>
+            )}
+          </div>
         </div>
       </motion.div>
     </Link>

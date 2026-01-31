@@ -154,6 +154,33 @@ export default function Home() {
 
       {markets.length > 0 && <StatBar markets={markets} />}
 
+      {/* Ending Soon section */}
+      {(() => {
+        const endingSoon = markets.filter(
+          (m) => m.state === 0 && !isEnded(m) && Number(m.resolutionTime) - now <= 86400 && Number(m.resolutionTime) - now > 0
+        ).sort((a, b) => Number(a.resolutionTime) - Number(b.resolutionTime));
+        if (endingSoon.length === 0) return null;
+        return (
+          <motion.div
+            className="mb-8"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            <h2 className="mb-3 text-lg font-bold text-white flex items-center gap-2">
+              🔥 <span className="gradient-text">Ending Soon</span>
+            </h2>
+            <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide">
+              {endingSoon.map((m) => (
+                <div key={m.id.toString()} className="min-w-[280px] max-w-[320px] flex-shrink-0">
+                  <MarketCard market={m} />
+                </div>
+              ))}
+            </div>
+          </motion.div>
+        );
+      })()}
+
       {/* State filters + sort */}
       <div className="mb-3 flex flex-wrap items-center gap-2 relative">
         {FILTERS.map((f) => (
