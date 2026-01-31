@@ -16,6 +16,7 @@ import {
 import { useTokenBalance } from "@/hooks/useTokenBalance";
 import { txToast } from "@/lib/toast";
 import { getErrorMessage } from "@/lib/errors";
+import { CATEGORIES } from "@/lib/categories";
 
 const STEPS = ["Details", "Fee", "Review"];
 
@@ -28,6 +29,7 @@ export default function CreatePage() {
   const [question, setQuestion] = useState("");
   const [resolutionDate, setResolutionDate] = useState("");
   const [feeAmount, setFeeAmount] = useState("0");
+  const [category, setCategory] = useState(CATEGORIES[0].hash);
   const [step, setStep] = useState(0);
   const approveToastId = useRef<Id | null>(null);
   const createToastId = useRef<Id | null>(null);
@@ -104,7 +106,7 @@ export default function CreatePage() {
         address: HASH_PREDICTION_ADDRESS,
         abi: HASH_PREDICTION_ABI,
         functionName: "createMarket",
-        args: [question, resolutionTime, parsedFee, "0x63727970746f0000000000000000000000000000000000000000000000000000" as `0x${string}`],
+        args: [question, resolutionTime, parsedFee, category],
       },
       {
         onSuccess: async (hash) => {
@@ -217,6 +219,25 @@ export default function CreatePage() {
                 className="w-full rounded-xl border border-[#3f3f46]/50 bg-[#17181e]/50 px-4 py-3 text-sm text-white outline-none focus:border-[#9f6ffd]/50 transition-colors"
               />
             </div>
+            <div>
+              <label className="mb-2 block text-sm font-medium text-[#d1d1d6]">Category</label>
+              <div className="flex flex-wrap gap-2">
+                {CATEGORIES.map((c) => (
+                  <button
+                    key={c.key}
+                    type="button"
+                    onClick={() => setCategory(c.hash)}
+                    className={`rounded-xl px-4 py-2 text-sm font-medium transition-all ${
+                      category === c.hash
+                        ? "bg-[#9f6ffd]/15 text-[#9f6ffd] border border-[#9f6ffd]/30"
+                        : "text-[#70707b] border border-[#3f3f46]/50 hover:text-white hover:border-[#3f3f46]"
+                    }`}
+                  >
+                    {c.emoji} {c.label}
+                  </button>
+                ))}
+              </div>
+            </div>
             <button
               type="button"
               onClick={() => setStep(1)}
@@ -267,6 +288,10 @@ export default function CreatePage() {
             <div className="glass-card p-6 space-y-3">
               <h3 className="text-sm font-semibold text-[#70707b] uppercase tracking-wider">Preview</h3>
               <p className="text-white font-medium">{question}</p>
+              <div className="flex justify-between text-sm">
+                <span className="text-[#70707b]">Category</span>
+                <span className="text-[#d1d1d6]">{CATEGORIES.find((c) => c.hash === category)?.emoji} {CATEGORIES.find((c) => c.hash === category)?.label}</span>
+              </div>
               <div className="flex justify-between text-sm">
                 <span className="text-[#70707b]">Resolution</span>
                 <span className="text-[#d1d1d6]">{resolutionDate ? new Date(resolutionDate).toLocaleString() : "—"}</span>

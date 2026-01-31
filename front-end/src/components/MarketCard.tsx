@@ -9,6 +9,19 @@ import { TOKEN_DECIMALS } from "@/config/contracts";
 import { MarketStatus } from "./MarketStatus";
 import { CountdownTimer } from "./CountdownTimer";
 import { PoolBar } from "./PoolBar";
+import { getCategoryLabel } from "@/lib/categories";
+
+function humanizeTimeLeft(resolutionTime: bigint): string | null {
+  const now = Math.floor(Date.now() / 1000);
+  const diff = Number(resolutionTime) - now;
+  if (diff <= 0) return null;
+  const days = Math.floor(diff / 86400);
+  const hours = Math.floor((diff % 86400) / 3600);
+  if (days > 0) return `${days}d left`;
+  if (hours > 0) return `${hours}h left`;
+  const mins = Math.floor(diff / 60);
+  return `${mins}m left`;
+}
 
 export const MarketCard = React.memo(function MarketCard({ market }: { market: Market }) {
   const volume = Number(formatUnits(market.yesPool + market.noPool, TOKEN_DECIMALS));
@@ -27,9 +40,14 @@ export const MarketCard = React.memo(function MarketCard({ market }: { market: M
         whileTap={{ scale: 0.98 }}
         transition={{ duration: 0.2 }}
       >
-        <div className="mb-4 flex items-start justify-between gap-3">
-          <h3 className="text-sm font-semibold leading-snug text-[#f4f4f5] line-clamp-2">{market.question}</h3>
+        <div className="mb-3 flex items-center gap-2 flex-wrap">
+          <span className="rounded-full bg-[#17181e] px-2 py-0.5 text-[10px] text-[#a1a1aa]">
+            {getCategoryLabel(market.category)}
+          </span>
           <MarketStatus state={market.state} resolutionTime={market.resolutionTime} />
+        </div>
+        <div className="mb-4">
+          <h3 className="text-sm font-semibold leading-snug text-[#f4f4f5] line-clamp-2">{market.question}</h3>
         </div>
 
         {/* Implied probability */}
@@ -43,7 +61,14 @@ export const MarketCard = React.memo(function MarketCard({ market }: { market: M
 
         <div className="mt-4 flex items-center justify-between">
           <div>
-            {market.state === 0 && <CountdownTimer target={market.resolutionTime} />}
+            {market.state === 0 && (
+              <div className="flex items-center gap-2">
+                <CountdownTimer target={market.resolutionTime} />
+                {humanizeTimeLeft(market.resolutionTime) && (
+                  <span className="text-[10px] text-[#70707b]">({humanizeTimeLeft(market.resolutionTime)})</span>
+                )}
+              </div>
+            )}
             {market.state === 1 && (
               <span className={`text-sm font-medium ${market.winningOutcome === 1 ? "text-[#19bf86]" : "text-[#f8495e]"}`}>
                 Winner: {market.winningOutcome === 1 ? "YES" : "NO"}

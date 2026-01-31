@@ -100,6 +100,25 @@ export default function FaucetPage() {
         <p className="text-xs text-[#70707b]">
           ⚠️ Testnet tokens only — no real value
         </p>
+
+        {/* Quick links */}
+        <div className="border-t border-[#3f3f46]/50 pt-5 space-y-3">
+          <p className="text-xs text-[#70707b]">After claiming, head to the markets to start betting</p>
+          <div className="flex flex-wrap justify-center gap-3">
+            <a
+              href="/"
+              className="rounded-xl gradient-cta px-5 py-2.5 text-sm font-semibold text-white hover:opacity-90 transition-all"
+            >
+              Browse Markets →
+            </a>
+            <a
+              href="/create"
+              className="rounded-xl border border-[#3f3f46]/50 px-5 py-2.5 text-sm font-medium text-[#d1d1d6] hover:bg-[#17181e]/50 transition-all"
+            >
+              Create a Market
+            </a>
+          </div>
+        </div>
       </div>
     </main>
   );

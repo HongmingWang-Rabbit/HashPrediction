@@ -15,6 +15,7 @@ export type Market = {
   creator: `0x${string}`;
   createdAt: bigint;
   configSnapshot: { feeRecipient: `0x${string}`; maxFeePercentage: bigint };
+  category: `0x${string}`;
 };
 
 export function useMarketCount() {
