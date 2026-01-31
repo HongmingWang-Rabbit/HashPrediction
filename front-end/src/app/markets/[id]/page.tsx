@@ -200,13 +200,17 @@ export default function MarketPage() {
             </>
           )}
 
-          <PositionDisplay
-            marketId={marketId}
-            marketState={market.state}
-            yesPool={market.yesPool}
-            noPool={market.noPool}
-          />
         </div>
+      </div>
+
+      {/* Your Position — full width below the grid */}
+      <div className="mt-6">
+        <PositionDisplay
+          marketId={marketId}
+          marketState={market.state}
+          yesPool={market.yesPool}
+          noPool={market.noPool}
+        />
       </div>
 
       {/* Odds History Chart */}
