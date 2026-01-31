@@ -30,6 +30,7 @@ export const MarketCard = React.memo(function MarketCard({ market }: { market: M
   const category = getCategoryByHash(market.category);
   const catColor = category?.color ?? "#a1a1aa";
   const bettorCount = useMarketBettorCount(market.id);
+  const timeLeft = market.state === 0 ? humanizeTimeLeft(market.resolutionTime) : null;
   const yesPct = totalPool > 0n ? Number((market.yesPool * 10000n) / totalPool) / 100 : 50;
   const noPct = totalPool > 0n ? Math.round((100 - yesPct) * 100) / 100 : 50;
 
@@ -52,9 +53,9 @@ export const MarketCard = React.memo(function MarketCard({ market }: { market: M
             {getCategoryLabel(market.category)}
           </span>
           <MarketStatus state={market.state} resolutionTime={market.resolutionTime} />
-          {market.state === 0 && humanizeTimeLeft(market.resolutionTime) && (
+          {timeLeft && (
             <span className="ml-auto rounded-full bg-[#9f6ffd]/10 px-2 py-0.5 text-[10px] font-semibold text-[#9f6ffd]">
-              ⏳ {humanizeTimeLeft(market.resolutionTime)}
+              ⏳ {timeLeft}
             </span>
           )}
         </div>

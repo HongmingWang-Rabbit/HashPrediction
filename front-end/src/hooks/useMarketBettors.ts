@@ -16,16 +16,20 @@ export function useMarketBettorCount(marketId: bigint): number {
 
   useEffect(() => {
     if (!client) return;
+    let cancelled = false;
 
+    const key = marketId.toString();
     const now = Date.now();
+
     // If cache is fresh, use it
-    if (bettorCache.has(marketId.toString()) && now - lastFetchTime < CACHE_TTL) {
-      setCount(bettorCache.get(marketId.toString())!);
+    if (bettorCache.has(key) && now - lastFetchTime < CACHE_TTL) {
+      setCount(bettorCache.get(key)!);
       return;
     }
 
     // Fetch all BetPlaced events once and cache
     if (!fetchPromise || now - lastFetchTime >= CACHE_TTL) {
+      lastFetchTime = now; // Set immediately to prevent duplicate fetches
       fetchPromise = client
         .getLogs({
           address: HASH_PREDICTION_ADDRESS,
@@ -59,13 +63,19 @@ export function useMarketBettorCount(marketId: bigint): number {
           lastFetchTime = Date.now();
         })
         .catch(() => {
-          // silently fail
+          // Reset so next attempt can retry
+          fetchPromise = null;
+          lastFetchTime = 0;
         });
     }
 
     fetchPromise!.then(() => {
-      setCount(bettorCache.get(marketId.toString()) ?? 0);
+      if (!cancelled) {
+        setCount(bettorCache.get(key) ?? 0);
+      }
     });
+
+    return () => { cancelled = true; };
   }, [client, marketId]);
 
   return count;
