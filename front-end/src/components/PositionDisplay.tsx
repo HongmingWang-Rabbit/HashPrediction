@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { formatUnits } from "viem";
-import { useWriteContract, useWaitForTransactionReceipt } from "wagmi";
+import { useWriteContract, useWaitForTransactionReceipt, useAccount, usePublicClient } from "wagmi";
 import { Id } from "react-toastify";
-import { HASH_PREDICTION_ADDRESS, HASH_PREDICTION_ABI, TOKEN_DECIMALS } from "@/config/contracts";
+import { HASH_PREDICTION_ADDRESS, HASH_PREDICTION_ABI, TOKEN_DECIMALS, hashkeyTestnet, DEPLOY_BLOCK } from "@/config/contracts";
+import { EXPLORER_URL } from "@/config/app";
 import { useUserPosition } from "@/hooks/useUserPosition";
 import { txToast } from "@/lib/toast";
 import { getErrorMessage } from "@/lib/errors";
@@ -158,6 +159,108 @@ export function PositionDisplay({ marketId, marketState, yesPool, noPool }: Prop
         </button>
       )}
 
+      {/* User's buy history */}
+      <UserTxHistory marketId={marketId} />
+    </div>
+  );
+}
+
+interface UserTx {
+  outcome: number;
+  amount: bigint;
+  timestamp: number;
+  txHash: string;
+}
+
+function UserTxHistory({ marketId }: { marketId: number }) {
+  const { address } = useAccount();
+  const client = usePublicClient({ chainId: hashkeyTestnet.id });
+  const [txs, setTxs] = useState<UserTx[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!client || !address) { setLoading(false); return; }
+    let cancelled = false;
+
+    (async () => {
+      try {
+        const logs = await client.getLogs({
+          address: HASH_PREDICTION_ADDRESS,
+          event: {
+            type: "event",
+            name: "BetPlaced",
+            inputs: [
+              { name: "marketId", type: "uint256", indexed: true },
+              { name: "bettor", type: "address", indexed: true },
+              { name: "outcome", type: "uint8", indexed: false },
+              { name: "amount", type: "uint256", indexed: false },
+              { name: "timestamp", type: "uint256", indexed: false },
+            ],
+          },
+          args: { marketId: BigInt(marketId), bettor: address },
+          fromBlock: DEPLOY_BLOCK,
+          toBlock: "latest",
+        });
+
+        if (cancelled) return;
+        const parsed: UserTx[] = logs
+          .map((l) => ({
+            outcome: Number(l.args.outcome),
+            amount: l.args.amount as bigint,
+            timestamp: Number(l.args.timestamp ?? 0),
+            txHash: l.transactionHash ?? "",
+          }))
+          .sort((a, b) => b.timestamp - a.timestamp);
+        setTxs(parsed);
+      } catch (err) {
+        console.error("Failed to fetch user tx history:", err);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+
+    return () => { cancelled = true; };
+  }, [client, address, marketId]);
+
+  if (!address || (!loading && txs.length === 0)) return null;
+
+  return (
+    <div className="mt-4 border-t border-white/5 pt-4">
+      <h4 className="text-xs font-semibold text-[#70707b] uppercase tracking-wider mb-3">Your Transactions</h4>
+      {loading ? (
+        <div className="space-y-2">
+          {[0, 1].map((i) => (
+            <div key={i} className="h-10 rounded-lg bg-[#3f3f46]/20 animate-pulse" />
+          ))}
+        </div>
+      ) : (
+        <div className="space-y-2 max-h-48 overflow-y-auto scrollbar-hide">
+          {txs.map((tx, i) => (
+            <a
+              key={`${tx.txHash}-${i}`}
+              href={`${EXPLORER_URL}/tx/${tx.txHash}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-between rounded-lg bg-white/5 px-3 py-2.5 hover:bg-white/10 transition-colors"
+            >
+              <div className="flex items-center gap-2">
+                <span className={`text-xs font-semibold px-1.5 py-0.5 rounded ${tx.outcome === 1 ? "bg-[#19bf86]/10 text-[#19bf86]" : "bg-[#f8495e]/10 text-[#f8495e]"}`}>
+                  {tx.outcome === 1 ? "YES" : "NO"}
+                </span>
+                <span className="text-sm text-white">{formatUnits(tx.amount, TOKEN_DECIMALS)} mUSDC</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-[#70707b]">
+                  {new Date(tx.timestamp * 1000).toLocaleDateString(undefined, { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}
+                </span>
+                <svg className="h-3 w-3 text-[#70707b]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                </svg>
+              </div>
+            </a>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

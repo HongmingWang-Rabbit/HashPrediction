@@ -17,6 +17,33 @@ import { OddsChart } from "@/components/OddsChart";
 import { MarketComments } from "@/components/MarketComments";
 import { PageSkeleton } from "@/components/PageSkeleton";
 
+function RulesTooltip() {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="glass-card p-4">
+      <button
+        onClick={() => setOpen(!open)}
+        className="flex items-center gap-2 w-full text-left"
+      >
+        <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#9f6ffd]/20 text-[10px] font-bold text-[#9f6ffd]">?</span>
+        <span className="text-sm font-medium text-[#d1d1d6]">How it works</span>
+        <svg className={`ml-auto h-4 w-4 text-[#70707b] transition-transform ${open ? "rotate-180" : ""}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+        </svg>
+      </button>
+      {open && (
+        <div className="mt-3 space-y-2 text-xs text-[#a1a1aa] border-t border-white/5 pt-3">
+          <p><span className="text-white font-medium">1. Pick a side</span> — Bet YES or NO on the outcome</p>
+          <p><span className="text-white font-medium">2. Pool-based odds</span> — Your payout depends on the ratio of the pool. More bets on your side = lower payout per token</p>
+          <p><span className="text-white font-medium">3. Payout formula</span> — If you win: (your bet ÷ winning pool) × total pool</p>
+          <p><span className="text-white font-medium">4. Resolution</span> — Admin resolves the market after the deadline. Winners can then claim</p>
+          <p><span className="text-white font-medium">5. Cancellation</span> — If cancelled, all bets are fully refunded</p>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function MarketPage() {
   const { id } = useParams<{ id: string }>();
   const marketId = Number(id);
@@ -166,7 +193,12 @@ export default function MarketPage() {
             </div>
           )}
 
-          {bettingOpen && <BetForm marketId={marketId} yesPool={market.yesPool} noPool={market.noPool} onSuccess={refetch} />}
+          {bettingOpen && (
+            <>
+              <RulesTooltip />
+              <BetForm marketId={marketId} yesPool={market.yesPool} noPool={market.noPool} onSuccess={refetch} />
+            </>
+          )}
 
           <PositionDisplay
             marketId={marketId}
