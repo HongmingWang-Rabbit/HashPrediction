@@ -211,38 +211,29 @@ export default function Home() {
         );
       })()}
 
-      {/* State filters + sort */}
-      <div className="mb-3 flex flex-wrap items-center gap-2 relative">
+      {/* Filters row: state + sort + category — all in one compact bar */}
+      <div className="mb-4 flex flex-wrap items-center gap-1.5">
         {FILTERS.map((f) => (
-          <motion.button
+          <button
             key={f}
             onClick={() => setFilter(f)}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className={`relative rounded-xl px-4 py-2.5 text-sm font-medium transition-colors ${
+            className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${
               filter === f
-                ? "text-[#9f6ffd]"
-                : "text-[#70707b] hover:text-white hover:bg-[#17181e]/50"
+                ? "bg-[#9f6ffd]/15 text-[#9f6ffd] border border-[#9f6ffd]/30"
+                : "text-[#70707b] hover:text-white border border-transparent"
             }`}
           >
-            {filter === f && (
-              <motion.span
-                layoutId="filterIndicator"
-                className="absolute inset-0 rounded-xl bg-[#9f6ffd]/10 border border-[#9f6ffd]/20"
-                transition={{ type: "spring", stiffness: 400, damping: 30 }}
-              />
-            )}
-            <span className="relative z-10">{f}</span>
-          </motion.button>
+            {f}
+          </button>
         ))}
 
-        <span className="mx-2 h-5 w-px bg-[#3f3f46]/50" />
+        <span className="mx-1 h-4 w-px bg-[#3f3f46]/50" />
 
         {SORTS.map((s) => (
           <button
             key={s}
             onClick={() => setSort(s)}
-            className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${
+            className={`rounded-lg px-2.5 py-1.5 text-xs font-medium transition-colors ${
               sort === s
                 ? "bg-[#3f3f46]/50 text-white"
                 : "text-[#70707b] hover:text-[#d1d1d6]"
@@ -251,13 +242,12 @@ export default function Home() {
             {s}
           </button>
         ))}
-      </div>
 
-      {/* Category filters */}
-      <div className="mb-4 flex flex-wrap items-center gap-2">
+        <span className="mx-1 h-4 w-px bg-[#3f3f46]/50" />
+
         <button
           onClick={() => setCategoryFilter(null)}
-          className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${
+          className={`rounded-lg px-2.5 py-1.5 text-xs font-medium transition-colors ${
             categoryFilter === null
               ? "bg-[#9f6ffd]/15 text-[#9f6ffd] border border-[#9f6ffd]/30"
               : "text-[#70707b] hover:text-[#d1d1d6] border border-transparent"
@@ -269,7 +259,7 @@ export default function Home() {
           <button
             key={c.key}
             onClick={() => setCategoryFilter(c.hash)}
-            className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${
+            className={`rounded-lg px-2.5 py-1.5 text-xs font-medium transition-colors ${
               categoryFilter === c.hash
                 ? "bg-[#9f6ffd]/15 text-[#9f6ffd] border border-[#9f6ffd]/30"
                 : "text-[#70707b] hover:text-[#d1d1d6] border border-transparent"
@@ -282,7 +272,7 @@ export default function Home() {
 
       {/* Search bar */}
       <div id="markets" className="mb-6 relative">
-        <svg className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#70707b]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+        <svg className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-[#70707b]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
         </svg>
         <input
@@ -290,7 +280,7 @@ export default function Home() {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search markets..."
-          className="input-field w-full pl-10 pr-10"
+          className="w-full rounded-xl border border-[#3f3f46] bg-[#17181e]/50 py-3 pl-11 pr-10 text-sm text-white outline-none placeholder:text-[#70707b] focus:border-[#9f6ffd]/50 transition-colors"
         />
         {search && (
           <button
