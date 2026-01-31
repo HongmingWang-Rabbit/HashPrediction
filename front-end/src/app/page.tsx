@@ -211,8 +211,40 @@ export default function Home() {
         );
       })()}
 
-      {/* Filters row: state + sort + category — all in one compact bar */}
-      <div className="mb-4 flex flex-wrap items-center gap-1.5">
+      {/* Mobile: compact dropdown filters */}
+      <div className="mb-4 flex items-center gap-2 sm:hidden">
+        <select
+          value={filter}
+          onChange={(e) => setFilter(e.target.value as typeof filter)}
+          className="flex-1 appearance-none rounded-xl border border-[#3f3f46] bg-[#17181e] px-3 py-2.5 text-xs font-medium text-white outline-none focus:border-[#9f6ffd]/50"
+        >
+          {FILTERS.map((f) => (
+            <option key={f} value={f}>{f}</option>
+          ))}
+        </select>
+        <select
+          value={sort}
+          onChange={(e) => setSort(e.target.value as Sort)}
+          className="flex-1 appearance-none rounded-xl border border-[#3f3f46] bg-[#17181e] px-3 py-2.5 text-xs font-medium text-white outline-none focus:border-[#9f6ffd]/50"
+        >
+          {SORTS.map((s) => (
+            <option key={s} value={s}>{s}</option>
+          ))}
+        </select>
+        <select
+          value={categoryFilter ?? "all"}
+          onChange={(e) => setCategoryFilter(e.target.value === "all" ? null : e.target.value)}
+          className="flex-1 appearance-none rounded-xl border border-[#3f3f46] bg-[#17181e] px-3 py-2.5 text-xs font-medium text-white outline-none focus:border-[#9f6ffd]/50"
+        >
+          <option value="all">All Categories</option>
+          {CATEGORIES.map((c) => (
+            <option key={c.key} value={c.hash}>{c.emoji} {c.label}</option>
+          ))}
+        </select>
+      </div>
+
+      {/* Desktop: inline filter buttons */}
+      <div className="mb-4 hidden sm:flex flex-wrap items-center gap-1.5">
         {FILTERS.map((f) => (
           <button
             key={f}
